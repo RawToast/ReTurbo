@@ -20,9 +20,10 @@ Tsdl@bsansouci/tsdl:
   dependencies:
     sdl2 bsansouci/SDL-mirror#fast
 
-bs-platform@bsansouci/bsb-native#3.2.0:
-  version "3.2.0"
-  resolved "https://codeload.github.com/bsansouci/bsb-native/tar.gz/84604c9f6a5611eed68372efdb575c00a3e72813"
+bsb-native@4.0.7000:
+  version "4.0.7000"
+  resolved "https://registry.yarnpkg.com/bsb-native/-/bsb-native-4.0.7000.tgz#04031ae81a3cd53d48868593fe059c1d5752403b"
+  integrity sha512-RcmbmdwvGHnQBhxkz6B7+J0d4cTUhWDGIJ94DmjHDlwgH7cnzWTTKqASWkPiPTqlNFyZtQxZ9qTvAQrsE/iMpw==
   dependencies:
     yauzl "^2.9.1"
 

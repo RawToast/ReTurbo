@@ -1,17 +1,19 @@
 {
-  "name": "reprocessing-example",
+  "name": "re-turbo",
   "scripts": {
     "start": "./lib/bs/bytecode/indexhot.byte",
     "start:native": "./lib/bs/native/index.native",
     "build": "bsb -make-world",
+    "build:watch": "bsb -make-world -w && refmt",
     "build:web": "bsb -make-world -w -backend js",
     "build:native": "bsb -make-world -backend native",
-    "clean": "bsb -clean-world"
+    "clean": "bsb -clean-world",
+    "refmt": "bsrefmt src/* --in-place"
   },
   "dependencies": {
     "reprocessing": "^0.3.1"
   },
   "devDependencies": {
-    "bs-platform": "bsansouci/bsb-native#3.2.0"
+    "bsb-native": "4.0.7000"
   }
 }
