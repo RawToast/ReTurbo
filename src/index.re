@@ -1,71 +1,11 @@
 open Reprocessing;
 
-type point = (int, int);
-type key =
-  | LEFT
-  | RIGHT
-  | NONE;
+type break = bool;
 
 let frameRate = 25.0;
 let maxFrameDelta = 1.0 /. (frameRate *. 60.);
 let height = 320;
 let width = 568;
-
-module Car = {
-  type assets = {
-    straight: imageT,
-    leftTurn: imageT,
-    heavyLeftTurn: imageT,
-    rightTurn: imageT,
-    heavyRightTurn: imageT,
-  };
-  type state = {
-    position: point,
-    velocity: int,
-    assets,
-  };
-
-  let draw = (state: state, env) => {
-    let image =
-      switch (state.velocity) {
-      | _ when state.velocity == 0 => state.assets.straight
-      | _ when state.velocity > 6 => state.assets.heavyRightTurn
-      | _ when state.velocity > 0 => state.assets.rightTurn
-      | _ when state.velocity < (-6) => state.assets.heavyLeftTurn
-      | _ when state.velocity < 0 => state.assets.leftTurn
-      | _ => state.assets.straight
-      };
-    Draw.image(image, ~pos=state.position, ~width=105, ~height=51, env);
-  };
-
-  let turn = (key: key, state: state) => {
-    let (x, y) = state.position;
-    let updatePosition = s => {...s, position: (x + s.velocity / 2, y)};
-
-    (
-      switch (key) {
-      | LEFT when state.velocity > (-12) => {
-          ...state,
-          velocity: state.velocity - 1,
-        }
-      | RIGHT when state.velocity < 12 => {
-          ...state,
-          velocity: state.velocity + 1,
-        }
-      | NONE when state.velocity > 0 => {
-          ...state,
-          velocity: state.velocity - 1,
-        }
-      | NONE when state.velocity < 0 => {
-          ...state,
-          velocity: state.velocity + 1,
-        }
-      | _ => state
-      }
-    )
-    |> updatePosition;
-  };
-};
 
 module Road = {
   let float = x => float_of_int(x);
@@ -103,14 +43,14 @@ module Road = {
       let dy = 0. -. length *. cos(40.);
 
       let y1 = y0 -. dy;
-      let xx0 = x1 -. dx;
-      let xx1 = x0 +. dx;
-      Draw.quadf(~p1, ~p2, ~p3=(xx0, y1), ~p4=(xx1, y1), env);
+      let p3x = x1 -. dx;
+      let p4x = x0 +. dx;
+      Draw.quadf(~p1, ~p2, ~p3=(p3x, y1), ~p4=(p4x, y1), env);
 
       if (maxHeight > y1) {
         env;
       } else {
-        drawRoad((xx1, y1), (xx0, y1), length, !isDark, env);
+        drawRoad((p4x, y1), (p3x, y1), length, !isDark, env);
       };
     };
 
@@ -139,26 +79,15 @@ module Road = {
 
 type state = {
   car: Car.state,
-  key,
+  key: Types.key,
   frameDelta: float,
 };
 
 let setup = env => {
   Env.size(~width, ~height, env);
-  let loadImage = file => Draw.loadImage(~filename=file, ~isPixel=true, env);
   {
-    car: {
-      position: (width / 2 - 30, height - 60),
-      velocity: 0,
-      assets: {
-        straight: loadImage("assets/car_1.png"),
-        leftTurn: loadImage("assets/car_2.png"),
-        heavyLeftTurn: loadImage("assets/car_3.png"),
-        rightTurn: loadImage("assets/car_4.png"),
-        heavyRightTurn: loadImage("assets/car_5.png"),
-      },
-    },
-    key: NONE,
+    car: Car.init(width / 2 - 30, height - 60, env),
+    key: Types.NONE,
     frameDelta: 0.,
   };
 };
