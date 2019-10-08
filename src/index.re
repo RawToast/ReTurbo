@@ -11,17 +11,17 @@ let maxSpeed = 170.;
 
 module Road = {
   let float = x => float_of_int(x);
-  let baseHeight = float(40);
   let baseWidth = float(400);
   let maxHeight = float(height / 2);
   let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
   let fillLightGrey = Draw.fill(Utils.color(~r=90, ~g=90, ~b=90, ~a=255));
+  let baseLength = 80.;
 
-  let draw = (_state, env) => {
-    let x0 = (float(width) -. baseWidth) /. 2.;
-    let x1 = x0 +. baseWidth;
-    let y0 = float(height);
+  type state = {
+    position: float,
+  };
 
+  let draw = (state, env) => {
     let rec drawRoad = (p1, p2, lastLength, isDark, env) => {
       let (x0, y0) = p1;
       let (x1, _) = p2;
@@ -32,29 +32,48 @@ module Road = {
         fillLightGrey(env);
       };
 
-      let length = {
-        let nextLength = lastLength /. 4. *. 3.;
-        if (2. > nextLength) {
-          2.;
-        } else {
-          nextLength;
-        };
-      };
-
-      let dx = length *. sin(40.);
-      let dy = 0. -. length *. cos(40.);
+      let dx = lastLength *. sin(40.);
+      let dy = 0. -. lastLength *. cos(40.);
 
       let y1 = y0 -. dy;
       let p3x = x1 -. dx;
       let p4x = x0 +. dx;
       Draw.quadf(~p1, ~p2, ~p3=(p3x, y1), ~p4=(p4x, y1), env);
 
-      if (maxHeight > y1) {
+      let length = {
+        if (y1 >= float_of_int(height)) {
+          lastLength
+        } else {
+          let nextLength = lastLength /. 4. *. 3.;
+          if (2. > nextLength) {
+            2.;
+          } else {
+            nextLength;
+          };
+        }
+      };
+
+      if (maxHeight > y0) {
         env;
       } else {
-        drawRoad((p4x, y1), (p3x, y1), length, !isDark, env);
+        let nl = if (length > baseLength) baseLength else length;
+        drawRoad((p4x, y1), (p3x, y1), nl, !isDark, env);
       };
     };
+
+    let adj = mod_float(state.position, baseLength *. 2.);
+
+    let (isLight, rem) = if (adj >= 80.) {
+      (true, adj -. 80.)
+    } else {
+      (false, adj)
+    };
+
+    let adjX = rem *. tan(40.);
+
+    let x0 = ((float(width) -. baseWidth -. adjX) /. 2.) ;
+    let x1 = (x0 +. baseWidth +. adjX);
+    let y0 = float(height) +. rem;
 
     Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255), env);
     Draw.quad(
@@ -64,9 +83,8 @@ module Road = {
       ~p4=(0, height / 2),
       env,
     );
-
     env
-    |> drawRoad((x0, y0), (x1, y0), 80., true)
+    |> drawRoad((x0, y0), (x1, y0), baseLength, isLight)
     |> Draw.fill(Utils.color(~r=5, ~g=5, ~b=200, ~a=255));
 
     Draw.quad(
@@ -82,6 +100,7 @@ module Road = {
 type state = {
   car: Car.state,
   speed: float, /* In car? */
+  road: Road.state,
   key: Types.key,
   frameDelta: float,
 };
@@ -91,6 +110,9 @@ let setup = env => {
   {
     car: Car.init(width / 2 - 30, height - 60, env),
     speed: 0.,
+    road: {
+      position: 0.
+    },
     key: Types.NONE,
     frameDelta: 0.,
   };
@@ -115,17 +137,17 @@ let control = state => {
   };
 
   let speed = state.speed +. accel;
+  let position = state.road.position +. (speed /. 25.); 
 
-  {...state, car, speed};
+  {...state, car, speed, road: { position: position }};
 };
 
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
-  Road.draw(state, env);
+  Road.draw(state.road, env);
   Car.draw(state.car, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
   
-
   let text = string_of_int(int_of_float(state.speed));
   let mph = "MPH";
 
@@ -151,6 +173,7 @@ let keyPressed = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: LEFT}
   | Right => {...state, key: RIGHT}
+  | Down => setup(env)
   | _ => state
   };
 };
