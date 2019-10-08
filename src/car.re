@@ -41,31 +41,25 @@ let turn = (key: Types.key, state: state) => {
         ...state,
         velocity: state.velocity + 1,
       }
-    | NONE when state.velocity > 0 => {
-        ...state,
-        velocity: state.velocity - 1,
-      }
-    | NONE when state.velocity < 0 => {
-        ...state,
-        velocity: state.velocity + 1,
-      }
+    | NONE when state.velocity > 0 => {...state, velocity: state.velocity - 1}
+    | NONE when state.velocity < 0 => {...state, velocity: state.velocity + 1}
     | _ => state
     }
   )
   |> updatePosition;
 };
 
-let init = (x, y, env) => { 
+let init = (x, y, env) => {
   let loadImage = file => Draw.loadImage(~filename=file, ~isPixel=true, env);
   {
-      position: (x, y),
-      velocity: 0,
-      assets: {
-        straight: loadImage("assets/car_1.png"),
-        leftTurn: loadImage("assets/car_2.png"),
-        heavyLeftTurn: loadImage("assets/car_3.png"),
-        rightTurn: loadImage("assets/car_4.png"),
-        heavyRightTurn: loadImage("assets/car_5.png"),
-      },
-    }
+    position: (x, y),
+    velocity: 0,
+    assets: {
+      straight: loadImage("assets/car_1.png"),
+      leftTurn: loadImage("assets/car_2.png"),
+      heavyLeftTurn: loadImage("assets/car_3.png"),
+      rightTurn: loadImage("assets/car_4.png"),
+      heavyRightTurn: loadImage("assets/car_5.png"),
+    },
   };
+};

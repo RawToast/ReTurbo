@@ -1,4 +1,3 @@
-
 type key =
   | LEFT
   | RIGHT
