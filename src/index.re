@@ -22,58 +22,38 @@ module Road = {
   };
 
   let draw = (state, env) => {
-    let rec drawRoad = (p1, p2, lastLength, isDark, env) => {
+    let rec drawRoad = (p1, p2, isDark, env) => {
       let (x0, y0) = p1;
       let (x1, _) = p2;
 
-      if (isDark) {
-        fillDarkGrey(env);
-      } else {
-        fillLightGrey(env);
-      };
+      isDark ? fillDarkGrey(env) : fillLightGrey(env);
 
-      let dx = lastLength *. sin(40.);
-      let dy = 0. -. lastLength *. cos(40.);
+      let y1 = Util.nextY(y0);
+      let dx = Util.calcRemX(y0 -. y1);
 
-      let y1 = y0 -. dy;
       let p3x = x1 -. dx;
       let p4x = x0 +. dx;
       Draw.quadf(~p1, ~p2, ~p3=(p3x, y1), ~p4=(p4x, y1), env);
 
-      let length = {
-        if (y1 >= float_of_int(height)) {
-          lastLength
-        } else {
-          let nextLength = lastLength /. 4. *. 3.;
-          if (2. > nextLength) {
-            2.;
-          } else {
-            nextLength;
-          };
-        }
-      };
-
-      if (maxHeight > y0) {
+      if (160. >= y0) {
         env;
       } else {
-        let nl = if (length > baseLength) baseLength else length;
-        drawRoad((p4x, y1), (p3x, y1), nl, !isDark, env);
+        drawRoad((p4x, y1), (p3x, y1), !isDark, env);
       };
     };
 
-    let adj = mod_float(state.position, baseLength *. 2.);
-
-    let (isLight, rem) = if (adj >= 80.) {
-      (true, adj -. 80.)
-    } else {
-      (false, adj)
+    let (x0, x1, y0, isLight) = {
+      let (isLight, rem) = { 
+        let adj = mod_float(state.position, baseLength *. 2.);
+        adj >= 80. ? (true, adj -. 80.) : (false, adj)
+      }
+      
+      let adjX = Util.calcRemX(rem); /*rem *. tan(40.);*/
+      let x0 = ((float(width) /. 2.) -. (baseWidth /. 2.) -. adjX) ;
+      let x1 = ((float(width) /. 2.) +. (baseWidth /. 2.) +. adjX);
+      let y0 = float(height) +. rem;
+      (x0, x1, y0, isLight)
     };
-
-    let adjX = rem *. tan(40.);
-
-    let x0 = ((float(width) -. baseWidth -. adjX) /. 2.) ;
-    let x1 = (x0 +. baseWidth +. adjX);
-    let y0 = float(height) +. rem;
 
     Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255), env);
     Draw.quad(
@@ -84,7 +64,7 @@ module Road = {
       env,
     );
     env
-    |> drawRoad((x0, y0), (x1, y0), baseLength, isLight)
+    |> drawRoad((x0, y0), (x1, y0), isLight)
     |> Draw.fill(Utils.color(~r=5, ~g=5, ~b=200, ~a=255));
 
     Draw.quad(
