@@ -67,9 +67,32 @@ let control = state => {
   };
 };
 
+let drawGound = env => {
+  Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255), env);
+  Draw.quad(
+    ~p1=(0, height),
+    ~p2=(width, height),
+    ~p3=(width, height / 2),
+    ~p4=(0, height / 2),
+    env,
+  );
+};
+let drawSky = env => {
+  Draw.fill(Utils.color(~r=5, ~g=5, ~b=200, ~a=255), env);
+  Draw.quad(
+    ~p1=(0, 0),
+    ~p2=(width, 0),
+    ~p3=(width, height / 2),
+    ~p4=(0, height / 2),
+    env,
+  );
+};
+
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
+  drawGound(env);
   Road.draw(state.road, env);
+  drawSky(env);
   Car.draw(state.car, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
 

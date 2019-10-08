@@ -11,29 +11,6 @@ let fillLightGrey = Draw.fill(Utils.color(~r=90, ~g=90, ~b=90, ~a=255));
 let baseLength = 60.;
 
 type state = {position: float};
-
-let drawGound = env => {
-  Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255), env);
-  Draw.quad(
-    ~p1=(0, height),
-    ~p2=(width, height),
-    ~p3=(width, height / 2),
-    ~p4=(0, height / 2),
-    env,
-  );
-};
-let drawSky = env => {
-  Draw.fill(Utils.color(~r=5, ~g=5, ~b=200, ~a=255), env);
-  Draw.quad(
-    ~p1=(0, 0),
-    ~p2=(width, 0),
-    ~p3=(width, height / 2),
-    ~p4=(0, height / 2),
-    env,
-  );
-};
-
-
 let seventyRadians = Util.toRadians(70.);
 
 let nextY = currentY =>
@@ -48,7 +25,6 @@ let nextY = currentY =>
   };
 
 let calcRemX = yDistance => yDistance /. sin(seventyRadians);
-
 
 let draw = (state, env) => {
   let rec drawRoad = (p1, p2, isDark, env) => {
@@ -84,7 +60,5 @@ let draw = (state, env) => {
     (x0, x1, y0, isLight);
   };
 
-  drawGound(env);
   drawRoad((x0, y0), (x1, y0), isLight, env);
-  drawSky(env);
 };
