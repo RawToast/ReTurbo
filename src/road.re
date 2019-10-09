@@ -53,7 +53,7 @@ let draw = (state, env) => {
       adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
     };
 
-    let adjX = calcRemX(rem); /*rem *. tan(40.);*/
+    let adjX = calcRemX(rem);
     let x0 = float(width) /. 2. -. baseWidth /. 2. -. adjX;
     let x1 = float(width) /. 2. +. baseWidth /. 2. +. adjX;
     let y0 = float(height) +. rem;

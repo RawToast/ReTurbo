@@ -11,7 +11,7 @@ let maxSpeed = 170.;
 
 type state = {
   car: Car.state,
-  speed: float, /* In car? */
+  speed: float,
   road: Road.state,
   key: Types.key,
   frameDelta: float,
