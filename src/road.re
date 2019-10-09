@@ -11,8 +11,6 @@ let fillLightGrey = Draw.fill(Utils.color(~r=90, ~g=90, ~b=90, ~a=255));
 let baseLength = 60.;
 
 type state = {position: float};
-let seventyRadians = Util.toRadians(70.);
-
 let nextY = currentY =>
   if (currentY >= 320.) {
     currentY -. baseLength;
@@ -24,41 +22,53 @@ let nextY = currentY =>
     currentY -. delta;
   };
 
-let calcRemX = yDistance => yDistance /. sin(seventyRadians);
+let calcDeltaX = yDistance => {
+  let fortySevenRadians = Util.toRadians(45.);
+  yDistance *. tan(fortySevenRadians);
+};
+
+let rec drawRoad = (leftBottom, rightBottom, isDark, env) => {
+  let (x0, y0) = leftBottom;
+  let (x1, _) = rightBottom;
+
+  isDark ? fillDarkGrey(env) : fillLightGrey(env);
+
+  let y1 = nextY(y0);
+  let (rightX, leftX) = {
+    let deltaX = calcDeltaX(y0 -. y1);
+    (x1 -. deltaX, x0 +. deltaX);
+  };
+
+  Draw.quadf(
+    ~p1=leftBottom,
+    ~p2=rightBottom,
+    ~p3=(rightX, y1),
+    ~p4=(leftX, y1),
+    env,
+  );
+
+  if (maxHeight >= y0) {
+    ();
+  } else {
+    drawRoad((leftX, y1), (rightX, y1), !isDark, env);
+  };
+};
+
+let findInitialCoordinates = state => {
+  let (isLight, rem) = {
+    let adj = mod_float(state.position, baseLength *. 2.);
+    adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
+  };
+
+  let deltaX = calcDeltaX(rem);
+  let x0 = float(width) /. 2. -. baseWidth /. 2. -. deltaX;
+  let x1 = float(width) /. 2. +. baseWidth /. 2. +. deltaX;
+  let y0 = float(height) +. rem;
+  (x0, x1, y0, isLight);
+};
 
 let draw = (state, env) => {
-  let rec drawRoad = (p1, p2, isDark, env) => {
-    let (x0, y0) = p1;
-    let (x1, _) = p2;
-
-    isDark ? fillDarkGrey(env) : fillLightGrey(env);
-
-    let y1 = nextY(y0);
-    let dx = calcRemX(y0 -. y1);
-
-    let p3x = x1 -. dx;
-    let p4x = x0 +. dx;
-    Draw.quadf(~p1, ~p2, ~p3=(p3x, y1), ~p4=(p4x, y1), env);
-
-    if (maxHeight >= y0) {
-      ();
-    } else {
-      drawRoad((p4x, y1), (p3x, y1), !isDark, env);
-    };
-  };
-
-  let (x0, x1, y0, isLight) = {
-    let (isLight, rem) = {
-      let adj = mod_float(state.position, baseLength *. 2.);
-      adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
-    };
-
-    let adjX = calcRemX(rem);
-    let x0 = float(width) /. 2. -. baseWidth /. 2. -. adjX;
-    let x1 = float(width) /. 2. +. baseWidth /. 2. +. adjX;
-    let y0 = float(height) +. rem;
-    (x0, x1, y0, isLight);
-  };
+  let (x0, x1, y0, isLight) = findInitialCoordinates(state);
 
   drawRoad((x0, y0), (x1, y0), isLight, env);
 };
