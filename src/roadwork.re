@@ -1,11 +1,13 @@
-let height = 320;
-let width = 568;
-
 open Reprocessing;
 
-let float = x => float_of_int(x);
-let baseWidth = float(400);
-let maxHeight = float(height / 2);
+let height = 320.;
+let width = 568.;
+
+let centrePoint = 284.;
+let maxHeight = height /. 2.;
+let finalWidth = 40.;
+let halfFinalWidth = finalWidth /. 2.;
+let baseWidth = 400.;
 let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=90, ~g=90, ~b=90, ~a=255));
 let baseLength = 60.;
@@ -61,9 +63,9 @@ let findInitialCoordinates = state => {
   };
 
   let deltaX = calcDeltaX(rem);
-  let x0 = float(width) /. 2. -. baseWidth /. 2. -. deltaX;
-  let x1 = float(width) /. 2. +. baseWidth /. 2. +. deltaX;
-  let y0 = float(height) +. rem;
+  let x0 = centrePoint -. baseWidth /. 2. -. deltaX;
+  let x1 = centrePoint /. 2. +. baseWidth /. 2. +. deltaX;
+  let y0 = height +. rem;
   (x0, x1, y0, isLight);
 };
 

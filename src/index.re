@@ -12,7 +12,7 @@ let maxSpeed = 170.;
 type state = {
   car: Car.state,
   speed: float,
-  road: Road.state,
+  road: RightCurve.state,
   key: Types.key,
   frameDelta: float,
 };
@@ -21,7 +21,7 @@ let setup = env => {
   Env.size(~width, ~height, env);
   {
     car: Car.init(width / 2 - 30, height - 60, env),
-    speed: 0.,
+    speed: 10.,
     road: {
       position: 0.,
     },
@@ -54,7 +54,7 @@ let control = state => {
     | _ => log((maxSpeed -. state.speed) /. 19.) /. 25.
     };
 
-  let speed = state.speed +. accel;
+  let speed = state.speed; /* +. accel */
   let position = state.road.position +. speed /. 25.;
 
   {
@@ -91,7 +91,7 @@ let drawSky = env => {
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
   drawGound(env);
-  Road.draw(state.road, env);
+  RightCurve.draw(state.road, env);
   drawSky(env);
   Car.draw(state.car, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
