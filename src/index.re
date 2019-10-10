@@ -21,7 +21,7 @@ let setup = env => {
   Env.size(~width, ~height, env);
   {
     car: Car.init(width / 2 - 30, height - 60, env),
-    speed: 10.,
+    speed: 0.,
     road: {
       position: 0.,
     },
@@ -54,7 +54,7 @@ let control = state => {
     | _ => log((maxSpeed -. state.speed) /. 19.) /. 25.
     };
 
-  let speed = state.speed; /* +. accel */
+  let speed = state.speed +. accel;
   let position = state.road.position +. speed /. 25.;
 
   {
