@@ -7,12 +7,10 @@ let maxFrameDelta = 1.0 /. (frameRate *. 60.);
 let height = 320;
 let width = 568;
 
-let maxSpeed = 170.;
-
 type state = {
   car: Car.state,
   speed: float,
-  road: RightCurve.state,
+  road: Road.state,
   key: Types.key,
   frameDelta: float,
 };
@@ -22,9 +20,7 @@ let setup = env => {
   {
     car: Car.init(width / 2 - 30, height - 60, env),
     speed: 0.,
-    road: {
-      position: 0.,
-    },
+    road: Road.init,
     key: Types.NONE,
     frameDelta: 0.,
   };
@@ -33,11 +29,13 @@ let setup = env => {
 let control = state => {
   let car = Car.turn(state.key, state.car);
 
-  let vLowSpeed = 30.;
-  let lowSpeed = 60.;
-  let midSpeed = 90.;
-  let highSpeed = 130.;
-  let vHighSpeed = 150.;
+  let vLowSpeed = 75.;
+  let lowSpeed = 90.;
+  let midSpeed = 135.;
+  let highSpeed = 190.;
+  let vHighSpeed = 225.;
+  let maxSpeed = 250.;
+
   let accel =
     switch (state.speed) {
     | _ when maxSpeed == state.speed => maxSpeed
@@ -56,14 +54,13 @@ let control = state => {
 
   let speed = state.speed +. accel;
   let position = state.road.position +. speed /. 25.;
+  let newRoadState = Road.moveForward(position, state.road);
 
   {
     ...state,
     car,
     speed,
-    road: {
-      position: position,
-    },
+    road: newRoadState
   };
 };
 
@@ -91,12 +88,12 @@ let drawSky = env => {
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
   drawGound(env);
-  RightCurve.draw(state.road, env);
+  Road.draw(state.road, env);
   drawSky(env);
   Car.draw(state.car, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
 
-  let text = string_of_int(int_of_float(state.speed));
+  let text = string_of_int(int_of_float(state.speed /. 1.6));
   let mph = "MPH";
 
   Draw.text(~body=text, ~pos=(420, 20), env);

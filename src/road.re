@@ -1,16 +1,77 @@
-let height = 320;
-let width = 568;
+
+module Track = {
+  type direction =
+    | Straight
+    | Left
+    | LeftMedium
+    | LeftHard
+    | LeftK
+    | Right
+    | RightMedium
+    | RightHard
+    | RightK;
+
+  let _straights = [Straight, Straight, Straight, Straight];
+  let _lefts = [Left, Left, Left, Left];
+  let _lefts2 = [LeftMedium, LeftMedium, LeftMedium, LeftMedium];
+  let _lefts3 = [LeftHard, LeftHard, LeftHard, LeftHard];
+  let _lefts4 = [LeftK, LeftK, LeftK, LeftK];
+
+  let _rights = [Right, Right, Right, Right];
+  let _rights2 = [RightMedium, RightMedium, RightMedium, RightMedium];
+  let _rights3 = [RightHard, RightHard, RightHard, RightHard];
+  let _rights4 = [RightK, RightK, RightK, RightK];
+
+  let (|+|) = (a, b) => List.append(a, b); 
+
+  let easyTrack = _straights |+| _straights |+| _straights |+| _rights |+| _rights |+| _rights |+| _rights 
+    |+| _rights3 |+| _rights4 |+| _straights |+| _straights |+| _straights |+| _straights |+| _rights
+    |+| _rights2 |+| _lefts3 |+| _lefts4 |+| _rights3 |+| _rights |+| _straights |+| _straights |+| _lefts |+| _lefts2 |+| _lefts3 |+| _lefts2
+    |+| _lefts4 |+| _lefts4 |+| _lefts3 |+| _straights |+| _straights |+| _straights |+| _straights |+| _straights |+| _straights |+| _straights;
+
+  type state = {
+    track: list(direction)
+  };
+
+  let init = { track: easyTrack };
+
+  let progress(state) = {
+    if (List.length(state.track) > 15) {
+      { track: List.tl(state.track) }
+    } else {
+      print_endline("Refreshing track");
+      { track: List.tl(state.track |+| easyTrack) }
+    };
+  };
+};
+
+let height = 320.;
+let width = 568.;
+
+let centrePoint = 284.;
+let finalWidth = 0.;
 
 open Reprocessing;
 
-let float = x => float_of_int(x);
-let baseWidth = float(400);
-let maxHeight = float(height / 2);
+let baseWidth = 520.;
+let maxHeight = height /. 2.;
 let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
-let fillLightGrey = Draw.fill(Utils.color(~r=90, ~g=90, ~b=90, ~a=255));
-let baseLength = 60.;
+let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
+let baseLength = 40.;
 
-type state = {position: float};
+type state = { 
+  position: float,
+  lastPiece: int,
+  track: Track.state
+};
+
+let moveForward = (newPosition, state) => {
+  if ((float_of_int(state.lastPiece) *. baseLength) -. newPosition <= 0.) {
+    { lastPiece: state.lastPiece + 1, position: newPosition, track: Track.progress(state.track) }
+  } else {
+    {...state, position: newPosition}
+  }
+};
 let nextY = currentY =>
   if (currentY >= 320.) {
     currentY -. baseLength;
@@ -18,25 +79,64 @@ let nextY = currentY =>
     let yDelta = 160. /. baseLength;
     let revY = 0. -. (currentY -. 320.);
     let height = baseLength -. revY /. yDelta;
-    let delta = height > 1. ? height : 1.;
+    let delta = height > 6. ? height : 6.;
     currentY -. delta;
   };
 
-let calcDeltaX = yDistance => {
-  let fortySevenRadians = Util.toRadians(48.);
+let calcDeltaX = (yDistance, angle) => {
+  let fortySevenRadians = Util.toRadians(angle);
   yDistance *. tan(fortySevenRadians);
 };
 
-let rec drawRoad = (leftBottom, rightBottom, isDark, env) => {
+let rec drawRoad =
+        (leftBottom, rightBottom, firstHeight, track: list(Track.direction), goals, isDark, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
 
   isDark ? fillDarkGrey(env) : fillLightGrey(env);
 
-  let y1 = nextY(y0);
+  let y1 =
+    if (y0 == height) {
+      height -. baseLength +. firstHeight;
+    } else {
+      nextY(y0);
+    };
+  let (gl, gr) = goals;
+
+  /**
+   * CurveStength directs the road.
+   * 0 == Straight
+   * 0.1 == Easy Right
+   * 0.2 == Med Right, etc  (btw 1/6 is good too), 1 is super tight
+   * -0.1 == Simple Left
+   */
+  let trackPiece = List.hd(track)
+
+  let curveStength = switch trackPiece {
+  | Track.Straight => 0.0
+  | Track.Left => -0.16
+  | Track.LeftMedium => -0.2
+  | Track.LeftHard => -0.33
+  | Track.LeftK => -0.6
+  | Track.Right => 0.16
+  | Track.RightMedium => 0.2
+  | Track.RightHard => 0.33
+  | Track.RightK => 0.6
+  };
+  let nextGoalL = gl + int_of_float((height -. y1) *. curveStength);
+  let nextGoalR = gr + int_of_float((height -. y1) *. curveStength);
+
   let (rightX, leftX) = {
-    let deltaX = calcDeltaX(y0 -. y1);
-    (x1 -. deltaX, x0 +. deltaX);
+    let opposite = y0 -. maxHeight;
+    let adjacentL = float_of_int(nextGoalL) -. x0;
+    let adjacentR = x1 -. float_of_int(nextGoalR);
+    let leftAngleRadians = atan(opposite /. adjacentL);
+    let rightAngleRadians = atan(opposite /. adjacentR);
+
+    let left = (y0 -. y1) /. tan(leftAngleRadians);
+    let right = (y0 -. y1) /. tan(rightAngleRadians);
+
+    (x1 -. right, x0 +. left);
   };
 
   Draw.quadf(
@@ -47,10 +147,19 @@ let rec drawRoad = (leftBottom, rightBottom, isDark, env) => {
     env,
   );
 
-  if (maxHeight >= y0) {
+  let isOutOfBounds = maxHeight >= y1 || x1 < 0. || x0 > width;
+  if (isOutOfBounds) {
     ();
   } else {
-    drawRoad((leftX, y1), (rightX, y1), !isDark, env);
+    drawRoad(
+      (leftX, y1),
+      (rightX, y1),
+      firstHeight,
+      List.tl(track),
+      (nextGoalL, nextGoalR),
+      !isDark,
+      env,
+    );
   };
 };
 
@@ -59,16 +168,20 @@ let findInitialCoordinates = state => {
     let adj = mod_float(state.position, baseLength *. 2.);
     adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
   };
+  let x0 = width /. 2. -. baseWidth /. 2.;
+  let x1 = width /. 2. +. baseWidth /. 2.;
+  (x0, x1, rem, isLight);
+};
 
-  let deltaX = calcDeltaX(rem);
-  let x0 = float(width) /. 2. -. baseWidth /. 2. -. deltaX;
-  let x1 = float(width) /. 2. +. baseWidth /. 2. +. deltaX;
-  let y0 = float(height) +. rem;
-  (x0, x1, y0, isLight);
+let init = {
+  position: 0.,
+  track: Track.init,
+  lastPiece: 1
 };
 
 let draw = (state, env) => {
-  let (x0, x1, y0, isLight) = findInitialCoordinates(state);
+  let (x0, x1, remainder, isLight) = findInitialCoordinates(state);
+  let goal = (244, 324);
 
-  drawRoad((x0, y0), (x1, y0), isLight, env);
+  drawRoad((x0, height), (x1, height), remainder, state.track.track, goal, isLight, env);
 };
