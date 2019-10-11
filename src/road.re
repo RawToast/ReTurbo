@@ -28,6 +28,7 @@ let moveForward = (newPosition, state) =>
   } else {
     {...state, position: newPosition};
   };
+
 let nextY = currentY =>
   if (currentY >= 320.) {
     currentY -. baseLength;
@@ -45,15 +46,7 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (
-          leftBottom,
-          rightBottom,
-          firstHeight,
-          track: list(Track.direction),
-          goals,
-          isDark,
-          env,
-        ) => {
+        (leftBottom, rightBottom, firstHeight, track, goals, isDark, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
 
@@ -66,27 +59,13 @@ let rec drawRoad =
       nextY(y0);
     };
   let (gl, gr) = goals;
-
-  /**
-   * CurveStength directs the road.
-   * 0 == Straight
-   * 0.1 == Easy Right
-   * 0.2 == Med Right, etc  (btw 1/6 is good too), 1 is super tight
-   * -0.1 == Simple Left
-   */
   let trackPiece = List.hd(track);
 
   let curveStength =
     switch (trackPiece) {
     | Track.Straight => 0.0
-    | Track.Left => (-0.16)
-    | Track.LeftMedium => (-0.2)
-    | Track.LeftHard => (-0.33)
-    | Track.LeftK => (-0.6)
-    | Track.Right => 0.16
-    | Track.RightMedium => 0.2
-    | Track.RightHard => 0.33
-    | Track.RightK => 0.6
+    | Track.Left(lc) => 0. -. lc
+    | Track.Right(rc) => rc
     };
   let nextGoalL = gl + int_of_float((height -. y1) *. curveStength);
   let nextGoalR = gr + int_of_float((height -. y1) *. curveStength);

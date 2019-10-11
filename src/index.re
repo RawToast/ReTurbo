@@ -113,7 +113,7 @@ let keyPressed = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: LEFT}
   | Right => {...state, key: RIGHT}
-  | Down => setup(env)
+  | Space => setup(env)
   | _ => state
   };
 };

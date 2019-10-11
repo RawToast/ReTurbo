@@ -3,3 +3,4 @@ node_modules
 .merlin
 .vscode
 .bsb.lock
+.DS_Store
