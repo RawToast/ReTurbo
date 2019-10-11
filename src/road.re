@@ -1,50 +1,3 @@
-
-module Track = {
-  type direction =
-    | Straight
-    | Left
-    | LeftMedium
-    | LeftHard
-    | LeftK
-    | Right
-    | RightMedium
-    | RightHard
-    | RightK;
-
-  let _straights = [Straight, Straight, Straight, Straight];
-  let _lefts = [Left, Left, Left, Left];
-  let _lefts2 = [LeftMedium, LeftMedium, LeftMedium, LeftMedium];
-  let _lefts3 = [LeftHard, LeftHard, LeftHard, LeftHard];
-  let _lefts4 = [LeftK, LeftK, LeftK, LeftK];
-
-  let _rights = [Right, Right, Right, Right];
-  let _rights2 = [RightMedium, RightMedium, RightMedium, RightMedium];
-  let _rights3 = [RightHard, RightHard, RightHard, RightHard];
-  let _rights4 = [RightK, RightK, RightK, RightK];
-
-  let (|+|) = (a, b) => List.append(a, b); 
-
-  let easyTrack = _straights |+| _straights |+| _straights |+| _rights |+| _rights |+| _rights |+| _rights 
-    |+| _rights3 |+| _rights4 |+| _straights |+| _straights |+| _straights |+| _straights |+| _rights
-    |+| _rights2 |+| _lefts3 |+| _lefts4 |+| _rights3 |+| _rights |+| _straights |+| _straights |+| _lefts |+| _lefts2 |+| _lefts3 |+| _lefts2
-    |+| _lefts4 |+| _lefts4 |+| _lefts3 |+| _straights |+| _straights |+| _straights |+| _straights |+| _straights |+| _straights |+| _straights;
-
-  type state = {
-    track: list(direction)
-  };
-
-  let init = { track: easyTrack };
-
-  let progress(state) = {
-    if (List.length(state.track) > 15) {
-      { track: List.tl(state.track) }
-    } else {
-      print_endline("Refreshing track");
-      { track: List.tl(state.track |+| easyTrack) }
-    };
-  };
-};
-
 let height = 320.;
 let width = 568.;
 
@@ -59,19 +12,22 @@ let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
 let baseLength = 40.;
 
-type state = { 
+type state = {
   position: float,
   lastPiece: int,
-  track: Track.state
+  track: Track.state,
 };
 
-let moveForward = (newPosition, state) => {
-  if ((float_of_int(state.lastPiece) *. baseLength) -. newPosition <= 0.) {
-    { lastPiece: state.lastPiece + 1, position: newPosition, track: Track.progress(state.track) }
+let moveForward = (newPosition, state) =>
+  if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
+    {
+      lastPiece: state.lastPiece + 1,
+      position: newPosition,
+      track: Track.progress(state.track),
+    };
   } else {
-    {...state, position: newPosition}
-  }
-};
+    {...state, position: newPosition};
+  };
 let nextY = currentY =>
   if (currentY >= 320.) {
     currentY -. baseLength;
@@ -89,7 +45,15 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (leftBottom, rightBottom, firstHeight, track: list(Track.direction), goals, isDark, env) => {
+        (
+          leftBottom,
+          rightBottom,
+          firstHeight,
+          track: list(Track.direction),
+          goals,
+          isDark,
+          env,
+        ) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
 
@@ -110,19 +74,20 @@ let rec drawRoad =
    * 0.2 == Med Right, etc  (btw 1/6 is good too), 1 is super tight
    * -0.1 == Simple Left
    */
-  let trackPiece = List.hd(track)
+  let trackPiece = List.hd(track);
 
-  let curveStength = switch trackPiece {
-  | Track.Straight => 0.0
-  | Track.Left => -0.16
-  | Track.LeftMedium => -0.2
-  | Track.LeftHard => -0.33
-  | Track.LeftK => -0.6
-  | Track.Right => 0.16
-  | Track.RightMedium => 0.2
-  | Track.RightHard => 0.33
-  | Track.RightK => 0.6
-  };
+  let curveStength =
+    switch (trackPiece) {
+    | Track.Straight => 0.0
+    | Track.Left => (-0.16)
+    | Track.LeftMedium => (-0.2)
+    | Track.LeftHard => (-0.33)
+    | Track.LeftK => (-0.6)
+    | Track.Right => 0.16
+    | Track.RightMedium => 0.2
+    | Track.RightHard => 0.33
+    | Track.RightK => 0.6
+    };
   let nextGoalL = gl + int_of_float((height -. y1) *. curveStength);
   let nextGoalR = gr + int_of_float((height -. y1) *. curveStength);
 
@@ -173,15 +138,19 @@ let findInitialCoordinates = state => {
   (x0, x1, rem, isLight);
 };
 
-let init = {
-  position: 0.,
-  track: Track.init,
-  lastPiece: 1
-};
+let init = {position: 0., track: Track.init, lastPiece: 1};
 
 let draw = (state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(state);
   let goal = (244, 324);
 
-  drawRoad((x0, height), (x1, height), remainder, state.track.track, goal, isLight, env);
+  drawRoad(
+    (x0, height),
+    (x1, height),
+    remainder,
+    state.track.track,
+    goal,
+    isLight,
+    env,
+  );
 };

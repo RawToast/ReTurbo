@@ -56,12 +56,7 @@ let control = state => {
   let position = state.road.position +. speed /. 25.;
   let newRoadState = Road.moveForward(position, state.road);
 
-  {
-    ...state,
-    car,
-    speed,
-    road: newRoadState
-  };
+  {...state, car, speed, road: newRoadState};
 };
 
 let drawGound = env => {
