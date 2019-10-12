@@ -1,16 +1,15 @@
-let height = 320.;
-let width = 568.;
-
-let centrePoint = 284.;
-let finalWidth = 0.;
-
 open Reprocessing;
 
+/* Screen constants */
+let height = float_of_int(Common.height);
+let width = float_of_int(Common.width);
+/* Road constants */
 let baseWidth = 520.;
+let baseLength = 40.;
 let maxHeight = height /. 2.;
+
 let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
-let baseLength = 40.;
 
 type state = {
   position: float,
@@ -40,9 +39,10 @@ let nextY = currentY =>
     currentY -. delta;
   };
 
+let _piFactor = (4. *. atan(1.)) /. 180.;
 let calcDeltaX = (yDistance, angle) => {
-  let fortySevenRadians = Util.toRadians(angle);
-  yDistance *. tan(fortySevenRadians);
+  let toRadians = d => d *. _piFactor;
+  yDistance *. (angle |> toRadians |> tan);
 };
 
 let rec drawRoad =

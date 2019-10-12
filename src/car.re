@@ -1,4 +1,4 @@
-open Reprocessing;
+module Draw = Reprocessing.Draw;
 
 type assets = {
   straight: Reprocessing_Common.imageT,
@@ -10,9 +10,19 @@ type assets = {
 
 type state = {
   position: (int, int),
+  speed: float,
   velocity: int,
   assets,
 };
+
+let vLowSpeed = 75.;
+let lowSpeed = 90.;
+let midSpeed = 135.;
+let highSpeed = 190.;
+let vHighSpeed = 225.;
+let maxSpeed = 250.;
+
+let speedInMph = state => state.speed /. 1.6 |> int_of_float |> string_of_int;
 
 let draw = (state, env) => {
   let image =
@@ -49,11 +59,33 @@ let turn = (key: Types.key, state: state) => {
   |> updatePosition;
 };
 
+let accelerate = state => {
+  let accel =
+    switch (state.speed) {
+    | _ when maxSpeed == state.speed => maxSpeed
+    | _ when vLowSpeed > state.speed =>
+      log((highSpeed -. state.speed) /. 6.) /. 10.
+    | _ when lowSpeed > state.speed =>
+      log((highSpeed -. state.speed) /. 8.) /. 15.
+    | _ when midSpeed > state.speed =>
+      log((vHighSpeed -. state.speed) /. 10.) /. 25.
+    | _ when highSpeed > state.speed =>
+      log((maxSpeed -. state.speed) /. 16.) /. 25.
+    | _ when vHighSpeed > state.speed =>
+      log((maxSpeed -. state.speed) /. 18.) /. 25.
+    | _ => log((maxSpeed -. state.speed) /. 19.) /. 25.
+    };
+  let speed = state.speed +. accel;
+
+  {...state, speed};
+};
+
 let init = (x, y, env) => {
   let loadImage = file => Draw.loadImage(~filename=file, ~isPixel=true, env);
   {
     position: (x, y),
     velocity: 0,
+    speed: 0.,
     assets: {
       straight: loadImage("assets/car_1.png"),
       leftTurn: loadImage("assets/car_2.png"),
