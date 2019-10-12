@@ -26,7 +26,9 @@ let setup = env => {
 let control = state => {
   let currentRoadDirection = Road.currentDirection(state.road);
 
-  let car = Car.turn(state.key, state.car) |> Car.accelerate;
+  let car = Car.turn(state.key, state.car) 
+    |> Car.roadEffect(currentRoadDirection) 
+    |> Car.accelerate;
 
   let position = state.road.position +. car.speed /. 25.;
   let newRoadState = Road.moveForward(position, state.road);
@@ -58,7 +60,7 @@ let drawSky = env => {
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
   drawGound(env);
-  Road.draw(state.road, env);
+  Road.draw(state.car.offset, state.road, env);
   drawSky(env);
   Car.draw(state.car, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);

@@ -34,8 +34,10 @@ let demoTrack =
   |+| make12(Straight)
   |+| make4(Left(hc1))
   |+| make4(Left(hc2))
+  |+| make8(Straight)
+  |+| make4(Right(1.))
   |+| make4(Straight)
-  |+| make12(Right(1.));
+  |+| make8(Right(hc2));
 
 type state = {track: list(direction)};
 
