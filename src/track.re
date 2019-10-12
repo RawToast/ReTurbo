@@ -47,3 +47,5 @@ let progress = state =>
   } else {
     {track: List.tl(state.track |+| demoTrack)};
   };
+
+let head = state => List.hd(state.track);

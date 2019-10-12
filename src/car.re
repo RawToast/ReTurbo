@@ -12,6 +12,7 @@ type state = {
   position: (int, int),
   speed: float,
   velocity: int,
+  offset: float,
   assets,
 };
 
@@ -85,6 +86,7 @@ let init = (x, y, env) => {
   {
     position: (x, y),
     velocity: 0,
+    offset: 0.,
     speed: 0.,
     assets: {
       straight: loadImage("assets/car_1.png"),

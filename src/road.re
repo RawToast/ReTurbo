@@ -17,6 +17,8 @@ type state = {
   track: Track.state,
 };
 
+let currentDirection = state => Track.head(state.track);
+
 let moveForward = (newPosition, state) =>
   if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
     {

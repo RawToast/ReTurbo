@@ -24,6 +24,8 @@ let setup = env => {
 };
 
 let control = state => {
+  let currentRoadDirection = Road.currentDirection(state.road);
+
   let car = Car.turn(state.key, state.car) |> Car.accelerate;
 
   let position = state.road.position +. car.speed /. 25.;
