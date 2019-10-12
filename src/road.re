@@ -4,7 +4,7 @@ open Reprocessing;
 let height = float_of_int(Common.height);
 let width = float_of_int(Common.width);
 /* Road constants */
-let baseWidth = 520.;
+let baseWidth = 680.;
 let baseLength = 40.;
 let maxHeight = height /. 2.;
 
@@ -16,6 +16,8 @@ type state = {
   lastPiece: int,
   track: Track.state,
 };
+
+let currentDirection = state => Track.head(state.track);
 
 let moveForward = (newPosition, state) =>
   if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
@@ -39,7 +41,7 @@ let nextY = currentY =>
     currentY -. delta;
   };
 
-let _piFactor = (4. *. atan(1.)) /. 180.;
+let _piFactor = 4. *. atan(1.) /. 180.;
 let calcDeltaX = (yDistance, angle) => {
   let toRadians = d => d *. _piFactor;
   yDistance *. (angle |> toRadians |> tan);
@@ -91,7 +93,12 @@ let rec drawRoad =
     env,
   );
 
-  let isOutOfBounds = maxHeight >= y1 || x1 < 0. || x0 > width;
+  let isOutOfBounds =
+    maxHeight >= y1
+    || x1 < 0.
+    +. Common.minOffset
+    || x0 > width
+    +. Common.maxOffset;
   if (isOutOfBounds) {
     ();
   } else {
@@ -107,21 +114,22 @@ let rec drawRoad =
   };
 };
 
-let findInitialCoordinates = state => {
+let findInitialCoordinates = (offset, state) => {
   let (isLight, rem) = {
     let adj = mod_float(state.position, baseLength *. 2.);
     adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
   };
-  let x0 = width /. 2. -. baseWidth /. 2.;
-  let x1 = width /. 2. +. baseWidth /. 2.;
+  let x0 = width /. 2. -. baseWidth /. 2. +. offset;
+  let x1 = width /. 2. +. baseWidth /. 2. +. offset;
   (x0, x1, rem, isLight);
 };
 
 let init = {position: 0., track: Track.init, lastPiece: 1};
 
-let draw = (state, env) => {
-  let (x0, x1, remainder, isLight) = findInitialCoordinates(state);
-  let goal = (244, 324);
+let draw = (offset, state, env) => {
+  let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
+  let iOffset = int_of_float(offset *. 0.4); /* interesting */
+  let goal = (244 + iOffset, 324 + iOffset);
 
   drawRoad(
     (x0, height),

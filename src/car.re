@@ -12,6 +12,7 @@ type state = {
   position: (int, int),
   speed: float,
   velocity: int,
+  offset: float,
   assets,
 };
 
@@ -23,7 +24,6 @@ let vHighSpeed = 225.;
 let maxSpeed = 250.;
 
 let speedInMph = state => state.speed /. 1.6 |> int_of_float |> string_of_int;
-
 let draw = (state, env) => {
   let image =
     switch (state.velocity) {
@@ -37,9 +37,17 @@ let draw = (state, env) => {
   Draw.image(image, ~pos=state.position, ~width=105, ~height=51, env);
 };
 
+let updateOffset = (state, force) => {
+  let offset = state.offset -. force;
+  let offset = max(offset, Common.minOffset);
+  let offset = min(offset, Common.maxOffset);
+
+  {...state, offset};
+};
+
 let turn = (key: Types.key, state: state) => {
-  let (x, y) = state.position;
-  let updatePosition = s => {...s, position: (x + s.velocity / 2, y)};
+  let updateOffsetUsingForce = s =>
+    updateOffset(s, float_of_int(s.velocity) /. 2.);
 
   (
     switch (key) {
@@ -56,10 +64,20 @@ let turn = (key: Types.key, state: state) => {
     | _ => state
     }
   )
-  |> updatePosition;
+  |> updateOffsetUsingForce;
 };
 
-let accelerate = state => {
+let roadEffect = (direction, state) => {
+  /* Current max velocity is 6, curves are from 0.08 to 0.6 */
+  let update = updateOffset(state);
+  switch (direction) {
+  | Track.Left(force) => force *. 2.5 *. 0.04 *. state.speed |> update
+  | Track.Right(force) => force *. 2.5 *. (-0.04) *. state.speed |> update
+  | _ => state
+  };
+};
+
+let accelerate = (isBrake, state) => {
   let accel =
     switch (state.speed) {
     | _ when maxSpeed == state.speed => maxSpeed
@@ -75,7 +93,13 @@ let accelerate = state => {
       log((maxSpeed -. state.speed) /. 18.) /. 25.
     | _ => log((maxSpeed -. state.speed) /. 19.) /. 25.
     };
+
   let speed = state.speed +. accel;
+  /* This is just a guess */
+  let brakeFactor = max(0.3, 2.8 -. speed /. 50.);
+  let speed = isBrake ? max(0., speed -. brakeFactor) : speed;
+  let speed = max(0., speed);
+  let speed = min(maxSpeed, speed);
 
   {...state, speed};
 };
@@ -85,6 +109,7 @@ let init = (x, y, env) => {
   {
     position: (x, y),
     velocity: 0,
+    offset: 0.,
     speed: 0.,
     assets: {
       straight: loadImage("assets/car_1.png"),

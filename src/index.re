@@ -1,7 +1,7 @@
 open Common;
 open Reprocessing;
 
-type break = bool;
+type brake = bool;
 
 let frameRate = 25.0;
 let maxFrameDelta = 1.0 /. (frameRate *. 60.);
@@ -24,7 +24,12 @@ let setup = env => {
 };
 
 let control = state => {
-  let car = Car.turn(state.key, state.car) |> Car.accelerate;
+  let currentRoadDirection = Road.currentDirection(state.road);
+  let isBrake = state.key == Types.BRAKE ? true : false;
+  let car =
+    Car.turn(state.key, state.car)
+    |> Car.roadEffect(currentRoadDirection)
+    |> Car.accelerate(isBrake);
 
   let position = state.road.position +. car.speed /. 25.;
   let newRoadState = Road.moveForward(position, state.road);
@@ -56,7 +61,7 @@ let drawSky = env => {
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
   drawGound(env);
-  Road.draw(state.road, env);
+  Road.draw(state.car.offset, state.road, env);
   drawSky(env);
   Car.draw(state.car, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
@@ -86,7 +91,8 @@ let keyPressed = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: LEFT}
   | Right => {...state, key: RIGHT}
-  | Space => setup(env)
+  | Down => {...state, key: BRAKE}
+  | Up => setup(env)
   | _ => state
   };
 };
@@ -94,6 +100,7 @@ let keyReleased = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: NONE}
   | Right => {...state, key: NONE}
+  | Down => {...state, key: NONE}
   | _ => state
   };
 };
