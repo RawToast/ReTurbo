@@ -1,5 +1,5 @@
 type key =
   | LEFT
   | RIGHT
-  | BREAK
+  | BRAKE
   | NONE;

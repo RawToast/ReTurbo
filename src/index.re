@@ -1,7 +1,7 @@
 open Common;
 open Reprocessing;
 
-type break = bool;
+type brake = bool;
 
 let frameRate = 25.0;
 let maxFrameDelta = 1.0 /. (frameRate *. 60.);
@@ -25,11 +25,11 @@ let setup = env => {
 
 let control = state => {
   let currentRoadDirection = Road.currentDirection(state.road);
-  let isBreak = state.key == Types.BREAK ? true : false;
+  let isBrake = state.key == Types.BRAKE ? true : false;
   let car =
     Car.turn(state.key, state.car)
     |> Car.roadEffect(currentRoadDirection)
-    |> Car.accelerate(isBreak);
+    |> Car.accelerate(isBrake);
 
   let position = state.road.position +. car.speed /. 25.;
   let newRoadState = Road.moveForward(position, state.road);
@@ -91,8 +91,8 @@ let keyPressed = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: LEFT}
   | Right => {...state, key: RIGHT}
-  | Down => {...state, key: BREAK}
-  | Space => setup(env)
+  | Down => {...state, key: BRAKE}
+  | Up => setup(env)
   | _ => state
   };
 };

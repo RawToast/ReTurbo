@@ -77,7 +77,7 @@ let roadEffect = (direction, state) => {
   };
 };
 
-let accelerate = (isBreak, state) => {
+let accelerate = (isBrake, state) => {
   let accel =
     switch (state.speed) {
     | _ when maxSpeed == state.speed => maxSpeed
@@ -96,8 +96,8 @@ let accelerate = (isBreak, state) => {
 
   let speed = state.speed +. accel;
   /* This is just a guess */
-  let breakFactor = max(0.3, 2.8 -. speed /. 50.);
-  let speed = isBreak ? max(0., speed -. breakFactor) : speed;
+  let brakeFactor = max(0.3, 2.8 -. speed /. 50.);
+  let speed = isBrake ? max(0., speed -. brakeFactor) : speed;
   let speed = max(0., speed);
   let speed = min(maxSpeed, speed);
 
