@@ -123,7 +123,7 @@ let init = {position: 0., track: Track.init, lastPiece: 1};
 
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
-  let iOffset = int_of_float(offset *. 0.5); /* interesting */
+  let iOffset = int_of_float(offset *. 0.4); /* interesting */
   let goal = (244 + iOffset, 324 + iOffset);
 
   drawRoad(
