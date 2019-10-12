@@ -41,7 +41,7 @@ let nextY = currentY =>
     currentY -. delta;
   };
 
-let _piFactor = (4. *. atan(1.)) /. 180.;
+let _piFactor = 4. *. atan(1.) /. 180.;
 let calcDeltaX = (yDistance, angle) => {
   let toRadians = d => d *. _piFactor;
   yDistance *. (angle |> toRadians |> tan);
@@ -93,7 +93,12 @@ let rec drawRoad =
     env,
   );
 
-  let isOutOfBounds = maxHeight >= y1 || x1 < (0. +. Common.minOffset) || x0 > (width +. Common.maxOffset);
+  let isOutOfBounds =
+    maxHeight >= y1
+    || x1 < 0.
+    +. Common.minOffset
+    || x0 > width
+    +. Common.maxOffset;
   if (isOutOfBounds) {
     ();
   } else {
@@ -104,7 +109,7 @@ let rec drawRoad =
       List.tl(track),
       (nextGoalL, nextGoalR),
       !isDark,
-      env, 
+      env,
     );
   };
 };

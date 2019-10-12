@@ -25,10 +25,11 @@ let setup = env => {
 
 let control = state => {
   let currentRoadDirection = Road.currentDirection(state.road);
-
-  let car = Car.turn(state.key, state.car) 
-    |> Car.roadEffect(currentRoadDirection) 
-    |> Car.accelerate;
+  let isBreak = state.key == Types.BREAK ? true : false;
+  let car =
+    Car.turn(state.key, state.car)
+    |> Car.roadEffect(currentRoadDirection)
+    |> Car.accelerate(isBreak);
 
   let position = state.road.position +. car.speed /. 25.;
   let newRoadState = Road.moveForward(position, state.road);
@@ -90,6 +91,7 @@ let keyPressed = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: LEFT}
   | Right => {...state, key: RIGHT}
+  | Down => {...state, key: BREAK}
   | Space => setup(env)
   | _ => state
   };
@@ -98,6 +100,7 @@ let keyReleased = (state, env) => {
   switch (Env.keyCode(env)) {
   | Left => {...state, key: NONE}
   | Right => {...state, key: NONE}
+  | Down => {...state, key: NONE}
   | _ => state
   };
 };

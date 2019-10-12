@@ -42,11 +42,12 @@ let updateOffset = (state, force) => {
   let offset = max(offset, Common.minOffset);
   let offset = min(offset, Common.maxOffset);
 
-  {...state, offset}
+  {...state, offset};
 };
 
 let turn = (key: Types.key, state: state) => {
-  let updateOffsetUsingForce = s => updateOffset(s, (float_of_int(s.velocity) /. 2.));
+  let updateOffsetUsingForce = s =>
+    updateOffset(s, float_of_int(s.velocity) /. 2.);
 
   (
     switch (key) {
@@ -69,14 +70,14 @@ let turn = (key: Types.key, state: state) => {
 let roadEffect = (direction, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
   let update = updateOffset(state);
-  switch direction {
-  | Track.Left(force) => (force *. 2.5 *. 0.04 *. (state.speed)) |> update
-  | Track.Right(force) => (force *. 2.5 *. -0.04 *. (state.speed)) |> update
+  switch (direction) {
+  | Track.Left(force) => force *. 2.5 *. 0.04 *. state.speed |> update
+  | Track.Right(force) => force *. 2.5 *. (-0.04) *. state.speed |> update
   | _ => state
   };
 };
 
-let accelerate = state => {
+let accelerate = (isBreak, state) => {
   let accel =
     switch (state.speed) {
     | _ when maxSpeed == state.speed => maxSpeed
@@ -92,7 +93,13 @@ let accelerate = state => {
       log((maxSpeed -. state.speed) /. 18.) /. 25.
     | _ => log((maxSpeed -. state.speed) /. 19.) /. 25.
     };
+
   let speed = state.speed +. accel;
+  /* This is just a guess */
+  let breakFactor = max(0.3, 2.8 -. speed /. 50.);
+  let speed = isBreak ? max(0., speed -. breakFactor) : speed;
+  let speed = max(0., speed);
+  let speed = min(maxSpeed, speed);
 
   {...state, speed};
 };
