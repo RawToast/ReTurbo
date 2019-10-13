@@ -105,15 +105,15 @@ let roadEffect = (direction, state) => {
     let grantBonus = state => {
       let initBonus =
         switch (direction) {
-        | Track.Right(t) => (0. -. t) *. offset /. 25.
-        | Track.Left(t) => t *. offset /. 25.
+        | Track.Right(t) => (0. -. t) *. offset /. 22.
+        | Track.Left(t) => t *. offset /. 22.
         | _ => 0.
         };
 
       let positionBonus =
         switch (initBonus) {
-        | _ when initBonus > 4. => 4.
-        | _ when initBonus < (-4.) => (-4.)
+        | _ when initBonus > 5. => 5.
+        | _ when initBonus < (-5.) => (-5.)
         | 0. => 0.
         | _ => initBonus
         };

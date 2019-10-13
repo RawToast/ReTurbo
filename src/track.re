@@ -23,7 +23,7 @@ let make24 = make(_, 24);
 
 let demoTrack =
   make24(Straight)
-  |+| make8(Right(hc2))
+  |+| make12(Right(hc1))
   |+| make12(Straight)
   |+| make24(Left(ec1))
   |+| make12(Straight)
@@ -36,8 +36,9 @@ let demoTrack =
   |+| make8(Left(mc2))
   |+| make12(Straight)
   |+| make8(Left(hc1))
-  |+| [Checkpoint(30)]
-  |+| make4(Left(hc2))
+  |+| make4(Straight)
+  |+| [Checkpoint(20)]
+  |+| make8(Left(hc2))
   |+| make8(Straight)
   |+| make8(Right(1.))
   |+| make4(Straight)
@@ -59,10 +60,20 @@ let demoTrack =
   |+| make8(Right(ec2))
   |+| make8(Left(mc1))
   |+| make8(Right(mc1))
+  |+| make4(Straight)
+  |+| make2(Left(hc2))
+  |+| make2(Right(hc2))
+  |+| make2(Left(hc2))
+  |+| make8(Right(hc1))
+  |+| make4(Straight)
+  |+| make4(Left(hc1))
+  |+| make4(Right(hc2))
+  |+| make4(Left(hc2))
   |+| make8(Straight)
   |+| make8(Right(ec2))
   |+| make8(Right(mc2))
   |+| make24(Right(hc1))
+  |+| make8(Right(hc1))
   |+| make12(Right(mc1))
   |+| [Checkpoint(10)]
   |+| make12(Straight)
@@ -82,8 +93,23 @@ let demoTrack =
   |+| make2(Straight)
   |+| make4(Left(mc2))
   |+| make4(Left(hc2))
-  |+| make12(Left(0.8))
-  |+| make8(Left(ec2));
+  |+| make4(Straight)
+  |+| make8(Left(0.8))
+  |+| make8(Left(ec2))
+  |+| make8(Right(ec1))
+  |+| make12(Straight)
+  |+| [Checkpoint(8)]
+  |+| make12(Left(mc1))
+  |+| make8(Straight)
+  |+| make12(Right(mc2))
+  |+| make12(Right(hc1))
+  |+| make12(Right(hc2))
+  |+| make8(Straight)
+  |+| make8(Left(hc2))
+  |+| make2(Straight)
+  |+| make8(Left(hc2))
+  |+| make4(Straight)
+  |+| make8(Right(0.7));
 
 type state = {track: list(direction)};
 
