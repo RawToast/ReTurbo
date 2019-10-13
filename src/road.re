@@ -10,6 +10,7 @@ let maxHeight = height /. 2.;
 
 let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
+let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 
 type state = {
   position: float,
@@ -29,6 +30,17 @@ let moveForward = (newPosition, state) =>
   } else {
     {...state, position: newPosition};
   };
+let onCheckpoint = state => state.track |> Track.head |> Track.isCheckpoint;
+let checkpointBonus = state =>
+  state.track
+  |> Track.head
+  |> (
+    p =>
+      switch (p) {
+      | Track.Checkpoint(t) => t
+      | _ => 0
+      }
+  );
 
 let nextY = currentY =>
   if (currentY >= 320.) {
@@ -51,8 +63,11 @@ let rec drawRoad =
         (leftBottom, rightBottom, firstHeight, track, goals, isDark, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
+  let trackPiece = List.hd(track);
 
+  let isCheckpoint = Track.isCheckpoint(trackPiece);
   isDark ? fillDarkGrey(env) : fillLightGrey(env);
+  isCheckpoint ? fillRed(env) : ();
 
   let y1 =
     if (y0 == height) {
@@ -61,13 +76,12 @@ let rec drawRoad =
       nextY(y0);
     };
   let (gl, gr) = goals;
-  let trackPiece = List.hd(track);
 
   let curveStength =
     switch (trackPiece) {
-    | Track.Straight => 0.0
     | Track.Left(lc) => 0. -. lc
     | Track.Right(rc) => rc
+    | _ => 0.0
     };
   let nextGoalL = gl + int_of_float((height -. y1) *. curveStength);
   let nextGoalR = gr + int_of_float((height -. y1) *. curveStength);

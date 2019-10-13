@@ -29,10 +29,15 @@ let control = state => {
     |> Car.roadEffect(currentRoadDirection)
     |> Car.accelerate(isBrake);
 
-  let position = state.road.position +. car.speed /. 25.;
+  let position = state.road.position +. Car.progression(state.car);
   let newRoadState = Road.moveForward(position, state.road);
 
-  {...state, car, road: newRoadState};
+  let checkpointBonus =
+    state.road.lastPiece != newRoadState.lastPiece
+      ? Road.checkpointBonus(newRoadState) : 0;
+  let timer = Timer.addTimeInSeconds(checkpointBonus, state.timer);
+
+  {...state, car, road: newRoadState, timer};
 };
 
 let drawGound = env => {
