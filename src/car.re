@@ -15,12 +15,15 @@ type state = {
   offset: float,
   assets,
 };
+let carWidth = 105;
+let vLowSpeed = 90.;
+let lowSpeed = 110.;
+let midSpeed = 160.;
+let highSpeed = 220.;
+let vHighSpeed = 260.;
 
-let vLowSpeed = 75.;
-let lowSpeed = 90.;
-let midSpeed = 135.;
-let highSpeed = 190.;
-let vHighSpeed = 225.;
+let grassMaxSpeed = 100.;
+
 let maxSpeed = 250.;
 /* 60-0 in 5 seconds */
 let brakeFactor = 60. *. 1.6 /. (Common.frameRate *. 5.);
@@ -36,7 +39,7 @@ let draw = (state, env) => {
     | _ when state.velocity < 0 => state.assets.leftTurn
     | _ => state.assets.straight
     };
-  Draw.image(image, ~pos=state.position, ~width=105, ~height=51, env);
+  Draw.image(image, ~pos=state.position, ~width=carWidth, ~height=51, env);
 };
 
 let updateOffset = (state, force) => {
@@ -72,11 +75,32 @@ let turn = (key: Types.key, state: state) => {
 let roadEffect = (direction, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
   let update = updateOffset(state);
-  switch (direction) {
-  | Track.Left(force) => force *. 2.5 *. 0.04 *. state.speed |> update
-  | Track.Right(force) => force *. 2.5 *. (-0.04) *. state.speed |> update
-  | _ => state
+  let offTrack = state => {
+    let halfRoad = Common.roadWidth /. 2.;
+    let carCentre = float_of_int(carWidth) /. 2.;
+    let offset = state.offset;
+
+    let isOffRight = offset > 0. && offset > halfRoad;
+    let isOffLeft = offset < 0. && offset < halfRoad *. (-1.) +. carCentre;
+    let isOff = isOffRight || isOffLeft;
+
+    let reduce = state => {
+      state.speed > grassMaxSpeed
+        ? {...state, speed: state.speed -. 0.36}
+        : {...state, speed: state.speed -. 0.1};
+    };
+
+    isOff ? reduce(state) : state;
   };
+
+  (
+    switch (direction) {
+    | Track.Left(force) => force *. 2.5 *. 0.04 *. state.speed |> update
+    | Track.Right(force) => force *. 2.5 *. (-0.04) *. state.speed |> update
+    | _ => state
+    }
+  )
+  |> offTrack;
 };
 
 let accelerate = (isBrake, state) => {
@@ -90,10 +114,10 @@ let accelerate = (isBrake, state) => {
     | _ when midSpeed > state.speed =>
       log((vHighSpeed -. state.speed) /. 10.) /. 25.
     | _ when highSpeed > state.speed =>
-      log((maxSpeed -. state.speed) /. 16.) /. 25.
+      log((maxSpeed -. state.speed) /. 12.) /. 25.
     | _ when vHighSpeed > state.speed =>
-      log((maxSpeed -. state.speed) /. 18.) /. 25.
-    | _ => log((maxSpeed -. state.speed) /. 19.) /. 25.
+      log((maxSpeed -. state.speed) /. 14.) /. 25.
+    | _ => log((maxSpeed -. state.speed) /. 16.) /. 25.
     };
 
   let speed = state.speed +. accel;

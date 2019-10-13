@@ -4,7 +4,7 @@ open Reprocessing;
 let height = float_of_int(Common.height);
 let width = float_of_int(Common.width);
 /* Road constants */
-let baseWidth = 680.;
+let baseWidth = Common.roadWidth;
 let baseLength = 40.;
 let maxHeight = height /. 2.;
 
