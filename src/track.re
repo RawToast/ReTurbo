@@ -50,7 +50,40 @@ let demoTrack =
   |+| make24(Right(mc1))
   |+| make24(Left(mc2))
   |+| make24(Right(mc2))
-  |+| make4(Right(hc1));
+  |+| make4(Right(hc1))
+  |+| make4(Straight)
+  |+| [Checkpoint(10)]
+  |+| make12(Left(ec1))
+  |+| make12(Right(ec1))
+  |+| make8(Left(ec2))
+  |+| make8(Right(ec2))
+  |+| make8(Left(mc1))
+  |+| make8(Right(mc1))
+  |+| make8(Straight)
+  |+| make8(Right(ec2))
+  |+| make8(Right(mc2))
+  |+| make24(Right(hc1))
+  |+| make12(Right(mc1))
+  |+| [Checkpoint(10)]
+  |+| make12(Straight)
+  |+| make12(Right(hc2))
+  |+| make8(Straight)
+  |+| make4(Left(0.8))
+  |+| make4(Straight)
+  |+| make4(Right(0.8))
+  |+| make4(Straight)
+  |+| make4(Left(1.))
+  |+| make4(Straight)
+  |+| make4(Right(1.))
+  |+| make4(Straight)
+  |+| make4(Right(1.2))
+  |+| make12(Straight)
+  |+| make12(Left(hc2))
+  |+| make2(Straight)
+  |+| make4(Left(mc2))
+  |+| make4(Left(hc2))
+  |+| make12(Left(0.8))
+  |+| make8(Left(ec2));
 
 type state = {track: list(direction)};
 

@@ -54,27 +54,26 @@ let updateOffset = (state, force) => {
 let turn = (key: Control.turn, state: state) => {
   let updateOffsetUsingForce = s =>
     updateOffset(s, float_of_int(s.velocity) /. 2.);
-
+  let highSpeed = state.speed > 176. && state.speed < 200.;
+  let vHighSpeed = state.speed > 200.;
+  let updateVelocity = amount => {
+    ...state,
+    velocity: state.velocity + amount,
+  };
   (
     switch (key) {
-    | LEFT when state.velocity > (-12) => {
-        ...state,
-        velocity: state.velocity - 1,
-      }
-    | P_LEFT when state.velocity > (-16) => {
-        ...state,
-        velocity: state.velocity - 2,
-      }
-    | RIGHT when state.velocity < 12 => {
-        ...state,
-        velocity: state.velocity + 1,
-      }
-    | P_RIGHT when state.velocity < 16 => {
-        ...state,
-        velocity: state.velocity + 2,
-      }
-    | _ when state.velocity > 0 => {...state, velocity: state.velocity - 1}
-    | _ when state.velocity < 0 => {...state, velocity: state.velocity + 1}
+    | LEFT when state.velocity > (-12) && vHighSpeed => updateVelocity(-1)
+    | LEFT when state.velocity > (-13) && highSpeed => updateVelocity(-1)
+    | LEFT when state.velocity > (-14) => updateVelocity(-1)
+    | P_LEFT when state.velocity > (-16) && vHighSpeed => updateVelocity(-2)
+    | P_LEFT when state.velocity > (-14) => updateVelocity(-2)
+    | RIGHT when state.velocity < 12 && vHighSpeed => updateVelocity(1)
+    | RIGHT when state.velocity < 13 && highSpeed => updateVelocity(1)
+    | RIGHT when state.velocity < 14 => updateVelocity(1)
+    | P_RIGHT when state.velocity < 16 && vHighSpeed => updateVelocity(2)
+    | P_RIGHT when state.velocity > 14 => updateVelocity(1)
+    | _ when state.velocity > 0 => updateVelocity(-1)
+    | _ when state.velocity < 0 => updateVelocity(1)
     | _ => state
     }
   )
