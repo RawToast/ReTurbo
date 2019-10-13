@@ -1,15 +1,10 @@
 open Common;
 open Reprocessing;
 
-type brake = bool;
-
-let maxFrameDelta = 1.0 /. (frameRate *. 60.);
-
 type state = {
   car: Car.state,
   road: Road.state,
   key: Types.key,
-  frameDelta: float,
 };
 
 let setup = env => {
@@ -18,7 +13,6 @@ let setup = env => {
     car: Car.init(width / 2 - 30, height - 60, env),
     road: Road.init,
     key: Types.NONE,
-    frameDelta: 0.,
   };
 };
 
@@ -30,7 +24,7 @@ let control = state => {
     |> Car.roadEffect(currentRoadDirection)
     |> Car.accelerate(isBrake);
 
-  let position = state.road.position +. car.speed /. 25.;
+  let position = state.road.position +. car.speed /. Common.frameRate;
   let newRoadState = Road.moveForward(position, state.road);
 
   {...state, car, road: newRoadState};
@@ -75,15 +69,9 @@ let drawGame = (state, env) => {
 };
 
 let draw = (state, env) => {
-  let frameTime = state.frameDelta +. Env.deltaTime(env);
-  if (frameTime > maxFrameDelta) {
-    let state = control(state);
+  let state = control(state);
 
-    let state = {...state, frameDelta: frameTime -. maxFrameDelta};
-    drawGame(state, env);
-  } else {
-    drawGame(state, env);
-  };
+  drawGame(state, env);
 };
 
 let keyPressed = (state, env) => {
