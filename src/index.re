@@ -4,7 +4,7 @@ open Reprocessing;
 type state = {
   car: Car.state,
   road: Road.state,
-  key: Types.key,
+  control: Control.state,
   timer: Timer.state,
   score: Score.state,
 };
@@ -14,7 +14,7 @@ let setup = env => {
   {
     car: Car.init(width / 2 - 30, height - 60, env),
     road: Road.init,
-    key: Types.NONE,
+    control: Control.init,
     timer: Timer.init,
     score: Score.init,
   };
@@ -23,9 +23,11 @@ let setup = env => {
 let control = state => {
   let currentRoadDirection = Road.currentDirection(state.road);
   let isBrake =
-    state.key == Types.BRAKE || Timer.gameOver(state.timer) ? true : false;
+    Control.isBrake(state.control) || Timer.gameOver(state.timer)
+      ? true : false;
+  let turn = Control.getTurn(state.control);
   let car =
-    Car.turn(state.key, state.car)
+    Car.turn(turn, state.car)
     |> Car.roadEffect(currentRoadDirection)
     |> Car.accelerate(isBrake);
 
@@ -92,18 +94,54 @@ let draw = (state, env) => {
 
 let keyPressed = (state, env) => {
   switch (Env.keyCode(env)) {
-  | Left => {...state, key: LEFT}
-  | Right => {...state, key: RIGHT}
-  | Down => {...state, key: BRAKE}
+  | Left => {
+      ...state,
+      control: {
+        ...state.control,
+        left: true,
+      },
+    }
+  | Right => {
+      ...state,
+      control: {
+        ...state.control,
+        right: true,
+      },
+    }
+  | Down => {
+      ...state,
+      control: {
+        ...state.control,
+        brake: true,
+      },
+    }
   | Up => setup(env)
   | _ => state
   };
 };
 let keyReleased = (state, env) => {
   switch (Env.keyCode(env)) {
-  | Left => {...state, key: NONE}
-  | Right => {...state, key: NONE}
-  | Down => {...state, key: NONE}
+  | Left => {
+      ...state,
+      control: {
+        ...state.control,
+        left: false,
+      },
+    }
+  | Right => {
+      ...state,
+      control: {
+        ...state.control,
+        right: false,
+      },
+    }
+  | Down => {
+      ...state,
+      control: {
+        ...state.control,
+        brake: false,
+      },
+    }
   | _ => state
   };
 };

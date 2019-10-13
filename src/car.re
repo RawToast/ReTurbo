@@ -51,7 +51,7 @@ let updateOffset = (state, force) => {
   {...state, offset};
 };
 
-let turn = (key: Types.key, state: state) => {
+let turn = (key: Control.turn, state: state) => {
   let updateOffsetUsingForce = s =>
     updateOffset(s, float_of_int(s.velocity) /. 2.);
 
@@ -61,12 +61,20 @@ let turn = (key: Types.key, state: state) => {
         ...state,
         velocity: state.velocity - 1,
       }
+    | P_LEFT when state.velocity > (-16) => {
+        ...state,
+        velocity: state.velocity - 2,
+      }
     | RIGHT when state.velocity < 12 => {
         ...state,
         velocity: state.velocity + 1,
       }
-    | NONE when state.velocity > 0 => {...state, velocity: state.velocity - 1}
-    | NONE when state.velocity < 0 => {...state, velocity: state.velocity + 1}
+    | P_RIGHT when state.velocity < 16 => {
+        ...state,
+        velocity: state.velocity + 2,
+      }
+    | _ when state.velocity > 0 => {...state, velocity: state.velocity - 1}
+    | _ when state.velocity < 0 => {...state, velocity: state.velocity + 1}
     | _ => state
     }
   )
