@@ -25,8 +25,8 @@ let vHighSpeed = 260.;
 let grassMaxSpeed = 100.;
 
 let maxSpeed = 250.;
-/* 60-0 in 5 seconds */
-let brakeFactor = 60. *. 1.6 /. (Common.frameRate *. 5.);
+/* 60-0 in 3 seconds */
+let brakeFactor = 60. *. 1.6 /. (Common.frameRate *. 3.);
 
 let speedInMph = state => state.speed /. 1.6 |> int_of_float |> string_of_int;
 let draw = (state, env) => {
@@ -86,7 +86,7 @@ let roadEffect = (direction, state) => {
 
     let reduce = state => {
       state.speed > grassMaxSpeed
-        ? {...state, speed: state.speed -. 0.36}
+        ? {...state, speed: state.speed -. 0.45}
         : {...state, speed: state.speed -. 0.1};
     };
 
@@ -120,8 +120,8 @@ let accelerate = (isBrake, state) => {
     | _ => log((maxSpeed -. state.speed) /. 16.) /. 25.
     };
 
-  let speed = state.speed +. accel;
-  let speed = isBrake ? max(0., speed -. brakeFactor) : speed;
+  let speed =
+    isBrake ? max(0., state.speed -. brakeFactor) : state.speed +. accel;
   let speed = max(0., speed);
   let speed = min(maxSpeed, speed);
 

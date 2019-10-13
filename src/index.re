@@ -6,6 +6,7 @@ type state = {
   road: Road.state,
   key: Types.key,
   timer: Timer.state,
+  score: Score.state,
 };
 
 let setup = env => {
@@ -15,18 +16,20 @@ let setup = env => {
     road: Road.init,
     key: Types.NONE,
     timer: Timer.init,
+    score: Score.init,
   };
 };
 
 let control = state => {
   let currentRoadDirection = Road.currentDirection(state.road);
-  let isBrake = state.key == Types.BRAKE ? true : false;
+  let isBrake =
+    state.key == Types.BRAKE || Timer.gameOver(state.timer) ? true : false;
   let car =
     Car.turn(state.key, state.car)
     |> Car.roadEffect(currentRoadDirection)
     |> Car.accelerate(isBrake);
 
-  let position = state.road.position +. car.speed /. Common.frameRate;
+  let position = state.road.position +. car.speed /. 25.;
   let newRoadState = Road.moveForward(position, state.road);
 
   {...state, car, road: newRoadState};
@@ -66,17 +69,19 @@ let drawGame = (state, env) => {
 
   Draw.text(~body=text, ~pos=(420, 20), env);
   Draw.text(~body=mph, ~pos=(480, 20), env);
+  Score.draw(state.score, env);
   Timer.draw(state.timer, env);
 
   state;
 };
 
 let draw = (state, env) => {
+  let lastPosition = state.road.position;
   let state = control(state);
-
+  let score =
+    Score.increment(state.road.position -. lastPosition, state.score);
   let timer = Timer.reduce(state.timer);
-
-  let state = {...state, timer};
+  let state = {...state, timer, score};
   drawGame(state, env);
 };
 

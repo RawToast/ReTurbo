@@ -9,8 +9,10 @@ let addTimeInSeconds = (seconds, state) => {
   remainingTime;
 };
 
-let reduce = state => {remainingTime: state.remainingTime -. 1.};
-
+let reduce = state =>
+  0. >= state.remainingTime
+    ? state : {remainingTime: state.remainingTime -. 1.};
+let gameOver = state => 0. >= state.remainingTime;
 let init = {remainingTime: 60. *. Common.frameRate};
 
 let draw = (state, env) => {
