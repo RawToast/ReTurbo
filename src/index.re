@@ -5,6 +5,7 @@ type state = {
   car: Car.state,
   road: Road.state,
   key: Types.key,
+  timer: Timer.state,
 };
 
 let setup = env => {
@@ -13,6 +14,7 @@ let setup = env => {
     car: Car.init(width / 2 - 30, height - 60, env),
     road: Road.init,
     key: Types.NONE,
+    timer: Timer.init,
   };
 };
 
@@ -64,6 +66,7 @@ let drawGame = (state, env) => {
 
   Draw.text(~body=text, ~pos=(420, 20), env);
   Draw.text(~body=mph, ~pos=(480, 20), env);
+  Timer.draw(state.timer, env);
 
   state;
 };
@@ -71,6 +74,9 @@ let drawGame = (state, env) => {
 let draw = (state, env) => {
   let state = control(state);
 
+  let timer = Timer.reduce(state.timer);
+
+  let state = {...state, timer};
   drawGame(state, env);
 };
 
