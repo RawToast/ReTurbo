@@ -3,7 +3,6 @@ open Reprocessing;
 
 type brake = bool;
 
-let frameRate = 25.0;
 let maxFrameDelta = 1.0 /. (frameRate *. 60.);
 
 type state = {

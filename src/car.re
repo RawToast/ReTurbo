@@ -22,6 +22,8 @@ let midSpeed = 135.;
 let highSpeed = 190.;
 let vHighSpeed = 225.;
 let maxSpeed = 250.;
+/* 60-0 in 5 seconds */
+let brakeFactor = 60. *. 1.6 /. (Common.frameRate *. 5.);
 
 let speedInMph = state => state.speed /. 1.6 |> int_of_float |> string_of_int;
 let draw = (state, env) => {
@@ -95,8 +97,6 @@ let accelerate = (isBrake, state) => {
     };
 
   let speed = state.speed +. accel;
-  /* This is just a guess */
-  let brakeFactor = max(0.3, 2.8 -. speed /. 50.);
   let speed = isBrake ? max(0., speed -. brakeFactor) : speed;
   let speed = max(0., speed);
   let speed = min(maxSpeed, speed);
