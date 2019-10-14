@@ -11,9 +11,9 @@ let addTimeInSeconds = (seconds, state) => {
 
 let reduce = state =>
   0. >= state.remainingTime
-    ? state : {remainingTime: state.remainingTime -. 1.};
+    ? {remainingTime: 0.} : {remainingTime: state.remainingTime -. 1.};
 let gameOver = state => 0. >= state.remainingTime;
-let init = {remainingTime: 43. *. Common.frameRate};
+let init = {remainingTime: 27. *. Common.frameRate};
 
 let draw = (state, env) => {
   let time = remainingTimeString(state);
