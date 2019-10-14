@@ -4,7 +4,7 @@ open Reprocessing;
 type state = {
   car: Car.state,
   road: Road.state,
-  key: Types.key,
+  control: Control.state,
   timer: Timer.state,
   score: Score.state,
 };
@@ -14,7 +14,7 @@ let setup = env => {
   {
     car: Car.init(width / 2 - 30, height - 60, env),
     road: Road.init,
-    key: Types.NONE,
+    control: Control.init,
     timer: Timer.init,
     score: Score.init,
   };
@@ -23,16 +23,23 @@ let setup = env => {
 let control = state => {
   let currentRoadDirection = Road.currentDirection(state.road);
   let isBrake =
-    state.key == Types.BRAKE || Timer.gameOver(state.timer) ? true : false;
+    Control.isBrake(state.control) || Timer.gameOver(state.timer)
+      ? true : false;
+  let turn = Control.getTurn(state.control);
   let car =
-    Car.turn(state.key, state.car)
+    Car.turn(turn, state.car)
     |> Car.roadEffect(currentRoadDirection)
     |> Car.accelerate(isBrake);
 
-  let position = state.road.position +. car.speed /. 25.;
+  let position = state.road.position +. Car.progression(state.car);
   let newRoadState = Road.moveForward(position, state.road);
 
-  {...state, car, road: newRoadState};
+  let checkpointBonus =
+    state.road.lastPiece != newRoadState.lastPiece
+      ? Road.checkpointBonus(newRoadState) : 0;
+  let timer = Timer.addTimeInSeconds(checkpointBonus, state.timer);
+
+  {...state, car, road: newRoadState, timer};
 };
 
 let drawGound = env => {
@@ -75,32 +82,26 @@ let drawGame = (state, env) => {
   state;
 };
 
-let draw = (state, env) => {
-  let lastPosition = state.road.position;
-  let state = control(state);
-  let score =
-    Score.increment(state.road.position -. lastPosition, state.score);
-  let timer = Timer.reduce(state.timer);
-  let state = {...state, timer, score};
-  drawGame(state, env);
-};
+let draw = (state, env) =>
+  if (Control.isReset(state.control)) {
+    setup(env);
+  } else {
+    let lastPosition = state.road.position;
+    let state = control(state);
+    let score =
+      Score.increment(state.road.position -. lastPosition, state.score);
+    let timer = Timer.reduce(state.timer);
+    let state = {...state, timer, score};
+    drawGame(state, env);
+  };
 
 let keyPressed = (state, env) => {
-  switch (Env.keyCode(env)) {
-  | Left => {...state, key: LEFT}
-  | Right => {...state, key: RIGHT}
-  | Down => {...state, key: BRAKE}
-  | Up => setup(env)
-  | _ => state
-  };
+  ...state,
+  control: Control.keyDown(Env.keyCode(env), state.control),
 };
 let keyReleased = (state, env) => {
-  switch (Env.keyCode(env)) {
-  | Left => {...state, key: NONE}
-  | Right => {...state, key: NONE}
-  | Down => {...state, key: NONE}
-  | _ => state
-  };
+  ...state,
+  control: Control.keyUp(Env.keyCode(env), state.control),
 };
 
 run(~setup, ~draw, ~keyPressed, ~keyReleased, ());

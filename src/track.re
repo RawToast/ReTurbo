@@ -1,7 +1,8 @@
 type direction =
   | Straight
   | Left(float)
-  | Right(float);
+  | Right(float)
+  | Checkpoint(int);
 
 let ec1 = 0.08;
 let ec2 = 0.16;
@@ -18,12 +19,13 @@ let make2 = make(_, 2);
 let make4 = make(_, 4);
 let make8 = make(_, 8);
 let make12 = make(_, 12);
+let make24 = make(_, 24);
 
 let demoTrack =
-  make12(Straight)
-  |+| make12(Straight)
-  |+| make12(Straight)
-  |+| make4(Left(ec1))
+  make8(Straight)
+  |+| make24(Left(ec1))
+  |+| make4(Straight)
+  |+| make12(Right(ec2))
   |+| make8(Straight)
   |+| make8(Right(ec1))
   |+| make12(Right(ec1))
@@ -39,11 +41,28 @@ let demoTrack =
   |+| make8(Straight)
   |+| make4(Right(1.))
   |+| make4(Straight)
-  |+| make8(Left(hc2));
+  |+| make8(Left(hc2))
+  |+| make4(Straight)
+  |+| [Checkpoint(10)]
+  |+| make4(Straight)
+  |+| make24(Right(mc2))
+  |+| make8(Left(hc2))
+  |+| make8(Straight)
+  |+| make12(Left(hc2))
+  |+| make4(Straight)
+  |+| make24(Right(hc1))
+  |+| make4(Straight)
+  |+| [Checkpoint(5)];
 
 type state = {track: list(direction)};
 
 let init = {track: demoTrack};
+
+let isCheckpoint = t =>
+  switch (t) {
+  | Checkpoint(_) => true
+  | _ => false
+  };
 
 let progress = state =>
   if (List.length(state.track) > 15) {

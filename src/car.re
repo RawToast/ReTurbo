@@ -11,6 +11,7 @@ type assets = {
 type state = {
   position: (int, int),
   speed: float,
+  positionBonus: float,
   velocity: int,
   offset: float,
   assets,
@@ -50,27 +51,38 @@ let updateOffset = (state, force) => {
   {...state, offset};
 };
 
-let turn = (key: Types.key, state: state) => {
+let turn = (key: Control.turn, state: state) => {
   let updateOffsetUsingForce = s =>
     updateOffset(s, float_of_int(s.velocity) /. 2.);
-
+  let highSpeed = state.speed > 176. && state.speed < 200.;
+  let vHighSpeed = state.speed > 200.;
+  let updateVelocity = amount => {
+    ...state,
+    velocity: state.velocity + amount,
+  };
   (
     switch (key) {
-    | LEFT when state.velocity > (-12) => {
-        ...state,
-        velocity: state.velocity - 1,
-      }
-    | RIGHT when state.velocity < 12 => {
-        ...state,
-        velocity: state.velocity + 1,
-      }
-    | NONE when state.velocity > 0 => {...state, velocity: state.velocity - 1}
-    | NONE when state.velocity < 0 => {...state, velocity: state.velocity + 1}
+    | LEFT when state.velocity > (-12) && vHighSpeed => updateVelocity(-1)
+    | LEFT when state.velocity > (-13) && highSpeed => updateVelocity(-1)
+    | LEFT when state.velocity > (-14) => updateVelocity(-1)
+    | P_LEFT when state.velocity > (-16) && vHighSpeed => updateVelocity(-2)
+    | P_LEFT when state.velocity > (-14) => updateVelocity(-2)
+    | RIGHT when state.velocity < 12 && vHighSpeed => updateVelocity(1)
+    | RIGHT when state.velocity < 13 && highSpeed => updateVelocity(1)
+    | RIGHT when state.velocity < 14 => updateVelocity(1)
+    | P_RIGHT when state.velocity < 16 && vHighSpeed => updateVelocity(2)
+    | P_RIGHT when state.velocity > 14 => updateVelocity(1)
+    | _ when state.velocity > 0 => updateVelocity(-1)
+    | _ when state.velocity < 0 => updateVelocity(1)
     | _ => state
     }
   )
   |> updateOffsetUsingForce;
 };
+
+let progression = state =>
+  0. >= state.speed
+    ? 0. : state.speed *. (1. +. state.positionBonus /. 100.) /. 25.;
 
 let roadEffect = (direction, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
@@ -90,7 +102,26 @@ let roadEffect = (direction, state) => {
         : {...state, speed: state.speed -. 0.1};
     };
 
-    isOff ? reduce(state) : state;
+    let grantBonus = state => {
+      let initBonus =
+        switch (direction) {
+        | Track.Right(t) => (0. -. t) *. offset /. 22.
+        | Track.Left(t) => t *. offset /. 22.
+        | _ => 0.
+        };
+
+      let positionBonus =
+        switch (initBonus) {
+        | _ when initBonus > 5. => 5.
+        | _ when initBonus < (-5.) => (-5.)
+        | 0. => 0.
+        | _ => initBonus
+        };
+
+      {...state, positionBonus};
+    };
+
+    (isOff ? reduce(state) : state) |> grantBonus;
   };
 
   (
@@ -135,6 +166,7 @@ let init = (x, y, env) => {
     velocity: 0,
     offset: 0.,
     speed: 0.,
+    positionBonus: 0.,
     assets: {
       straight: loadImage("assets/car_1.png"),
       leftTurn: loadImage("assets/car_2.png"),
