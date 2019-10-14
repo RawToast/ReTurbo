@@ -26,3 +26,22 @@ let getTurn = state =>
   | (false, true, true) => P_LEFT
   | _ => NONE
   };
+
+open Reprocessing_Events;
+let keyDown = (code, state) =>
+  switch (code) {
+  | Left => {...state, left: true}
+  | Right => {...state, right: true}
+  | Down => {...state, brake: true}
+  | Up => {...state, reset: true}
+  | _ => state
+  };
+
+let keyUp = (code, state) =>
+  switch (code) {
+  | Left => {...state, left: false}
+  | Right => {...state, right: false}
+  | Down => {...state, brake: false}
+  | Up => {...state, reset: false}
+  | _ => state
+  };
