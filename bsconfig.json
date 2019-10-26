@@ -12,5 +12,9 @@
     "backend": "js",
     "main-module": "Index"
   }],
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": true
+  },
   "refmt": 3
 }
