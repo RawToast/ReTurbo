@@ -1,6 +1,6 @@
 # ReTurbo
 
-![ReTurbo](assets/returbo2.gif)
+![ReTurbo](public/assets/returbo2.gif)
 
 Some fun with [Reprocessing](https://github.com/schmavery/reprocessing) and [BsbNative](https://github.com/bsansouci/bsb-native)
 
