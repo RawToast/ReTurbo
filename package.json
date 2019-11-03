@@ -9,8 +9,9 @@
     "build:native": "bsb -make-world -backend native",
     "clean": "bsb -clean-world",
     "refmt": "bsrefmt src/* --in-place",
-    "webpack": "webpack -w --entry ./src/index.js --output public/index.js --mode development",
-    "start:server": "webpack-dev-server --hot --content-base public/ "
+    "webpack": "webpack -w --entry ./lib/js/src/index.js --output public/index.js --mode development",
+    "start:server": "webpack-dev-server --hot --entry ./lib/js/src/index.js --output public/index.js --mode development --content public/ --content-base public/",
+    "opts": "webpack-dev-server -h"
   },
   "dependencies": {
     "reprocessing": "^0.3.1"

@@ -5,5 +5,5 @@ node_modules
 .bsb.lock
 .DS_Store
 .cache
-public/index.bs.js
 *.bs.js
+public/index.js

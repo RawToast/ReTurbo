@@ -13,8 +13,7 @@
     "main-module": "Index"
   }],
   "package-specs": {
-    "module": "commonjs",
-    "in-source": true
+    "module": "commonjs"
   },
   "refmt": 3
 }
