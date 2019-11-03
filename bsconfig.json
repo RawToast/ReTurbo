@@ -3,14 +3,12 @@
   "sources": "src",
   "bs-dependencies": ["reprocessing"],
   "entries": [{
-    "backend": "bytecode",
-    "main-module": "IndexHot"
-  },{
-    "backend": "native",
-    "main-module": "Index"
-  },{
     "backend": "js",
     "main-module": "Index"
+  },
+  {
+    "backend": "bytecode",
+    "main-module": "IndexHot"
   }],
   "package-specs": {
     "module": "commonjs"
