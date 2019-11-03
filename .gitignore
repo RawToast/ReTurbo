@@ -1,3 +1,4 @@
+dist
 lib
 node_modules
 .merlin
@@ -6,4 +7,3 @@ node_modules
 .DS_Store
 .cache
 *.bs.js
-public/index.js
