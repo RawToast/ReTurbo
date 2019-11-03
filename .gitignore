@@ -1,6 +1,9 @@
+dist
 lib
 node_modules
 .merlin
 .vscode
 .bsb.lock
 .DS_Store
+.cache
+*.bs.js

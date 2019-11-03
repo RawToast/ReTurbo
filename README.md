@@ -12,10 +12,15 @@ Some fun with [Reprocessing](https://github.com/schmavery/reprocessing) and [Bsb
 `yarn build`
 
 ### Start
-`yarn start`
+There are two ways to try this out:
 
-To build to JS run `npm run build:web` and then run a static server, like `python -m SimpleHTTPServer` and go to `localhost:8000`. If you're using safari you can simply open the `index.html` and tick `Develop > Disable Cross-Origin Restrictions`.
+After building you could run a static server, like `python -m SimpleHTTPServer` and go to `localhost:8000`. Or you're using safari you can simply open the `index.html` and tick `Develop > Disable Cross-Origin Restrictions`.
 
-To build to native run `npm run build:native` and run `npm run start:native`
+Alternatively using webpack: `yarn serve` will host the game at `localhost:8000` 
 
-The build system used is [bsb-native](https://github.com/bsansouci/bucklescript).
+## Fun Stuff I used
+
+* [Reason](https://reasonml.github.io)
+* [bsb-native](https://github.com/bsansouci/bucklescript)
+* [Reprocessing](https://github.com/schmavery/reprocessing)
+* [Webpack](https://github.com/webpack/webpack)
