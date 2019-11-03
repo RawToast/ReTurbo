@@ -1,14 +1,10 @@
 {
-  "name": "reprocessing-example",
+  "name": "re-turbo",
   "sources": "src",
   "bs-dependencies": ["reprocessing"],
   "entries": [{
     "backend": "js",
     "main-module": "Index"
-  },
-  {
-    "backend": "bytecode",
-    "main-module": "IndexHot"
   }],
   "package-specs": {
     "module": "commonjs"
