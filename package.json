@@ -10,7 +10,7 @@
     "clean": "bsb -clean-world",
     "refmt": "bsrefmt src/* --in-place",
     "webpack": "webpack -w --entry ./src/index.js --output public/index.js --mode development",
-    "start:server": "webpack-dev-server --hot"
+    "start:server": "webpack-dev-server --hot --content-base public/ "
   },
   "dependencies": {
     "reprocessing": "^0.3.1"
