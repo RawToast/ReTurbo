@@ -104,4 +104,19 @@ let keyReleased = (state, env) => {
   control: Control.keyUp(Env.keyCode(env), state.control),
 };
 
-run(~setup, ~screen="game", ~draw, ~keyPressed, ~keyReleased, ());
+let mouseDown = (state, mouseEvent) => {
+  ...state,
+  control: Control.mouseDown(Env.mouse(mouseEvt), state.control),
+};
+
+let mouseUp = (state, mouseEvent) => {
+  ...state,
+  control: Control.mouseUp(Env.mouse(mouseEvt), state.control),
+};
+
+let mouseMove = (state, mouseEvent) => {
+  ...state,
+  control: Control.mouseMove(Env.mouse(mouseEvt), Env.pmouse(mouseEvt), state.control),
+};
+
+run(~setup, ~screen="game", ~draw, ~keyPressed, ~keyReleased, ~mouseDown, ~mouseUp, ~mouseMove, ());
