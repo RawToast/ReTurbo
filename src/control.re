@@ -50,7 +50,7 @@ let mouseDown = (mousePos, state) => {
   let (x, y) = mousePos;
   Js.log("Mouse at: " ++ string_of_int(x) ++ " " ++ string_of_int(y));
 
-  
+
   state
 };
 
@@ -60,15 +60,9 @@ let mouseUp = (mousePos, state) => {
   state
 };
 
-let mouseUp = (mousePos, previousPosition, state) => {
+let mouseMove = (mousePos, previousPosition, state) => {
   let (x, y) = mousePos;
   let (px, py) = previousPosition;
-  Js.log("Mouse up at: " ++ string_of_int(x) ++ " " ++ string_of_int(y));
-  state
-};
-
-let mouseMove = (mouseEvt, state) => {
-  let (x, y) = Env.mouse(mouseEvt)
   Js.log("Mouse up at: " ++ string_of_int(x) ++ " " ++ string_of_int(y));
   state
 };
