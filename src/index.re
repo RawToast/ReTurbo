@@ -104,4 +104,4 @@ let keyReleased = (state, env) => {
   control: Control.keyUp(Env.keyCode(env), state.control),
 };
 
-run(~setup, ~draw, ~keyPressed, ~keyReleased, ());
+run(~setup, ~screen="game", ~draw, ~keyPressed, ~keyReleased, ());
