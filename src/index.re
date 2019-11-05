@@ -21,6 +21,7 @@ let setup = env => {
 };
 
 let control = state => {
+  
   let currentRoadDirection = Road.currentDirection(state.road);
   let isBrake =
     Control.isBrake(state.control) || Timer.gameOver(state.timer)
@@ -82,7 +83,7 @@ let drawGame = (state, env) => {
   state;
 };
 
-let draw = (state, env) =>
+let draw = (state, env) => {
   if (Control.isReset(state.control)) {
     setup(env);
   } else {
@@ -94,6 +95,7 @@ let draw = (state, env) =>
     let state = {...state, timer, score};
     drawGame(state, env);
   };
+};
 
 let keyPressed = (state, env) => {
   ...state,
@@ -103,20 +105,23 @@ let keyReleased = (state, env) => {
   ...state,
   control: Control.keyUp(Env.keyCode(env), state.control),
 };
-
 let mouseDown = (state, mouseEvent) => {
+  Js.log(Env.mouse(mouseEvent));
+  {
   ...state,
   control: Control.mouseDown(Env.mouse(mouseEvent), state.control),
-};
-
+}};
 let mouseUp = (state, mouseEvent) => {
   ...state,
   control: Control.mouseUp(Env.mouse(mouseEvent), state.control),
 };
-
-let mouseMove = (state, mouseEvent) => {
+let mouseDragged = (state, mouseEvent) => {
   ...state,
-  control: Control.mouseMove(Env.mouse(mouseEvent), Env.pmouse(mouseEvent), state.control),
+  control: Control.mouseDragged(
+    Env.mousePressed(mouseEvent), 
+    Env.mouse(mouseEvent), 
+    Env.pmouse(mouseEvent), 
+    state.control)
 };
 
-run(~setup, ~screen="game", ~draw, ~keyPressed, ~keyReleased, ~mouseDown, ~mouseUp, ~mouseMove, ());
+run(~setup, ~screen="game", ~draw, ~keyPressed, ~keyReleased, ~mouseDown, ~mouseUp, ~mouseDragged, ());

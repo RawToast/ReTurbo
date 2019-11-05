@@ -71,7 +71,7 @@ let turn = (key: Control.turn, state: state) => {
     | RIGHT when state.velocity < 13 && highSpeed => updateVelocity(1)
     | RIGHT when state.velocity < 14 => updateVelocity(1)
     | P_RIGHT when state.velocity < 16 && vHighSpeed => updateVelocity(2)
-    | P_RIGHT when state.velocity > 14 => updateVelocity(1)
+    | P_RIGHT when state.velocity < 14 => updateVelocity(2)
     | _ when state.velocity > 0 => updateVelocity(-1)
     | _ when state.velocity < 0 => updateVelocity(1)
     | _ => state

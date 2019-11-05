@@ -46,23 +46,46 @@ let keyUp = (code, state) =>
   | _ => state
   };
 
+let breakY = 250;
+let isMHardLeft = (x, y) => 200 > x && y > breakY;
+let isMHardRight = (x, y) => x > 368 && y > breakY;
+let isMLeft = x => 200 > x;
+let isMRight = x => x > 368;
+
+let handleCurrentPress = (x, y, state) => switch((x, y)) {
+    | _ when isMHardLeft(x, y) => {...state, brake: true, left: true}
+    | _ when isMHardRight(x, y) => {...state, brake: true, right: true}
+    | _ when isMLeft(x) => {...state, left: true}
+    | _ when isMRight(x) => {...state, right: true}
+    | _ when y > breakY => {...state, brake: true}
+    | _ when 60 > y => {...state, reset: true}
+    | _ => state
+  };
+
+let handleRemovePress = (x, y, state) => switch((x, y)) {
+    | _ when isMHardLeft(x, y) => {...state, brake: false, left: false}
+    | _ when isMHardRight(x, y) => {...state, brake: false, right: false}
+    | _ when isMLeft(x) => {...state, left: false}
+    | _ when isMRight(x) => {...state, right: false}
+    | _ when y > breakY => {...state, brake: false}
+    | _ => state
+  }
+
 let mouseDown = (mousePos, state) => {
   let (x, y) = mousePos;
-  Js.log("Mouse at: " ++ string_of_int(x) ++ " " ++ string_of_int(y));
-
-
-  state
+  handleCurrentPress(x, y, state);
 };
 
 let mouseUp = (mousePos, state) => {
   let (x, y) = mousePos;
-  Js.log("Mouse up at: " ++ string_of_int(x) ++ " " ++ string_of_int(y));
-  state
+  handleRemovePress(x, y, state);
 };
 
-let mouseMove = (mousePos, previousPosition, state) => {
+let mouseDragged = (pressed, mousePos, previousPosition, state) => {
   let (x, y) = mousePos;
   let (px, py) = previousPosition;
-  Js.log("Mouse up at: " ++ string_of_int(x) ++ " " ++ string_of_int(y));
+
   state
+  |> handleRemovePress(px, py) 
+  |> handleCurrentPress(x, y);
 };
