@@ -12,17 +12,22 @@ let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
 let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 
+type assets = {
+  roadSign: Reprocessing_Common.imageT
+};
 type state = {
   position: float,
   lastPiece: int,
   track: Track.state,
+  assets: assets
 };
 
-let currentDirection = state => Track.head(state.track);
+let currentPlane = state => Track.head(state.track);
 
 let moveForward = (newPosition, state) =>
   if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
     {
+      ...state,
       lastPiece: state.lastPiece + 1,
       position: newPosition,
       track: Track.progress(state.track),
@@ -36,7 +41,7 @@ let checkpointBonus = state =>
   |> Track.head
   |> (
     p =>
-      switch (p) {
+      switch (p.direction) {
       | Track.Checkpoint(t) => t
       | _ => 0
       }
@@ -60,7 +65,7 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (leftBottom, rightBottom, firstHeight, track, goals, isDark, env) => {
+        (leftBottom, rightBottom, firstHeight, track, goals, isDark, assets, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
@@ -78,7 +83,7 @@ let rec drawRoad =
   let (gl, gr) = goals;
 
   let curveStength =
-    switch (trackPiece) {
+    switch (trackPiece.direction) {
     | Track.Left(lc) => 0. -. lc
     | Track.Right(rc) => rc
     | _ => 0.0
@@ -107,6 +112,35 @@ let rec drawRoad =
     env,
   );
 
+  let findPosition = obs => Track.Obsticle.({
+    let size = 48;
+    let ((xl, by), (xr, _)) = (leftBottom, rightBottom);
+    let (offsetX, oy) = obs.offset;
+
+    let h = 48. *. if (by >= height) {1.} else {(by -. y1) /. baseLength};
+    let w = 48. *. (((Common.maxOffset +. xr) -. (Common.maxOffset +. xl)) /. baseWidth);
+
+    (int_of_float(((xr )) ), int_of_float(y1 +. h), int_of_float(h), int_of_float(w))
+  });
+
+  let drawObs = en => Track.Obsticle.(
+    trackPiece.obsticles |> List.iter{ obs =>
+      switch obs.objectType {
+      | SIGN_LEFT => {
+        let (xx, yy, h, w) = findPosition(obs);
+        fillRed(env);
+        Draw.quad(~p1=(xx, yy), ~p2=(xx+w, yy), ~p3=(xx +w, yy +h), ~p4=(xx, yy + h), env);
+        isDark ? fillDarkGrey(env) : fillLightGrey(env);
+        Draw.image(assets.roadSign, ~pos=(xx, yy), ~width=w, ~height=h, en)}
+      | SIGN_RIGHT => Draw.image(assets.roadSign, ~pos=(130, 230), en)
+      };
+    }
+  );
+
+  drawObs(env);
+  
+
+
   let isOutOfBounds =
     maxHeight >= y1
     || x1 < 0.
@@ -123,6 +157,7 @@ let rec drawRoad =
       List.tl(track),
       (nextGoalL, nextGoalR),
       !isDark,
+      assets,
       env,
     );
   };
@@ -138,7 +173,11 @@ let findInitialCoordinates = (offset, state) => {
   (x0, x1, rem, isLight);
 };
 
-let init = {position: 0., track: Track.init, lastPiece: 1};
+let loadAssets(env) = {
+    roadSign: Draw.loadImage(~filename="assets/roadSign.png", ~isPixel=true, env)
+  };
+
+let init(env) = {position: 0., track: Track.init, lastPiece: 1, assets: loadAssets(env)};
 
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
@@ -152,6 +191,7 @@ let draw = (offset, state, env) => {
     state.track.track,
     goal,
     isLight,
+    state.assets,
     env,
   );
 };

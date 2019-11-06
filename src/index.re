@@ -13,7 +13,7 @@ let setup = env => {
   Env.size(~width, ~height, env);
   {
     car: Car.init(width / 2 - 30, height - 60, env),
-    road: Road.init,
+    road: Road.init(env),
     control: Control.init,
     timer: Timer.init,
     score: Score.init,
@@ -21,8 +21,13 @@ let setup = env => {
 };
 
 let control = state => {
+<<<<<<< Updated upstream
   
   let currentRoadDirection = Road.currentDirection(state.road);
+=======
+  let currentPlane = Road.currentPlane(state.road);
+  let currentRoadDirection = currentPlane.direction;
+>>>>>>> Stashed changes
   let isBrake =
     Control.isBrake(state.control) || Timer.gameOver(state.timer)
       ? true : false;
