@@ -106,7 +106,6 @@ let keyReleased = (state, env) => {
   control: Control.keyUp(Env.keyCode(env), state.control),
 };
 let mouseDown = (state, mouseEvent) => {
-  Js.log(Env.mouse(mouseEvent));
   {
   ...state,
   control: Control.mouseDown(Env.mouse(mouseEvent), state.control),

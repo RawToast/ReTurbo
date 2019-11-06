@@ -46,13 +46,14 @@ let keyUp = (code, state) =>
   | _ => state
   };
 
-let breakY = 250;
-let isMHardLeft = (x, y) => 200 > x && y > breakY;
-let isMHardRight = (x, y) => x > 368 && y > breakY;
-let isMLeft = x => 200 > x;
-let isMRight = x => x > 368;
+let breakY = 350;
+let isMHardLeft = (x, y) => 250 > x && y > breakY;
+let isMHardRight = (x, y) => x > 525 && y > breakY;
+let isMLeft = x => 250 > x;
+let isMRight = x => x > 525;
 
-let handleCurrentPress = (x, y, state) => switch((x, y)) {
+let handleCurrentPress = (x, y, state) =>  {
+  switch((x, y)) {
     | _ when isMHardLeft(x, y) => {...state, brake: true, left: true}
     | _ when isMHardRight(x, y) => {...state, brake: true, right: true}
     | _ when isMLeft(x) => {...state, left: true}
@@ -60,7 +61,7 @@ let handleCurrentPress = (x, y, state) => switch((x, y)) {
     | _ when y > breakY => {...state, brake: true}
     | _ when 60 > y => {...state, reset: true}
     | _ => state
-  };
+  }};
 
 let handleRemovePress = (x, y, state) => switch((x, y)) {
     | _ when isMHardLeft(x, y) => {...state, brake: false, left: false}
