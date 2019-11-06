@@ -21,13 +21,8 @@ let setup = env => {
 };
 
 let control = state => {
-<<<<<<< Updated upstream
-  
-  let currentRoadDirection = Road.currentDirection(state.road);
-=======
   let currentPlane = Road.currentPlane(state.road);
   let currentRoadDirection = currentPlane.direction;
->>>>>>> Stashed changes
   let isBrake =
     Control.isBrake(state.control) || Timer.gameOver(state.timer)
       ? true : false;
