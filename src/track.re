@@ -10,7 +10,7 @@ module Obsticle = {
     | SIGN_LEFT;
 
   type state = {
-    objectType,
+    objectType: objectType,
     offset: (float, float),
   };
 };

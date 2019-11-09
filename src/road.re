@@ -47,17 +47,6 @@ let checkpointBonus = state =>
       }
   );
 
-let nextY = currentY =>
-  if (currentY >= 320.) {
-    currentY -. baseLength;
-  } else {
-    let yDelta = 160. /. baseLength;
-    let revY = 0. -. (currentY -. 320.);
-    let height = baseLength -. revY /. yDelta;
-    let delta = height > 6. ? height : 6.;
-    currentY -. delta;
-  };
-
 let _piFactor = 4. *. atan(1.) /. 180.;
 let calcDeltaX = (yDistance, angle) => {
   let toRadians = d => d *. _piFactor;
@@ -69,90 +58,69 @@ let rec drawRoad =
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
-
   let isCheckpoint = Track.isCheckpoint(trackPiece);
   isDark ? fillDarkGrey(env) : fillLightGrey(env);
   isCheckpoint ? fillRed(env) : ();
 
-  let y1 =
-    if (y0 == height) {
-      height -. baseLength +. firstHeight;
-    } else {
-      nextY(y0);
-    };
-  let (gl, gr) = goals;
+  let nextHeight = RoadCalc.calcNextYPosition(y0, height, baseLength, firstHeight);
 
-  let curveStength =
-    switch (trackPiece.direction) {
-    | Track.Left(lc) => 0. -. lc
-    | Track.Right(rc) => rc
-    | _ => 0.0
-    };
-  let nextGoalL = gl + int_of_float((height -. y1) *. curveStength);
-  let nextGoalR = gr + int_of_float((height -. y1) *. curveStength);
+  let curveStength = RoadCalc.curveStength(trackPiece.direction);
 
-  let (rightX, leftX) = {
-    let opposite = y0 -. maxHeight;
-    let adjacentL = float_of_int(nextGoalL) -. x0;
-    let adjacentR = x1 -. float_of_int(nextGoalR);
-    let leftAngleRadians = atan(opposite /. adjacentL);
-    let rightAngleRadians = atan(opposite /. adjacentR);
+  let (nextGoalL, nextGoalR) = RoadCalc.nextGoals(goals, curveStength, height, nextHeight);
 
-    let left = (y0 -. y1) /. tan(leftAngleRadians);
-    let right = (y0 -. y1) /. tan(rightAngleRadians);
-
-    (x1 -. right, x0 +. left);
-  };
+  let roadQuad = RoadCalc.calcRoadQuad(leftBottom, rightBottom, nextHeight, maxHeight, nextGoalL, nextGoalR);
 
   Draw.quadf(
-    ~p1=leftBottom,
-    ~p2=rightBottom,
-    ~p3=(rightX, y1),
-    ~p4=(leftX, y1),
+    ~p1= roadQuad.leftBottom,
+    ~p2= roadQuad.rightBottom,
+    ~p3= roadQuad.rightTop,
+    ~p4= roadQuad.leftTop,
     env,
   );
 
-  let findPosition = obs => Track.Obsticle.({
-    let size = 48;
-    let ((xl, by), (xr, _)) = (leftBottom, rightBottom);
-    let (offsetX, oy) = obs.offset;
+  let findPosition = (quad: RoadCalc.roadQuad, size) => {
+    let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop);
+    let size = float_of_int(size);
 
-    let h = 48. *. if (by >= height) {1.} else {(by -. y1) /. baseLength};
-    let w = 48. *. (((Common.maxOffset +. xr) -. (Common.maxOffset +. xl)) /. baseWidth);
+    let h = size *. if (by >= height) {1.} else {(by -. ty) /. baseLength};
+    let w = size *. (((Common.maxOffset +. xr) -. (Common.maxOffset +. xl)) /. baseWidth);
 
-    (int_of_float(((xr )) ), int_of_float(y1 +. h), int_of_float(h), int_of_float(w))
-  });
+    (int_of_float(((xr )) ), int_of_float(nextHeight), int_of_float(h), int_of_float(w))
+  };
 
-  let drawObs = en => Track.Obsticle.(
-    trackPiece.obsticles |> List.iter{ obs =>
+
+  let drawObs = (trackPiece: Track.plane, quad, env) => {
+  let obsticles: list(Track.Obsticle.state) = trackPiece.obsticles;
+
+    obsticles |> List.iter{ obs => {
+      open Track.Obsticle;
       switch obs.objectType {
-      | SIGN_LEFT => {
-        let (xx, yy, h, w) = findPosition(obs);
-        fillRed(env);
-        Draw.quad(~p1=(xx, yy), ~p2=(xx+w, yy), ~p3=(xx +w, yy +h), ~p4=(xx, yy + h), env);
-        isDark ? fillDarkGrey(env) : fillLightGrey(env);
-        Draw.image(assets.roadSign, ~pos=(xx, yy), ~width=w, ~height=h, en)}
-      | SIGN_RIGHT => Draw.image(assets.roadSign, ~pos=(130, 230), en)
+        | SIGN_LEFT => {
+          let (xx, yy, h, w) = findPosition(quad, 48);
+          fillRed(env);
+          Draw.quad(~p1=(xx, yy), ~p2=(xx+w, yy), ~p3=(xx +w, yy +h), ~p4=(xx, yy + h), env);
+          isDark ? fillDarkGrey(env) : fillLightGrey(env);
+          Draw.image(assets.roadSign, ~pos=(xx, yy), ~width=w, ~height=h, env)}
+        | SIGN_RIGHT => Draw.image(assets.roadSign, ~pos=(130, 230), env)
       };
-    }
-  );
+    }};
+  };
 
-  drawObs(env);
-  
-
+  drawObs(trackPiece, roadQuad, env);
 
   let isOutOfBounds =
-    maxHeight >= y1
+    maxHeight >= nextHeight
     || x1 < 0.
     +. Common.minOffset
     || x0 > width
     +. Common.maxOffset;
+    
   if (isOutOfBounds) {
     ();
   } else {
     drawRoad(
-      (leftX, y1),
-      (rightX, y1),
+      roadQuad.leftTop,
+      roadQuad.rightTop,
       firstHeight,
       List.tl(track),
       (nextGoalL, nextGoalR),
