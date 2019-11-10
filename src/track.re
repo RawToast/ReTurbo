@@ -45,15 +45,12 @@ let demoTrack = {
 
   make8(Straight)
   |+| makeWithObjs(Straight, 2, [])
-  |+| makeWithObjs(Right(ec2), 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-  |+| makeWithObjs(Straight, 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-  |+| [
-    {direction: Straight, obsticles: [{objectType: Obsticle.SIGN_LEFT, offset: (20., 0.)}]},
-  ]
+  |+| makeWithObjs(Right(ec2), 4, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
+  |+| make8(Straight)
   |+| make24(Left(ec1))
-  |+| makeWithObjs(Left(mc1), 8, [{objectType: Obsticle.SIGN_LEFT, offset: (20., 0.)}])
+  |+| makeWithObjs(Left(mc1), 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
   |+| makeWithObjs(Straight, 4, [ {objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
-    |+| makeWithObjs(Right(ec2), 12, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
+  |+| makeWithObjs(Right(ec2), 12, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
   |+| make8(Straight)
   |+| make8(Right(ec1))
   |+| make12(Right(ec1))
@@ -63,24 +60,27 @@ let demoTrack = {
   |+| make2(Right(hc1))
   |+| make12(Straight)
   |+| make4(Left(mc2))
+  |+| makeWithObjs(Right(mc2), 4, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
   |+| make12(Straight)
-  |+| makeWithObjs(Left(hc1), 4, [{objectType: Obsticle.SIGN_LEFT, offset: (40., 0.)}])
-  |+| makeWithObjs(Left(hc2), 4, [{objectType: Obsticle.SIGN_LEFT, offset: (40., 0.)}])
+  |+| makeWithObjs(Left(hc1), 4, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
+  |+| makeWithObjs(Left(hc2), 4, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
   |+| make8(Straight)
   |+| make4(Right(1.))
   |+| make4(Straight)
   |+| make8(Left(hc2))
   |+| make4(Straight)
-  |+| makeCheckpoint(10)
+  |+| makeCheckpoint(12)
   |+| make4(Straight)
-  |+| make24(Right(mc2))
+  |+| makeWithObjs(Right(mc2), 24, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
   |+| make8(Left(hc2))
   |+| make8(Straight)
-  |+| make12(Left(hc2))
+  |+| makeWithObjs(Left(hc2), 12, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
   |+| make4(Straight)
+  |+| make4(Left(1.))
+  |+| make8(Straight)
   |+| make24(Right(hc1))
   |+| make4(Straight)
-  |+| makeCheckpoint(10);
+  |+| makeCheckpoint(5);
 };
 let init = {track: demoTrack};
 
@@ -91,10 +91,9 @@ let isCheckpoint = t =>
   };
 
 let progress = state => {
-  if (List.length(state.track) > 45) {
+  if (List.length(state.track) > 25) {
     {track: List.tl(state.track)};
   } else {
-    Js.log("expanding");
     {track: List.tl(state.track |+| demoTrack)};
   }};
 

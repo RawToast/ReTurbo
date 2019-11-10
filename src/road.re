@@ -12,15 +12,11 @@ let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
 let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 
-type assets = {
-  roadSignRight: Reprocessing_Common.imageT,
-  roadSignLeft: Reprocessing_Common.imageT
-};
 type state = {
   position: float,
   lastPiece: int,
   track: Track.state,
-  assets: assets
+  objects: Objects.assets
 };
 
 let currentPlane = state => Track.head(state.track);
@@ -55,7 +51,7 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (leftBottom, rightBottom, firstHeight, track, goals, isDark, assets, obsticles, env) => {
+        (leftBottom, rightBottom, firstHeight, track, goals, isDark, state, objects, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
@@ -79,58 +75,10 @@ let rec drawRoad =
     env,
   );
 
-  let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
-    let (offsetX, _) = offset;
-    let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop);
-    let size = float_of_int(size);
-    let roadHeight = (by -. ty);
-    let heightAdjustFactor = if (by >= height) {1.} else {roadHeight /. baseLength};
-    let widthAdjustFactor = heightAdjustFactor//((Common.maxOffset +. xr) -. (Common.maxOffset +. xl)) /. baseWidth;
-    let objectHeight = size *. heightAdjustFactor;
-    let objectWidth = size *. widthAdjustFactor;
-
-    let objectOffsetX = offsetX *. widthAdjustFactor;
-
-    let objY = (by >= 319.)? {
-      let remaningRoad = (baseLength -. roadHeight);
-      int_of_float(by -. objectHeight +. remaningRoad)
-    } : (int_of_float(by -. objectHeight));
-
-    let objExtraX = (by >= 319.)? {
-      let remaningRoad = baseLength -. roadHeight;
-      leftBased ? 
-        remaningRoad /. tan(quad.leftAngle) : 
-        remaningRoad /. tan(quad.rightAngle);
-    } : 0.;
-    
-    if (leftBased == true) {
-      let objX = int_of_float(xl -. objExtraX -. objectWidth +. objectOffsetX);
-      (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
-    } else {
-      let objX = int_of_float(xr +. objExtraX +. objectOffsetX);
-      (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
-    }
-  };
-
-  let drawObs = (trackPiece: Track.plane, quad, env) => {
-  let obsticles: list(Track.Obsticle.state) = trackPiece.obsticles;
-
-    obsticles |> List.map{ obs => {
-      open Track.Obsticle;
-      switch obs.objectType {
-        | SIGN_RIGHT => {
-            let (xx, yy, h, w) = findPosition( quad, obs.offset, 96);
-            () => Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
-          }
-        | SIGN_LEFT => {
-            let (xx, yy, h, w) = findPosition(~leftBased=false, quad, obs.offset, 96);
-            () => Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
-          }
-      };
-    }};
-  };
-
-  let obsticles = List.append(drawObs(trackPiece, roadQuad, env), obsticles);
+  let objects = List.append(
+    Objects.calculatePositions(trackPiece, roadQuad, state.objects, env), 
+    objects
+  );
   
   let isOutOfBounds =
     maxHeight >= nextHeight
@@ -140,7 +88,7 @@ let rec drawRoad =
     +. Common.maxOffset;
     
   if (isOutOfBounds) {
-    obsticles
+    objects
   } else {
     drawRoad(
       roadQuad.leftTop,
@@ -149,8 +97,8 @@ let rec drawRoad =
       List.tl(track),
       (nextGoalL, nextGoalR),
       !isDark,
-      assets,
-      obsticles,
+      state,
+      objects,
       env,
     );
   };
@@ -166,12 +114,7 @@ let findInitialCoordinates = (offset, state) => {
   (x0, x1, rem, isLight);
 };
 
-let loadAssets(env) = {
-    roadSignLeft: Draw.loadImage(~filename="assets/roadSign_left.png", ~isPixel=true, env),
-    roadSignRight: Draw.loadImage(~filename="assets/roadSign.png", ~isPixel=true, env)
-  };
-
-let init(env) = {position: 0., track: Track.init, lastPiece: 1, assets: loadAssets(env)};
+let init(env) = {position: 0., track: Track.init, lastPiece: 1, objects: Objects.init(env)};
 
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
@@ -185,7 +128,7 @@ let draw = (offset, state, env) => {
     state.track.track,
     goal,
     isLight,
-    state.assets,
+    state,
     [],
     env,
   );
