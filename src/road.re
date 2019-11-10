@@ -81,8 +81,8 @@ let rec drawRoad =
   );
 
   let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
-    let (offsetX, offsetY) = offset;
-    let ((xl, by), (xr, _), (txl, _), (txr, ty)) = (quad.leftBottom, quad.rightBottom, quad.leftTop, quad.rightTop);
+    let (offsetX, _) = offset;
+    let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop);
     let size = float_of_int(size);
     let roadHeight = (by -. ty);
     let heightAdjustFactor = if (by >= height) {1.} else {roadHeight /. baseLength};
@@ -91,18 +91,25 @@ let rec drawRoad =
     let objectWidth = size *. widthAdjustFactor;
 
     let objectOffsetX = offsetX *. widthAdjustFactor;
-    // let objectOffsetY = offsetY *. heightAdjustFactor;
+
+    let objY = (by >= 319.)? {
+      let remaningRoad = (baseLength -. roadHeight);
+      int_of_float(by -. objectHeight +. remaningRoad)
+    } : (int_of_float(by -. objectHeight));
+
+    let objExtraX = (by >= 319.)? {
+      let remaningRoad = ((baseLength *. 1.2) -. roadHeight);
+      leftBased ? 
+        remaningRoad /. tan(quad.leftAngle) : 
+        remaningRoad /. tan(quad.rightAngle);
+    } : 0.;
     
     if (leftBased == true) {
-      let xPosAdjust = (roadHeight /. (tan(quad.leftAngle)));
-      let objX = int_of_float(objectOffsetX +. txl -. xPosAdjust);
-      // (objX, int_of_float(ty), int_of_float(objectHeight), int_of_float(objectWidth));
-      (int_of_float(xl -. objectWidth), int_of_float(by -. objectHeight), int_of_float(objectHeight), int_of_float(objectWidth))
+      let objX = int_of_float(xl -. objExtraX -. objectWidth +. objectOffsetX);
+      (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
     } else {
-      let xPosAdjust = (roadHeight /. (tan(quad.rightAngle)));
-      let objX = int_of_float(objectOffsetX +. txr +. xPosAdjust);
-      // Js.log2(objectHeight, xPosAdjust);
-      (int_of_float(xr), int_of_float(by -. objectHeight), int_of_float(objectHeight), int_of_float(objectWidth))
+      let objX = int_of_float(xr +. objExtraX +. objectOffsetX);
+      (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
     }
   };
 
