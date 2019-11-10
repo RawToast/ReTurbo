@@ -13,7 +13,8 @@ let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
 let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 
 type assets = {
-  roadSign: Reprocessing_Common.imageT
+  roadSignRight: Reprocessing_Common.imageT,
+  roadSignLeft: Reprocessing_Common.imageT
 };
 type state = {
   position: float,
@@ -55,6 +56,7 @@ let calcDeltaX = (yDistance, angle) => {
 
 let rec drawRoad =
         (leftBottom, rightBottom, firstHeight, track, goals, isDark, assets, env) => {
+  // let (leftBottom, rightBottom) = (roadQuad.leftBottom, roadQuad.rightBottom);
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
@@ -78,14 +80,30 @@ let rec drawRoad =
     env,
   );
 
-  let findPosition = (quad: RoadCalc.roadQuad, size) => {
-    let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop);
+  let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
+    let (offsetX, offsetY) = offset;
+    let ((xl, by), (xr, _), (txl, _), (txr, ty)) = (quad.leftBottom, quad.rightBottom, quad.leftTop, quad.rightTop);
     let size = float_of_int(size);
+    let roadHeight = (by -. ty);
+    let heightAdjustFactor = if (by >= height) {1.} else {roadHeight /. baseLength};
+    let widthAdjustFactor = heightAdjustFactor//((Common.maxOffset +. xr) -. (Common.maxOffset +. xl)) /. baseWidth;
+    let objectHeight = size *. heightAdjustFactor;
+    let objectWidth = size *. widthAdjustFactor;
 
-    let h = size *. if (by >= height) {1.} else {(by -. ty) /. baseLength};
-    let w = size *. (((Common.maxOffset +. xr) -. (Common.maxOffset +. xl)) /. baseWidth);
-
-    (int_of_float(((xr )) ), int_of_float(nextHeight), int_of_float(h), int_of_float(w))
+    let objectOffsetX = offsetX *. widthAdjustFactor;
+    // let objectOffsetY = offsetY *. heightAdjustFactor;
+    
+    if (leftBased == true) {
+      let xPosAdjust = (roadHeight /. (tan(quad.leftAngle)));
+      let objX = int_of_float(objectOffsetX +. txl -. xPosAdjust);
+      // (objX, int_of_float(ty), int_of_float(objectHeight), int_of_float(objectWidth));
+      (int_of_float(xl -. objectWidth), int_of_float(by -. objectHeight), int_of_float(objectHeight), int_of_float(objectWidth))
+    } else {
+      let xPosAdjust = (roadHeight /. (tan(quad.rightAngle)));
+      let objX = int_of_float(objectOffsetX +. txr +. xPosAdjust);
+      // Js.log2(objectHeight, xPosAdjust);
+      (int_of_float(xr), int_of_float(by -. objectHeight), int_of_float(objectHeight), int_of_float(objectWidth))
+    }
   };
 
 
@@ -95,13 +113,14 @@ let rec drawRoad =
     obsticles |> List.iter{ obs => {
       open Track.Obsticle;
       switch obs.objectType {
+        | SIGN_RIGHT => {
+            let (xx, yy, h, w) = findPosition( quad, obs.offset, 96);
+            Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
+          }
         | SIGN_LEFT => {
-          let (xx, yy, h, w) = findPosition(quad, 48);
-          fillRed(env);
-          Draw.quad(~p1=(xx, yy), ~p2=(xx+w, yy), ~p3=(xx +w, yy +h), ~p4=(xx, yy + h), env);
-          isDark ? fillDarkGrey(env) : fillLightGrey(env);
-          Draw.image(assets.roadSign, ~pos=(xx, yy), ~width=w, ~height=h, env)}
-        | SIGN_RIGHT => Draw.image(assets.roadSign, ~pos=(130, 230), env)
+            let (xx, yy, h, w) = findPosition(~leftBased=false, quad, obs.offset, 96);
+            Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
+          }
       };
     }};
   };
@@ -142,7 +161,8 @@ let findInitialCoordinates = (offset, state) => {
 };
 
 let loadAssets(env) = {
-    roadSign: Draw.loadImage(~filename="assets/roadSign.png", ~isPixel=true, env)
+    roadSignLeft: Draw.loadImage(~filename="assets/roadSign_left.png", ~isPixel=true, env),
+    roadSignRight: Draw.loadImage(~filename="assets/roadSign.png", ~isPixel=true, env)
   };
 
 let init(env) = {position: 0., track: Track.init, lastPiece: 1, assets: loadAssets(env)};
@@ -150,7 +170,7 @@ let init(env) = {position: 0., track: Track.init, lastPiece: 1, assets: loadAsse
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
   let iOffset = int_of_float(offset *. 0.4); /* interesting */
-  let goal = (244 + iOffset, 324 + iOffset);
+  let goal = (274 + iOffset, 294 + iOffset);
 
   drawRoad(
     (x0, height),
