@@ -44,19 +44,16 @@ let demoTrack = {
   let make24 = make(_, 24);
 
   make8(Straight)
-    |+| makeWithObjs(Straight, 2, [])
-  |+| makeWithObjs(Straight, 2, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-
+  |+| makeWithObjs(Straight, 2, [])
   |+| makeWithObjs(Right(ec2), 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-    |+| makeWithObjs(Straight, 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}, {objectType: Obsticle.SIGN_RIGHT, offset: (-100., 0.)}])
-
+  |+| makeWithObjs(Straight, 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
   |+| [
     {direction: Straight, obsticles: [{objectType: Obsticle.SIGN_LEFT, offset: (20., 0.)}]},
   ]
   |+| make24(Left(ec1))
   |+| makeWithObjs(Left(mc1), 8, [{objectType: Obsticle.SIGN_LEFT, offset: (20., 0.)}])
-  |+| makeWithObjs(Straight, 4, [ {objectType: Obsticle.SIGN_RIGHT, offset: (-100., 0.)}])
-    |+| makeWithObjs(Right(ec2), 12, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}, {objectType: Obsticle.SIGN_RIGHT, offset: (-100., 0.)}])
+  |+| makeWithObjs(Straight, 4, [ {objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
+    |+| makeWithObjs(Right(ec2), 12, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
   |+| make8(Straight)
   |+| make8(Right(ec1))
   |+| make12(Right(ec1))

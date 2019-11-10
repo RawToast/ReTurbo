@@ -3,14 +3,13 @@ let calcNextYPosition = (currentBottom, maximumY, baseRoadLength, firstHeight) =
   if (currentBottom == maximumY) {
     maximumY -. baseRoadLength +. firstHeight;
   } else {
-    // calc next Y
     if (currentBottom >= 320.) {
       currentBottom -. baseRoadLength;
     } else {
       let yDelta = 160. /. baseRoadLength;  // (160 / 40) = 4
       let revY = 0. -. (currentBottom -. 320.);
-      let height = baseRoadLength -. revY /. yDelta; // (40 - ( ? / 4))
-      let delta = height > 0.1 ? height : 0.1;
+      let height = baseRoadLength -. revY /. yDelta;
+      let delta = height > 1. ? height : 1.;
       currentBottom -. delta;
     };
   };
@@ -56,7 +55,8 @@ let calcRoadQuad = (leftBottom, rightBottom, nextHeight, maxRoadHeight, nextGoal
     rightBottom: rightBottom,
     leftTop: (leftX, nextHeight),
     rightTop: (rightX, nextHeight),
-    leftAngle: leftAngleRadians,
-    rightAngle: rightAngleRadians
+    // this is correct, I think there's something fishy going on above
+    leftAngle: rightAngleRadians, 
+    rightAngle: leftAngleRadians
   };
 };

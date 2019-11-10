@@ -55,8 +55,7 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (leftBottom, rightBottom, firstHeight, track, goals, isDark, assets, env) => {
-  // let (leftBottom, rightBottom) = (roadQuad.leftBottom, roadQuad.rightBottom);
+        (leftBottom, rightBottom, firstHeight, track, goals, isDark, assets, obsticles, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
@@ -98,7 +97,7 @@ let rec drawRoad =
     } : (int_of_float(by -. objectHeight));
 
     let objExtraX = (by >= 319.)? {
-      let remaningRoad = ((baseLength *. 1.2) -. roadHeight);
+      let remaningRoad = baseLength -. roadHeight;
       leftBased ? 
         remaningRoad /. tan(quad.leftAngle) : 
         remaningRoad /. tan(quad.rightAngle);
@@ -113,27 +112,26 @@ let rec drawRoad =
     }
   };
 
-
   let drawObs = (trackPiece: Track.plane, quad, env) => {
   let obsticles: list(Track.Obsticle.state) = trackPiece.obsticles;
 
-    obsticles |> List.iter{ obs => {
+    obsticles |> List.map{ obs => {
       open Track.Obsticle;
       switch obs.objectType {
         | SIGN_RIGHT => {
             let (xx, yy, h, w) = findPosition( quad, obs.offset, 96);
-            Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
+            () => Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
           }
         | SIGN_LEFT => {
             let (xx, yy, h, w) = findPosition(~leftBased=false, quad, obs.offset, 96);
-            Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
+            () => Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
           }
       };
     }};
   };
 
-  drawObs(trackPiece, roadQuad, env);
-
+  let obsticles = List.append(drawObs(trackPiece, roadQuad, env), obsticles);
+  
   let isOutOfBounds =
     maxHeight >= nextHeight
     || x1 < 0.
@@ -142,7 +140,7 @@ let rec drawRoad =
     +. Common.maxOffset;
     
   if (isOutOfBounds) {
-    ();
+    obsticles
   } else {
     drawRoad(
       roadQuad.leftTop,
@@ -152,6 +150,7 @@ let rec drawRoad =
       (nextGoalL, nextGoalR),
       !isDark,
       assets,
+      obsticles,
       env,
     );
   };
@@ -179,7 +178,7 @@ let draw = (offset, state, env) => {
   let iOffset = int_of_float(offset *. 0.4); /* interesting */
   let goal = (274 + iOffset, 294 + iOffset);
 
-  drawRoad(
+  let obs = drawRoad(
     (x0, height),
     (x1, height),
     remainder,
@@ -187,6 +186,9 @@ let draw = (offset, state, env) => {
     goal,
     isLight,
     state.assets,
+    [],
     env,
   );
+
+  List.iter(o => o(), obs);
 };
