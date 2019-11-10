@@ -18,8 +18,8 @@ type state = {
 };
 
 let loadAssets(env) = {
-  roadSignLeft: Draw.loadImage(~filename="assets/roadSign_left.png", ~isPixel=true, env),
-  roadSignRight: Draw.loadImage(~filename="assets/roadSign.png", ~isPixel=true, env)
+  roadSignLeft: Draw.loadImage(~filename="assets/roadsign_left.png", ~isPixel=true, env),
+  roadSignRight: Draw.loadImage(~filename="assets/roadsign.png", ~isPixel=true, env)
 };
 
 let init(env) = loadAssets(env);
@@ -60,18 +60,17 @@ let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
 let calculatePositions = (trackPiece: Track.plane, quad) => {
   let obsticles: list(Track.Obsticle.state) = trackPiece.obsticles;
 
-  obsticles |> List.map{ obs => {
-    open Track.Obsticle;
+  obsticles |> List.map{ (obs: Track.Obsticle.state) => {
     switch obs.objectType {
-      | SIGN_RIGHT => {
-          let (xx, yy, h, w) = findPosition( quad, obs.offset, 96);
-          // () => Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
-          { x: xx, y: yy, height: h, width: w, objectType: obs.objectType }
+      | Track.Obsticle.SIGN_RIGHT => {
+          let (x, y, height, width) = findPosition( quad, obs.offset, 96);
+          let objectType = obs.objectType;
+          { x, y, height, width, objectType }
         }
-      | SIGN_LEFT => {
-          let (xx, yy, h, w) = findPosition(~leftBased=false, quad, obs.offset, 96);
-          // () => Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
-          { x: xx, y: yy, height: h, width: w, objectType: obs.objectType }
+      | Track.Obsticle.SIGN_LEFT => {
+          let (x, y, height, width) = findPosition(~leftBased=false, quad, obs.offset, 96);
+          let objectType = obs.objectType;
+          { x, y, height, width, objectType }
         }
     };
   }};

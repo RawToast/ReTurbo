@@ -23,7 +23,6 @@ let currentPlane = state => Track.head(state.track);
 let moveForward = (newPosition, state) =>
   if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
     {
-      ...state,
       lastPiece: state.lastPiece + 1,
       position: newPosition,
       track: Track.progress(state.track),

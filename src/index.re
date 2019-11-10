@@ -124,8 +124,7 @@ let mouseUp = (state, mouseEvent) => {
 };
 let mouseDragged = (state, mouseEvent) => {
   ...state,
-  control: Control.mouseDragged(
-    Env.mousePressed(mouseEvent), 
+  control: Control.mouseDragged( 
     Env.mouse(mouseEvent), 
     Env.pmouse(mouseEvent), 
     state.control)

@@ -81,7 +81,7 @@ let mouseUp = (mousePos, state) => {
   handleRemovePress(x, y, state);
 };
 
-let mouseDragged = (pressed, mousePos, previousPosition, state) => {
+let mouseDragged = (mousePos, previousPosition, state) => {
   let (x, y) = mousePos;
   let (px, py) = previousPosition;
 
