@@ -7,6 +7,7 @@ type state = {
   control: Control.state,
   timer: Timer.state,
   score: Score.state,
+  objects: Objects.assets
 };
 
 let setup = env => {
@@ -17,12 +18,13 @@ let setup = env => {
     control: Control.init,
     timer: Timer.init,
     score: Score.init,
+    objects: Objects.loadAssets(env)
   };
 };
 
 let control = state => {
-  
-  let currentRoadDirection = Road.currentDirection(state.road);
+  let currentPlane = Road.currentPlane(state.road);
+  let currentRoadDirection = currentPlane.direction;
   let isBrake =
     Control.isBrake(state.control) || Timer.gameOver(state.timer)
       ? true : false;
@@ -67,9 +69,15 @@ let drawSky = env => {
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
   drawGound(env);
-  Road.draw(state.car.offset, state.road, env);
+  let objects: list(Objects.state) = Road.draw(state.car.offset, state.road, env);
+
+  let (objsA, objsB) = List.partition(
+    (o: Objects.state) => o.y >= height - o.height - 10, objects);
+
   drawSky(env);
+  Objects.draw(objsB, state.objects, env);
   Car.draw(state.car, env);
+  Objects.draw(objsA, state.objects, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
 
   let text = Car.speedInMph(state.car);

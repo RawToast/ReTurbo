@@ -15,14 +15,15 @@ let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 type state = {
   position: float,
   lastPiece: int,
-  track: Track.state,
+  track: Track.state
 };
 
-let currentDirection = state => Track.head(state.track);
+let currentPlane = state => Track.head(state.track);
 
 let moveForward = (newPosition, state) =>
   if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
     {
+      ...state,
       lastPiece: state.lastPiece + 1,
       position: newPosition,
       track: Track.progress(state.track),
@@ -36,22 +37,11 @@ let checkpointBonus = state =>
   |> Track.head
   |> (
     p =>
-      switch (p) {
+      switch (p.direction) {
       | Track.Checkpoint(t) => t
       | _ => 0
       }
   );
-
-let nextY = currentY =>
-  if (currentY >= 320.) {
-    currentY -. baseLength;
-  } else {
-    let yDelta = 160. /. baseLength;
-    let revY = 0. -. (currentY -. 320.);
-    let height = baseLength -. revY /. yDelta;
-    let delta = height > 6. ? height : 6.;
-    currentY -. delta;
-  };
 
 let _piFactor = 4. *. atan(1.) /. 180.;
 let calcDeltaX = (yDistance, angle) => {
@@ -60,69 +50,54 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (leftBottom, rightBottom, firstHeight, track, goals, isDark, env) => {
+        (leftBottom, rightBottom, firstHeight, track, goals, isDark, state, objects, env) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
-
   let isCheckpoint = Track.isCheckpoint(trackPiece);
   isDark ? fillDarkGrey(env) : fillLightGrey(env);
   isCheckpoint ? fillRed(env) : ();
 
-  let y1 =
-    if (y0 == height) {
-      height -. baseLength +. firstHeight;
-    } else {
-      nextY(y0);
-    };
-  let (gl, gr) = goals;
+  let nextHeight = RoadCalc.calcNextYPosition(y0, height, baseLength, firstHeight);
 
-  let curveStength =
-    switch (trackPiece) {
-    | Track.Left(lc) => 0. -. lc
-    | Track.Right(rc) => rc
-    | _ => 0.0
-    };
-  let nextGoalL = gl + int_of_float((height -. y1) *. curveStength);
-  let nextGoalR = gr + int_of_float((height -. y1) *. curveStength);
+  let curveStength = RoadCalc.curveStength(trackPiece.direction);
 
-  let (rightX, leftX) = {
-    let opposite = y0 -. maxHeight;
-    let adjacentL = float_of_int(nextGoalL) -. x0;
-    let adjacentR = x1 -. float_of_int(nextGoalR);
-    let leftAngleRadians = atan(opposite /. adjacentL);
-    let rightAngleRadians = atan(opposite /. adjacentR);
+  let (nextGoalL, nextGoalR) = RoadCalc.nextGoals(goals, curveStength, height, nextHeight);
 
-    let left = (y0 -. y1) /. tan(leftAngleRadians);
-    let right = (y0 -. y1) /. tan(rightAngleRadians);
-
-    (x1 -. right, x0 +. left);
-  };
+  let roadQuad = RoadCalc.calcRoadQuad(leftBottom, rightBottom, nextHeight, maxHeight, nextGoalL, nextGoalR);
 
   Draw.quadf(
-    ~p1=leftBottom,
-    ~p2=rightBottom,
-    ~p3=(rightX, y1),
-    ~p4=(leftX, y1),
+    ~p1= roadQuad.leftBottom,
+    ~p2= roadQuad.rightBottom,
+    ~p3= roadQuad.rightTop,
+    ~p4= roadQuad.leftTop,
     env,
   );
 
+  let objects = List.append(
+    Objects.calculatePositions(trackPiece, roadQuad), 
+    objects
+  );
+  
   let isOutOfBounds =
-    maxHeight >= y1
+    maxHeight >= nextHeight
     || x1 < 0.
     +. Common.minOffset
     || x0 > width
     +. Common.maxOffset;
+    
   if (isOutOfBounds) {
-    ();
+    objects
   } else {
     drawRoad(
-      (leftX, y1),
-      (rightX, y1),
+      roadQuad.leftTop,
+      roadQuad.rightTop,
       firstHeight,
       List.tl(track),
       (nextGoalL, nextGoalR),
       !isDark,
+      state,
+      objects,
       env,
     );
   };
@@ -143,15 +118,19 @@ let init = {position: 0., track: Track.init, lastPiece: 1};
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
   let iOffset = int_of_float(offset *. 0.4); /* interesting */
-  let goal = (244 + iOffset, 324 + iOffset);
+  let goal = (269 + iOffset, 299 + iOffset);
 
-  drawRoad(
+  let obs = drawRoad(
     (x0, height),
     (x1, height),
     remainder,
     state.track.track,
     goal,
     isLight,
+    state,
+    [],
     env,
   );
+
+  obs
 };

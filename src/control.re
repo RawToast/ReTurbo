@@ -52,25 +52,24 @@ let isMHardRight = (x, y) => x > 525 && y > breakY;
 let isMLeft = x => 250 > x;
 let isMRight = x => x > 525;
 
-let handleCurrentPress = (x, y, state) =>  {
-  switch((x, y)) {
-    | _ when isMHardLeft(x, y) => {...state, brake: true, left: true}
-    | _ when isMHardRight(x, y) => {...state, brake: true, right: true}
-    | _ when isMLeft(x) => {...state, left: true}
-    | _ when isMRight(x) => {...state, right: true}
-    | _ when y > breakY => {...state, brake: true}
-    | _ when 60 > y => {...state, reset: true}
-    | _ => state
-  }};
+let handleCurrentPress = (x, y, state) => switch((x, y)) {
+  | _ when isMHardLeft(x, y) => {...state, brake: true, left: true}
+  | _ when isMHardRight(x, y) => {...state, brake: true, right: true}
+  | _ when isMLeft(x) => {...state, left: true}
+  | _ when isMRight(x) => {...state, right: true}
+  | _ when y > breakY => {...state, brake: true}
+  | _ when 60 > y => {...state, reset: true}
+  | _ => state
+};
 
 let handleRemovePress = (x, y, state) => switch((x, y)) {
-    | _ when isMHardLeft(x, y) => {...state, brake: false, left: false}
-    | _ when isMHardRight(x, y) => {...state, brake: false, right: false}
-    | _ when isMLeft(x) => {...state, left: false}
-    | _ when isMRight(x) => {...state, right: false}
-    | _ when y > breakY => {...state, brake: false}
-    | _ => state
-  }
+  | _ when isMHardLeft(x, y) => {...state, brake: false, left: false}
+  | _ when isMHardRight(x, y) => {...state, brake: false, right: false}
+  | _ when isMLeft(x) => {...state, left: false}
+  | _ when isMRight(x) => {...state, right: false}
+  | _ when y > breakY => {...state, brake: false}
+  | _ => state
+}
 
 let mouseDown = (mousePos, state) => {
   let (x, y) = mousePos;
