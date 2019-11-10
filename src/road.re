@@ -15,8 +15,7 @@ let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 type state = {
   position: float,
   lastPiece: int,
-  track: Track.state,
-  objects: Objects.assets
+  track: Track.state
 };
 
 let currentPlane = state => Track.head(state.track);
@@ -76,7 +75,7 @@ let rec drawRoad =
   );
 
   let objects = List.append(
-    Objects.calculatePositions(trackPiece, roadQuad, state.objects, env), 
+    Objects.calculatePositions(trackPiece, roadQuad), 
     objects
   );
   
@@ -114,12 +113,12 @@ let findInitialCoordinates = (offset, state) => {
   (x0, x1, rem, isLight);
 };
 
-let init(env) = {position: 0., track: Track.init, lastPiece: 1, objects: Objects.init(env)};
+let init = {position: 0., track: Track.init, lastPiece: 1};
 
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
   let iOffset = int_of_float(offset *. 0.4); /* interesting */
-  let goal = (274 + iOffset, 294 + iOffset);
+  let goal = (269 + iOffset, 299 + iOffset);
 
   let obs = drawRoad(
     (x0, height),
@@ -133,5 +132,5 @@ let draw = (offset, state, env) => {
     env,
   );
 
-  List.iter(o => o(), obs);
+  obs
 };

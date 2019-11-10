@@ -126,8 +126,8 @@ let roadEffect = (direction, state) => {
 
   (
     switch (direction) {
-    | Track.Left(force) => force *. 2.5 *. 0.04 *. state.speed |> update
-    | Track.Right(force) => force *. 2.5 *. (-0.04) *. state.speed |> update
+    | Track.Left(force) => force *. 0.1 *. state.speed |> update
+    | Track.Right(force) => force *. (-0.1) *. state.speed |> update
     | _ => state
     }
   )

@@ -17,8 +17,9 @@ module Obsticle = {
 
 type plane = {
   direction,
-  obsticles: list(Obsticle.state),
+  obsticles: list(Obsticle.state)
 };
+
 type state = {track: list(plane)};
 let (|+|) = (a, b) => List.append(a, b);
 

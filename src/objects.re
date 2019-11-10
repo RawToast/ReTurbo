@@ -9,6 +9,14 @@ type assets = {
   roadSignLeft: Reprocessing_Common.imageT
 };
 
+type state = {
+  x: int,
+  y: int,
+  height: int,
+  width: int,
+  objectType: Track.Obsticle.objectType
+};
+
 let loadAssets(env) = {
   roadSignLeft: Draw.loadImage(~filename="assets/roadSign_left.png", ~isPixel=true, env),
   roadSignRight: Draw.loadImage(~filename="assets/roadSign.png", ~isPixel=true, env)
@@ -49,7 +57,7 @@ let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
   }
 };
 
-let calculatePositions = (trackPiece: Track.plane, quad, assets, env) => {
+let calculatePositions = (trackPiece: Track.plane, quad) => {
   let obsticles: list(Track.Obsticle.state) = trackPiece.obsticles;
 
   obsticles |> List.map{ obs => {
@@ -57,12 +65,20 @@ let calculatePositions = (trackPiece: Track.plane, quad, assets, env) => {
     switch obs.objectType {
       | SIGN_RIGHT => {
           let (xx, yy, h, w) = findPosition( quad, obs.offset, 96);
-          () => Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
+          // () => Draw.image(assets.roadSignRight, ~pos=(xx, yy), ~width=w, ~height=h, env)
+          { x: xx, y: yy, height: h, width: w, objectType: obs.objectType }
         }
       | SIGN_LEFT => {
           let (xx, yy, h, w) = findPosition(~leftBased=false, quad, obs.offset, 96);
-          () => Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
+          // () => Draw.image(assets.roadSignLeft, ~pos=(xx, yy), ~width=w, ~height=h, env)
+          { x: xx, y: yy, height: h, width: w, objectType: obs.objectType }
         }
     };
   }};
 };
+
+let draw = (objects, assets, env) =>
+  objects |> List.iter(o => switch(o.objectType) {
+    | SIGN_RIGHT => Draw.image(assets.roadSignRight, ~pos=(o.x, o.y), ~width=o.width, ~height=o.height, env);
+    | SIGN_LEFT => Draw.image(assets.roadSignLeft, ~pos=(o.x, o.y), ~width=o.width, ~height=o.height, env);
+  });
