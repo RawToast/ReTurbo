@@ -7,7 +7,14 @@ type direction =
 module Obsticle = {
   type objectType =
     | SIGN_RIGHT
-    | SIGN_LEFT;
+    | SIGN_LEFT
+    | STONE
+    | TREE;
+
+  type location = 
+    | LEFT
+    | RIGHT
+    | CENTRE;
 
   type location = 
      | LEFT
@@ -23,6 +30,9 @@ module Obsticle = {
 
   let makeSignRight = {objectType: SIGN_RIGHT, location: LEFT, offset: (-80., 0.), size: (96, 96) };
   let makeSignLeft = {objectType: SIGN_LEFT, location: RIGHT, offset: (30., 0.), size: (96, 96)};
+  let makeTree = (~where=RIGHT, x)  => {objectType: TREE, location: where, offset: (x , 0.), size: (208, 128)};
+  let smallTree = (~where=LEFT, x) => {objectType: TREE, location: where, offset: (x , 0.), size: (156, 80)};
+  let makeStone = (~where=CENTRE, x) => {objectType: STONE, location: where, offset: (x , 0.), size: (96, 96)};
 };
 
 type plane = {
