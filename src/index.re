@@ -56,6 +56,11 @@ let drawSky = env => {
   );
 };
 
+let find_opt = (p, list) => switch(List.find(p, list)) {
+  | item => Some(item)
+  | exception Not_found => None
+};
+
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
 
@@ -63,12 +68,25 @@ let drawGame = (state, env) => {
 
   let objects: list(Objects.state) = Road.draw(state.car.offset, state.road, env);
 
-  let (objsA, objsB) = List.partition(
+  let (infrontObjs, behindObjs) = List.partition(
     (o: Objects.state) => o.y >= height - o.height - 10, objects);
+  
+  let (carX, _) = state.car.position;
+  let collidableObjs = objects |> find_opt((o: Objects.state) => 
+    ((o.y >= height - o.height - 8) && (o.y <= height - o.height + 8))
+    && (((o.x <= carX ) && (o.x + o.width >= carX )) 
+    || (((o.x <= carX + Car.carWidth ) && (o.x + o.width >= carX + Car.carWidth))))
+  )
 
-  Objects.draw(objsB, state.objects, env);
+  let state = switch (collidableObjs) {
+    | Some(o) => {...state, car: {...state.car, speed: state.car.speed -. 3.}} 
+    | None => state;
+  };
+
+  drawSky(env);
+  Objects.draw(behindObjs, state.objects, env);
   Car.draw(state.car, env);
-  Objects.draw(objsA, state.objects, env);
+  Objects.draw(infrontObjs, state.objects, env);
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env);
 
   let text = Car.speedInMph(state.car);
