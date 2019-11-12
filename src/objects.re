@@ -52,8 +52,8 @@ let findPosition = (quad: RoadCalc.roadQuad, obj: Track.Obsticle.state) => {
       | Track.Obsticle.RIGHT => remaningRoad /. tan(quad.rightAngle)
       | Track.Obsticle.CENTRE => switch(offsetX) {
         | 0. => 0.
-        | _ when offsetX > 0. => remaningRoad /. tan(quad.rightAngle)
-        | _ when offsetX < 0. => remaningRoad /. tan(quad.leftAngle)
+        | _ when offsetX > 0. => (remaningRoad /. tan(quad.rightAngle) /. 3.)
+        | _ when offsetX < 0. => (remaningRoad /. tan(quad.leftAngle) /. 3.)
       }
     }} : 0.;
 

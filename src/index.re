@@ -71,15 +71,16 @@ let drawGame = (state, env) => {
   let (infrontObjs, behindObjs) = List.partition(
     (o: Objects.state) => o.y >= height - o.height - 10, objects);
   
+  // Move out of index
   let (carX, _) = state.car.position;
   let collidableObjs = objects |> find_opt((o: Objects.state) => 
-    ((o.y >= height - o.height - 8) && (o.y <= height - o.height + 8))
-    && (((o.x <= carX ) && (o.x + o.width >= carX )) 
-    || (((o.x <= carX + Car.carWidth ) && (o.x + o.width >= carX + Car.carWidth))))
+    ((o.y >= height - o.height - 25) && (o.y <= height - o.height + 10))
+    && (((o.x + 10 <= carX ) && (o.x - 10 + o.width >= carX )) 
+    || (((o.x + 10 <= carX + Car.carWidth ) && (o.x + o.width - 10 >= carX + Car.carWidth))))
   )
 
   let state = switch (collidableObjs) {
-    | Some(o) => {...state, car: {...state.car, speed: state.car.speed -. 3.}} 
+    | Some(o) => {...state, car: {...state.car, speed: state.car.speed -. 10.}} 
     | None => state;
   };
 
