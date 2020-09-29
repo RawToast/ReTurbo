@@ -37,18 +37,18 @@ let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
   let objectOffsetX = offsetX *. widthAdjustFactor;
 
   let objY = (by >= 319.)? {
-    let remaningRoad = (baseLength -. roadHeight);
-    int_of_float(by -. objectHeight +. remaningRoad)
+    let remainingRoad = (baseLength -. roadHeight);
+    int_of_float(by -. objectHeight +. remainingRoad)
   } : (int_of_float(by -. objectHeight));
 
   let objExtraX = (by >= 319.)? {
-    let remaningRoad = baseLength -. roadHeight;
+    let remainingRoad = baseLength -. roadHeight;
     leftBased ? 
-      remaningRoad /. tan(quad.leftAngle) : 
-      remaningRoad /. tan(quad.rightAngle);
+      remainingRoad /. tan(quad.leftAngle) : 
+      remainingRoad /. tan(quad.rightAngle);
   } : 0.;
   
-  if (leftBased == true) {
+  if (leftBased) {
     let objX = int_of_float(xl -. objExtraX -. objectWidth +. objectOffsetX);
     (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
   } else {

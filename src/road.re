@@ -15,7 +15,7 @@ let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 type state = {
   position: float,
   lastPiece: int,
-  track: Track.state
+  track: Track.state,
 };
 
 let currentPlane = state => Track.head(state.track);
@@ -49,7 +49,17 @@ let calcDeltaX = (yDistance, angle) => {
 };
 
 let rec drawRoad =
-        (leftBottom, rightBottom, firstHeight, track, goals, isDark, state, objects, env) => {
+        (
+          leftBottom,
+          rightBottom,
+          firstHeight,
+          track,
+          goals,
+          isDark,
+          state,
+          objects,
+          env,
+        ) => {
   let (x0, y0) = leftBottom;
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
@@ -57,38 +67,45 @@ let rec drawRoad =
   isDark ? fillDarkGrey(env) : fillLightGrey(env);
   isCheckpoint ? fillRed(env) : ();
 
-  let nextHeight = RoadCalc.calcNextYPosition(y0, height, baseLength, firstHeight);
+  let nextHeight =
+    RoadCalc.calcNextYPosition(y0, height, baseLength, firstHeight);
 
   let curveStength = RoadCalc.curveStength(trackPiece.direction);
 
-  let (nextGoalL, nextGoalR) = RoadCalc.nextGoals(goals, curveStength, height, nextHeight);
+  let (nextGoalL, nextGoalR) =
+    RoadCalc.nextGoals(goals, curveStength, height, nextHeight);
 
-  let roadQuad = RoadCalc.calcRoadQuad(leftBottom, rightBottom, nextHeight, maxHeight, nextGoalL, nextGoalR);
+  let roadQuad =
+    RoadCalc.calcRoadQuad(
+      leftBottom,
+      rightBottom,
+      nextHeight,
+      maxHeight,
+      nextGoalL,
+      nextGoalR,
+    );
 
   Draw.quadf(
-    ~p1= roadQuad.leftBottom,
-    ~p2= roadQuad.rightBottom,
-    ~p3= roadQuad.rightTop,
-    ~p4= roadQuad.leftTop,
+    ~p1=roadQuad.leftBottom,
+    ~p2=roadQuad.rightBottom,
+    ~p3=roadQuad.rightTop,
+    ~p4=roadQuad.leftTop,
     env,
   );
 
-  let objects = List.append(
-    Objects.calculatePositions(trackPiece, roadQuad), 
-    objects
-  );
-  
+  let objects =
+    List.append(Objects.calculatePositions(trackPiece, roadQuad), objects);
+
   let isOutOfBounds =
     maxHeight >= nextHeight
     || x1 < 0.
     +. Common.minOffset
     || x0 > width
     +. Common.maxOffset;
-    
-  if (isOutOfBounds) {
-    objects
-  } else {
-    drawRoad(
+ 
+  isOutOfBounds ?
+    objects 
+    : drawRoad(
       roadQuad.leftTop,
       roadQuad.rightTop,
       firstHeight,
@@ -99,7 +116,6 @@ let rec drawRoad =
       objects,
       env,
     );
-  };
 };
 
 let findInitialCoordinates = (offset, state) => {
@@ -119,7 +135,7 @@ let draw = (offset, state, env) => {
   let iOffset = int_of_float(offset *. 0.4); /* interesting */
   let goal = (269 + iOffset, 299 + iOffset);
 
-  let obs = drawRoad(
+  drawRoad(
     (x0, height),
     (x1, height),
     remainder,
@@ -130,6 +146,4 @@ let draw = (offset, state, env) => {
     [],
     env,
   );
-
-  obs
 };
