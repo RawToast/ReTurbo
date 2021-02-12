@@ -15,12 +15,6 @@ module Obsticle = {
     | LEFT
     | RIGHT
     | CENTRE;
-
-  type location = 
-     | LEFT
-     | RIGHT
-     | CENTRE;
-
   type state = {
     objectType: objectType,
     location: location,
@@ -56,7 +50,11 @@ let demoTrack = {
   let make = (~times=1, ~obsticles=[], ~incline=0., road) =>
      Array.make(times, {direction: road, obsticles, incline}) |> Array.to_list;
 
-make(~times=8, Straight)
+  let makeCheckpoint = (duration: int) => [{direction: Checkpoint(duration), obsticles: []}];
+  let make = (~times=1, ~obsticles=[], road) =>
+     Array.make(times, {direction: road, obsticles}) |> Array.to_list;
+
+  make(~times=8, Straight)
   |+| make(~times=2, ~obsticles=[Obsticle.makeStone(~where=Obsticle.LEFT, -30.)], Straight)
   |+| make(~times=4, ~obsticles=[Obsticle.makeSignRight], Right(ec2))
   |+| make(~obsticles=[Obsticle.smallTree(~where=Obsticle.RIGHT, 20.), Obsticle.makeTree(350.)], Straight)

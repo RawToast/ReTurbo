@@ -16,12 +16,8 @@ type state = {
   offset: float,
   assets,
 };
-<<<<<<< HEAD
-let carWidth = 105;
-=======
 let carCollisionWidth = 100;
 let carWidth = 110;
->>>>>>> 96ed917... More collisions
 let carHeight = 53;
 let vLowSpeed = 90.;
 let lowSpeed = 110.;

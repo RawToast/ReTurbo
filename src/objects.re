@@ -29,7 +29,7 @@ let loadAssets(env) = {
 let init(env) = loadAssets(env);
 
 let findPosition = (quad: RoadCalc.roadQuad, obj: Track.Obsticle.state) => {
-  let {objectType, Track.Obsticle.location: location, offset: (offsetX, _), size: (sizeX, sizeY)} = obj;
+  let {objectType: _, Track.Obsticle.location: location, offset: (offsetX, _), size: (sizeX, sizeY)} = obj;
   let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop);
   let (sizeX, sizeY) = (float_of_int(sizeX), float_of_int(sizeY));
   let roadHeight = (by -. ty);
@@ -54,6 +54,7 @@ let findPosition = (quad: RoadCalc.roadQuad, obj: Track.Obsticle.state) => {
         | 0. => 0.
         | _ when offsetX > 0. => (remaningRoad /. tan(quad.rightAngle) /. 3.)
         | _ when offsetX < 0. => (remaningRoad /. tan(quad.leftAngle) /. 3.)
+        | _ => 0.
       }
     }} : 0.;
 

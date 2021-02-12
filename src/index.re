@@ -80,7 +80,7 @@ let drawGame = (state, env) => {
   )
 
   let state = switch (collidableObjs) {
-    | Some(o) => {...state, car: {...state.car, speed: state.car.speed -. 10.}} 
+    | Some(_obj) => {...state, car: {...state.car, speed: state.car.speed -. 10.}} 
     | None => state;
   };
 
