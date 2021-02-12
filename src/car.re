@@ -17,6 +17,7 @@ type state = {
   assets,
 };
 let carWidth = 105;
+let carHeight = 53;
 let vLowSpeed = 90.;
 let lowSpeed = 110.;
 let midSpeed = 160.;
@@ -40,7 +41,7 @@ let draw = (state, env) => {
     | _ when state.velocity < 0 => state.assets.leftTurn
     | _ => state.assets.straight
     };
-  Draw.image(image, ~pos=state.position, ~width=carWidth, ~height=51, env);
+  Draw.image(image, ~pos=state.position, ~width=carWidth, ~height=carHeight, env);
 };
 
 let updateOffset = (state, force) => {

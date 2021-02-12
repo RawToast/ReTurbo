@@ -9,10 +9,20 @@ module Obsticle = {
     | SIGN_RIGHT
     | SIGN_LEFT;
 
+  type location = 
+     | LEFT
+     | RIGHT
+     | CENTRE;
+
   type state = {
     objectType: objectType,
+    location: location,
     offset: (float, float),
+    size: (int, int)
   };
+
+  let makeSignRight = {objectType: SIGN_RIGHT, location: LEFT, offset: (-80., 0.), size: (96, 96) };
+  let makeSignLeft = {objectType: SIGN_LEFT, location: RIGHT, offset: (30., 0.), size: (96, 96)};
 };
 
 type plane = {
@@ -31,56 +41,48 @@ let demoTrack = {
   let hc1 = 0.4;
   let hc2 = 0.6;
 
-  let makeWithObjs = (direction: direction, times: int, obs) =>
-    Array.make(times, {direction, obsticles: obs}) |> Array.to_list;
-  let make = (direction: direction, times: int) =>
-    makeWithObjs(direction, times, []);
 
   let makeCheckpoint = (duration: int) => [{direction: Checkpoint(duration), obsticles: []}];
+  let make = (~times=1, ~obsticles=[], road) =>
+     Array.make(times, {direction: road, obsticles}) |> Array.to_list;
 
-  let make2 = make(_, 2);
-  let make4 = make(_, 4);
-  let make8 = make(_, 8);
-  let make12 = make(_, 12);
-  let make24 = make(_, 24);
-
-  make8(Straight)
-  |+| makeWithObjs(Straight, 2, [])
-  |+| makeWithObjs(Right(ec2), 4, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
-  |+| make8(Straight)
-  |+| make24(Left(ec1))
-  |+| makeWithObjs(Left(mc1), 8, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-  |+| makeWithObjs(Straight, 4, [ {objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
-  |+| makeWithObjs(Right(ec2), 12, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
-  |+| make8(Straight)
-  |+| make8(Right(ec1))
-  |+| make12(Right(ec1))
-  |+| make8(Right(ec2))
-  |+| make8(Right(mc1))
-  |+| make8(Right(mc2))
-  |+| make2(Right(hc1))
-  |+| make12(Straight)
-  |+| make4(Left(mc2))
-  |+| makeWithObjs(Right(mc2), 4, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
-  |+| make12(Straight)
-  |+| makeWithObjs(Left(hc1), 4, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-  |+| makeWithObjs(Left(hc2), 4, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-  |+| make8(Straight)
-  |+| make4(Right(1.))
-  |+| make4(Straight)
-  |+| make8(Left(hc2))
-  |+| make4(Straight)
+  make(~times=8, Straight)
+  |+| make(~times=2, Straight)
+  |+| make(~times=4, ~obsticles=[Obsticle.makeSignRight], Right(ec2))
+  |+| make(~times=8, Straight)
+  |+| make(~times=24, Left(ec1))
+  |+| make(~times=8, ~obsticles=[Obsticle.makeSignLeft], Left(mc1))
+  |+| make(~times=4, ~obsticles=[ Obsticle.makeSignRight], Straight)
+  |+| make(~times=12, ~obsticles=[Obsticle.makeSignRight], Right(ec2))
+  |+| make(~times=8, Straight)
+  |+| make(~times=8, Right(ec1))
+  |+| make(~times=12, Right(ec1))
+  |+| make(~times=8, Right(ec2))
+  |+| make(~times=8, Right(mc1))
+  |+| make(~times=8, Right(mc2))
+  |+| make(~times=2, Right(hc1))
+  |+| make(~times=12, Straight)
+  |+| make(~times=4, Left(mc2))
+  |+| make(~times=4, ~obsticles=[Obsticle.makeSignRight], Right(mc2))
+  |+| make(~times=12, Straight)
+  |+| make(~times=4, ~obsticles=[Obsticle.makeSignLeft], Left(hc1))
+  |+| make(~times=4, ~obsticles=[Obsticle.makeSignLeft], Left(hc2))
+  |+| make(~times=8, Straight)
+  |+| make(~times=4, Right(1.))
+  |+| make(~times=4, Straight)
+  |+| make(~times=8, Left(hc2))
+  |+| make(~times=4, Straight)
   |+| makeCheckpoint(12)
-  |+| make4(Straight)
-  |+| makeWithObjs(Right(mc2), 24, [{objectType: Obsticle.SIGN_RIGHT, offset: (-80., 0.)}])
-  |+| make8(Left(hc2))
-  |+| make8(Straight)
-  |+| makeWithObjs(Left(hc2), 12, [{objectType: Obsticle.SIGN_LEFT, offset: (30., 0.)}])
-  |+| make4(Straight)
-  |+| make4(Left(1.))
-  |+| make8(Straight)
-  |+| make24(Right(hc1))
-  |+| make4(Straight)
+  |+| make(~times=4, Straight)
+  |+| make(~times=24, ~obsticles=[Obsticle.makeSignRight], Right(mc2))
+  |+| make(~times=8, Left(hc2))
+  |+| make(~times=8, Straight)
+  |+| make(~times=12, ~obsticles=[Obsticle.makeSignLeft], Left(hc2))
+  |+| make(~times=4, Straight)
+  |+| make(~times=4, Left(1.))
+  |+| make(~times=8, Straight)
+  |+| make(~times=24, Right(hc1))
+  |+| make(~times=4, Straight)
   |+| makeCheckpoint(5);
 };
 let init = {track: demoTrack};
