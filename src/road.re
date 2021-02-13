@@ -8,12 +8,12 @@ let baseWidth = Common.roadWidth;
 let baseLength = 40.;
 let maxHeight = screenHeightF /. 2.;
 
-let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
-let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
+let fillDarkGrey = Draw.fill(Utils.color(~r=60, ~g=60, ~b=60, ~a=255));
+let fillLightGrey = Draw.fill(Utils.color(~r=68, ~g=68, ~b=68, ~a=255));
 let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 
-let fillLightGreen = Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255));
-let fillDarkGreen = Draw.fill(Utils.color(~r=64, ~g=150, ~b=65, ~a=255));
+let fillDarkGreen = Draw.fill(Utils.color(~r=30, ~g=120, ~b=30, ~a=255));
+let fillLightGreen = Draw.fill(Utils.color(~r=45, ~g=140, ~b=30, ~a=255));
 
 type state = {
   position: float,
