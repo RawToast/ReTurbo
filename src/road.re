@@ -12,6 +12,9 @@ let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
 let fillRed = Draw.fill(Utils.color(~r=150, ~g=80, ~b=80, ~a=255));
 
+let fillLightGreen = Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255));
+let fillDarkGreen = Draw.fill(Utils.color(~r=64, ~g=150, ~b=65, ~a=255));
+
 type state = {
   position: float,
   lastPiece: int,
@@ -21,16 +24,16 @@ type state = {
 let currentPlane = state => Track.head(state.track);
 
 let moveForward = (newPosition, state) =>
-  if (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) {
+  (float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.) ?
     {
       lastPiece: state.lastPiece + 1,
       position: newPosition,
       track: Track.progress(state.track),
-    };
-  } else {
+    }:
     {...state, position: newPosition};
-  };
+
 let onCheckpoint = state => state.track |> Track.head |> Track.isCheckpoint;
+
 let checkpointBonus = state =>
   state.track
   |> Track.head
@@ -64,8 +67,6 @@ let rec drawRoad =
   let (x1, _) = rightBottom;
   let trackPiece = List.hd(track);
   let isCheckpoint = Track.isCheckpoint(trackPiece);
-  isDark ? fillDarkGrey(env) : fillLightGrey(env);
-  isCheckpoint ? fillRed(env) : ();
 
   let nextHeight =
     RoadCalc.calcNextYPosition(y0, screenHeightF, baseLength, firstHeight);
@@ -85,6 +86,21 @@ let rec drawRoad =
       nextGoalR,
     );
 
+  // Road "tile" drawing
+  // First ground, then road
+  isDark ? fillLightGreen(env) : fillDarkGreen(env);
+  let (_, bottomY) = roadQuad.leftBottom;
+  let (_, topY) = roadQuad.leftTop;
+  Draw.quadf(
+    ~p1=(0., bottomY),
+    ~p2=(screenWidthF, bottomY),
+    ~p3=(screenWidthF, topY),
+    ~p4=(0., topY),
+    env,
+  );
+
+  isDark ? fillDarkGrey(env) : fillLightGrey(env);
+  isCheckpoint ? fillRed(env) : ();
   Draw.quadf(
     ~p1=roadQuad.leftBottom,
     ~p2=roadQuad.rightBottom,
