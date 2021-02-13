@@ -5,8 +5,8 @@ let screenHeightF = Common.heightF;
 let screenWidthF = Common.widthF;
 /* Road constants */
 let baseWidth = Common.roadWidth;
-let baseLength = 40.;
-let maxHeight = screenHeightF /. 2.;
+let baseLength = 36.;
+let maxHeight = 2. *. (screenHeightF /. 3.);
 
 let fillDarkGrey = Draw.fill(Utils.color(~r=60, ~g=60, ~b=60, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=68, ~g=68, ~b=68, ~a=255));
@@ -69,12 +69,10 @@ let rec drawRoad =
   let isCheckpoint = Track.isCheckpoint(trackPiece);
 
   let nextHeight =
-    RoadCalc.calcNextYPosition(y0, screenHeightF, baseLength, firstHeight);
-
-  let curveStength = RoadCalc.curveStength(trackPiece.direction);
+    RoadCalc.calcNextYPosition(y0, baseLength, firstHeight);
 
   let (nextGoalL, nextGoalR) =
-    RoadCalc.nextGoals(goals, curveStength, screenHeightF, nextHeight);
+    RoadCalc.nextGoals(~goals, ~nextHeight, trackPiece);
 
   let roadQuad =
     RoadCalc.calcRoadQuad(
@@ -149,7 +147,8 @@ let init = {position: 0., track: Track.init, lastPiece: 1};
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state);
   let iOffset = int_of_float(offset *. 0.4); /* interesting */
-  let goal = (269 + iOffset, 299 + iOffset);
+  // middle = 284
+  let goal = (264 + iOffset, 304 + iOffset);
 
   drawRoad(
     (x0, screenHeightF),

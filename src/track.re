@@ -46,7 +46,7 @@ let demoTrack = {
   let make = (~times=1, ~obsticles=[], ~incline=0., road) =>
      Array.make(times, {direction: road, obsticles, incline}) |> Array.to_list;
 
-  make(~times=8, Straight)
+  make(~times=24, Straight)
   |+| make(~times=2, Straight)
   |+| make(~times=4, ~obsticles=[Obsticle.makeSignRight], Right(ec2))
   |+| make(~times=8, Straight)

@@ -13,7 +13,7 @@ type state = {
 let setup = env => {
   Env.size(~width, ~height, env);
   {
-    car: Car.init(width / 2 - 30, height - 60, env),
+    car: Car.init(width / 2 - 30, height - Car.carHeight + 1, env),
     road: Road.init,
     control: Control.init,
     timer: Timer.init,

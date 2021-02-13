@@ -1,29 +1,27 @@
 
-let calcNextYPosition = (currentBottom, maximumY, baseRoadLength, firstHeight) => {
-  if (currentBottom == maximumY) {
-    maximumY -. baseRoadLength +. firstHeight;
-  } else {
-    if (currentBottom >= 320.) {
-      currentBottom -. baseRoadLength;
-    } else {
-      let yDelta = 160. /. baseRoadLength;  // (160 / 40) = 4
-      let revY = 0. -. (currentBottom -. 320.);
-      let height = baseRoadLength -. revY /. yDelta;
-      let delta = height > 1. ? height : 1.;
-      currentBottom -. delta;
-    };
-  };
+let calcNextYPosition = (currentBottom, roadLength, firstHeight) => {
+  let maximumY = Common.heightF;
+
+  switch(currentBottom) {
+    | x when x == maximumY => maximumY -. roadLength +. firstHeight
+    | _ when currentBottom >= Common.heightF => currentBottom -. roadLength
+    | _ => 
+      let yDelta = 98. /. roadLength;  // (160 / 32) = 5
+      let revY = 0. -. (currentBottom -. Common.heightF); // 288
+      let height = roadLength -. revY /. yDelta;
+      let height = height > 1. ? height : 1.;
+      currentBottom -. height;
+  }
 };
 
-let curveStength = direction =>
-  switch (direction) {
+let curveStength = fun
   | Track.Left(lc) => 0. -. lc
   | Track.Right(rc) => rc
-  | _ => 0.0
-};
+  | _ => 0.0;
 
-
-let nextGoals = (goals, curveStength, height, nextHeight) => {
+let nextGoals = (~goals, ~nextHeight, trackPiece: Track.plane) => {
+   let height = Common.heightF;
+    let curveStength = curveStength(trackPiece.direction);
     let (gl, gr) = goals;
     ( gl + int_of_float((height -. nextHeight) *. curveStength),
       gr + int_of_float((height -. nextHeight) *. curveStength)
