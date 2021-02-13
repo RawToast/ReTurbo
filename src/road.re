@@ -1,12 +1,12 @@
 open Reprocessing;
 
 /* Screen constants */
-let height = float_of_int(Common.height);
-let width = float_of_int(Common.width);
+let screenHeightF = Common.heightF;
+let screenWidthF = Common.widthF;
 /* Road constants */
 let baseWidth = Common.roadWidth;
 let baseLength = 40.;
-let maxHeight = height /. 2.;
+let maxHeight = screenHeightF /. 2.;
 
 let fillDarkGrey = Draw.fill(Utils.color(~r=65, ~g=65, ~b=65, ~a=255));
 let fillLightGrey = Draw.fill(Utils.color(~r=80, ~g=80, ~b=80, ~a=255));
@@ -68,12 +68,12 @@ let rec drawRoad =
   isCheckpoint ? fillRed(env) : ();
 
   let nextHeight =
-    RoadCalc.calcNextYPosition(y0, height, baseLength, firstHeight);
+    RoadCalc.calcNextYPosition(y0, screenHeightF, baseLength, firstHeight);
 
   let curveStength = RoadCalc.curveStength(trackPiece.direction);
 
   let (nextGoalL, nextGoalR) =
-    RoadCalc.nextGoals(goals, curveStength, height, nextHeight);
+    RoadCalc.nextGoals(goals, curveStength, screenHeightF, nextHeight);
 
   let roadQuad =
     RoadCalc.calcRoadQuad(
@@ -100,7 +100,7 @@ let rec drawRoad =
     maxHeight >= nextHeight
     || x1 < 0.
     +. Common.minOffset
-    || x0 > width
+    || x0 > screenWidthF
     +. Common.maxOffset;
  
   isOutOfBounds ?
@@ -123,8 +123,8 @@ let findInitialCoordinates = (offset, state) => {
     let adj = mod_float(state.position, baseLength *. 2.);
     adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
   };
-  let x0 = width /. 2. -. baseWidth /. 2. +. offset;
-  let x1 = width /. 2. +. baseWidth /. 2. +. offset;
+  let x0 = screenWidthF /. 2. -. baseWidth /. 2. +. offset;
+  let x1 = screenWidthF /. 2. +. baseWidth /. 2. +. offset;
   (x0, x1, rem, isLight);
 };
 
@@ -136,8 +136,8 @@ let draw = (offset, state, env) => {
   let goal = (269 + iOffset, 299 + iOffset);
 
   drawRoad(
-    (x0, height),
-    (x1, height),
+    (x0, screenHeightF),
+    (x1, screenHeightF),
     remainder,
     state.track.track,
     goal,

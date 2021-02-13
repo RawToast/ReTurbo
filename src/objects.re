@@ -1,6 +1,6 @@
 open Reprocessing;
 
-let height = float_of_int(Common.height);
+let screenHeightF = Common.heightF;
 let baseWidth = Common.roadWidth;
 let baseLength = 40.;
 
@@ -29,7 +29,7 @@ let findPosition = (~leftBased=true, quad: RoadCalc.roadQuad, offset, size) => {
   let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop);
   let size = float_of_int(size);
   let roadHeight = (by -. ty);
-  let heightAdjustFactor = if (by >= height) {1.} else {roadHeight /. baseLength};
+  let heightAdjustFactor = if (by >= screenHeightF) {1.} else {roadHeight /. baseLength};
   let widthAdjustFactor = heightAdjustFactor;
   let objectHeight = size *. heightAdjustFactor;
   let objectWidth = size *. widthAdjustFactor;
