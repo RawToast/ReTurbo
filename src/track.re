@@ -27,7 +27,8 @@ module Obsticle = {
 
 type plane = {
   direction,
-  obsticles: list(Obsticle.state)
+  obsticles: list(Obsticle.state),
+  incline: float
 };
 
 type state = {track: list(plane)};
@@ -41,10 +42,9 @@ let demoTrack = {
   let hc1 = 0.4;
   let hc2 = 0.6;
 
-
-  let makeCheckpoint = (duration: int) => [{direction: Checkpoint(duration), obsticles: []}];
-  let make = (~times=1, ~obsticles=[], road) =>
-     Array.make(times, {direction: road, obsticles}) |> Array.to_list;
+  let makeCheckpoint = (duration: int) => [{direction: Checkpoint(duration), obsticles: [], incline: 0.}];
+  let make = (~times=1, ~obsticles=[], ~incline=0., road) =>
+     Array.make(times, {direction: road, obsticles, incline}) |> Array.to_list;
 
   make(~times=8, Straight)
   |+| make(~times=2, Straight)
@@ -93,11 +93,9 @@ let isCheckpoint = t =>
   | _ => false
   };
 
-let progress = state => {
-  if (List.length(state.track) > 25) {
-    {track: List.tl(state.track)};
-  } else {
+let progress = state => 
+  (List.length(state.track) > 25) ?
+    {track: List.tl(state.track)} :
     {track: List.tl(state.track |+| demoTrack)};
-  }};
 
 let head = state => List.hd(state.track);
