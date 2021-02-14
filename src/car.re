@@ -140,13 +140,13 @@ let accelerate = (isBrake, state) => {
     switch (state.speed) {
     | _ when maxSpeed == state.speed => maxSpeed
     | _ when vLowSpeed > state.speed =>
-      log((highSpeed -. state.speed) /. 6.) /. 10.
+      log((highSpeed -. state.speed) /. 6.) /. 8.
     | _ when lowSpeed > state.speed =>
-      log((highSpeed -. state.speed) /. 8.) /. 15.
+      log((highSpeed -. state.speed) /. 8.) /. 12.
     | _ when midSpeed > state.speed =>
-      log((vHighSpeed -. state.speed) /. 10.) /. 25.
+      log((vHighSpeed -. state.speed) /. 10.) /. 20.
     | _ when highSpeed > state.speed =>
-      log((maxSpeed -. state.speed) /. 12.) /. 25.
+      log((maxSpeed -. state.speed) /. 12.) /. 22.
     | _ when vHighSpeed > state.speed =>
       log((maxSpeed -. state.speed) /. 14.) /. 25.
     | _ => log((maxSpeed -. state.speed) /. 16.) /. 25.
