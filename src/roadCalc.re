@@ -1,45 +1,31 @@
-
-
-let _calcNextYPosition = (currentBottom, roadLength, firstHeight) => {
-  let maximumY = Common.heightF;
-
-  switch(currentBottom) {
-    | x when x == maximumY => maximumY -. roadLength +. firstHeight
-    | _ when currentBottom >= Common.heightF => currentBottom -. roadLength
-    | _ => 
-      let yDelta = 98. /. roadLength;
-      let revY = 0. -. (currentBottom -. Common.heightF);
-      let height = roadLength -. revY /. yDelta;
-      let height = height > 1. ? height : 1.;
-      currentBottom -. height;
-  }
+let calcNextYPosition = (positionY, length) => {
+  let currentHeight = Common.heightF -. positionY; // 1 - 2xx
+  let result = length *. (currentHeight /. 105.1); // larger divisor = bigger road
+  let result = length -. result;
+  let result = result > 0.5 ? result : 0.5;
+  positionY -. result;
 };
 
-let calcNextYPosition = (currentBottom, roadLength, firstHeight) => {
-  switch(currentBottom) {
-    | y when y == Common.heightF => Common.heightF -. roadLength +. firstHeight
-    | _ => 
-      let currentHeight = Common.heightF -. currentBottom; // 1 - 2xx
-      let result = 36. *. (currentHeight /. 105.1); // larger divisor = bigger road
-      let result = 36. -. result;
-      let result = result > 0.5 ? result : 0.5;
-      currentBottom -. result;
-  }
-};
+let calcNextYPosition = (positionY, length, firstHeight) =>
+  positionY == Common.heightF ?
+   Common.heightF -. length +. firstHeight :
+   calcNextYPosition(positionY, length);
 
-let curveStength = fun
+let curveStength =
+  fun
   | Track.Left(lc) => 0. -. lc
   | Track.Right(rc) => rc
   | _ => 0.0;
 
 let nextGoals = (~goals, ~nextHeight, trackPiece: Track.plane) => {
-   let height = Common.heightF;
-    let curveStength = curveStength(trackPiece.direction);
-    let (gl, gr) = goals;
-    ( gl + int_of_float((height -. nextHeight) *. curveStength),
-      gr + int_of_float((height -. nextHeight) *. curveStength)
-    );
-  };
+  let height = Common.heightF;
+  let curveStength = curveStength(trackPiece.direction);
+  let (gl, gr) = goals;
+  (
+    gl + int_of_float((height -. nextHeight) *. curveStength),
+    gr + int_of_float((height -. nextHeight) *. curveStength),
+  );
+};
 
 type roadQuad = {
   leftBottom: (float, float),
@@ -47,10 +33,11 @@ type roadQuad = {
   leftTop: (float, float),
   rightTop: (float, float),
   leftAngle: float,
-  rightAngle: float
+  rightAngle: float,
 };
 
-let calcRoadQuad = (leftBottom, rightBottom, nextHeight, maxRoadHeight, nextGoalL, nextGoalR) => {
+let calcRoadQuad =
+    (leftBottom, rightBottom, nextHeight, maxRoadHeight, nextGoalL, nextGoalR) => {
   let ((x0, top), (x1, _)) = (leftBottom, rightBottom);
   let opposite = top -. maxRoadHeight;
   let adjacentL = float_of_int(nextGoalL) -. x0;
@@ -62,12 +49,12 @@ let calcRoadQuad = (leftBottom, rightBottom, nextHeight, maxRoadHeight, nextGoal
   let right = (top -. nextHeight) /. tan(rightAngleRadians);
   let (rightX, leftX) = (x1 -. right, x0 +. left);
   {
-    leftBottom: leftBottom,
-    rightBottom: rightBottom,
+    leftBottom,
+    rightBottom,
     leftTop: (leftX, nextHeight),
     rightTop: (rightX, nextHeight),
     // this is correct, I think there's something fishy going on above
-    leftAngle: rightAngleRadians, 
-    rightAngle: leftAngleRadians
+    leftAngle: rightAngleRadians,
+    rightAngle: leftAngleRadians,
   };
 };
