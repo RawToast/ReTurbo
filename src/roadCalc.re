@@ -1,16 +1,29 @@
 
-let calcNextYPosition = (currentBottom, roadLength, firstHeight) => {
+
+let _calcNextYPosition = (currentBottom, roadLength, firstHeight) => {
   let maximumY = Common.heightF;
 
   switch(currentBottom) {
     | x when x == maximumY => maximumY -. roadLength +. firstHeight
     | _ when currentBottom >= Common.heightF => currentBottom -. roadLength
     | _ => 
-      let yDelta = 98. /. roadLength;  // (160 / 32) = 5
-      let revY = 0. -. (currentBottom -. Common.heightF); // 288
+      let yDelta = 98. /. roadLength;
+      let revY = 0. -. (currentBottom -. Common.heightF);
       let height = roadLength -. revY /. yDelta;
       let height = height > 1. ? height : 1.;
       currentBottom -. height;
+  }
+};
+
+let calcNextYPosition = (currentBottom, roadLength, firstHeight) => {
+  switch(currentBottom) {
+    | y when y == Common.heightF => Common.heightF -. roadLength +. firstHeight
+    | _ => 
+      let currentHeight = Common.heightF -. currentBottom; // 1 - 2xx
+      let result = 36. *. (currentHeight /. 105.1); // larger divisor = bigger road
+      let result = 36. -. result;
+      let result = result > 0.5 ? result : 0.5;
+      currentBottom -. result;
   }
 };
 

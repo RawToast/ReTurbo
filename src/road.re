@@ -53,14 +53,14 @@ let calcDeltaX = (yDistance, angle) => {
 
 let rec drawRoad =
         (
-          leftBottom,
-          rightBottom,
-          firstHeight,
-          track,
-          goals,
-          isDark,
-          state,
-          objects,
+          ~leftBottom,
+          ~rightBottom,
+          ~firstHeight,
+          ~track,
+          ~goals,
+          ~isDark,
+          ~state,
+          ~objects,
           env,
         ) => {
   let (x0, y0) = leftBottom;
@@ -120,26 +120,26 @@ let rec drawRoad =
   isOutOfBounds ?
     objects 
     : drawRoad(
-      roadQuad.leftTop,
-      roadQuad.rightTop,
-      firstHeight,
-      List.tl(track),
-      (nextGoalL, nextGoalR),
-      !isDark,
-      state,
-      objects,
+      ~leftBottom=roadQuad.leftTop,
+      ~rightBottom=roadQuad.rightTop,
+      ~firstHeight,
+      ~track=List.tl(track),
+      ~goals=(nextGoalL, nextGoalR),
+      ~isDark=!isDark,
+      ~state,
+      ~objects,
       env,
     );
 };
 
 let findInitialCoordinates = (offset, state) => {
-  let (isLight, rem) = {
+  let (isLight, remainder) = {
     let adj = mod_float(state.position, baseLength *. 2.);
     adj >= baseLength ? (true, adj -. baseLength) : (false, adj);
   };
   let x0 = screenWidthF /. 2. -. baseWidth /. 2. +. offset;
   let x1 = screenWidthF /. 2. +. baseWidth /. 2. +. offset;
-  (x0, x1, rem, isLight);
+  (x0, x1, remainder, isLight);
 };
 
 let init = {position: 0., track: Track.init, lastPiece: 1};
@@ -151,14 +151,14 @@ let draw = (offset, state, env) => {
   let goal = (264 + iOffset, 304 + iOffset);
 
   drawRoad(
-    (x0, screenHeightF),
-    (x1, screenHeightF),
-    remainder,
-    state.track.track,
-    goal,
-    isLight,
-    state,
-    [],
+    ~leftBottom=(x0, screenHeightF),
+    ~rightBottom=(x1, screenHeightF),
+    ~firstHeight=remainder,
+    ~track=state.track.track,
+    ~goals=goal,
+    ~isDark=isLight,
+    ~state,
+    ~objects=[],
     env,
   );
 };
