@@ -1,1 +1,2 @@
-Reprocessing.hotreload("src/index.re");
+let _ = Reprocessing.hotreload("src/index.re");
+()
