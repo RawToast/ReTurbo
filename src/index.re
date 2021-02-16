@@ -13,7 +13,7 @@ type state = {
 let setup = env => {
   Env.size(~width, ~height, env);
   {
-    car: Car.init(width / 2 - 30, height - 60, env),
+    car: Car.init(width / 2 - 30, height - Car.carHeight + 1, env),
     road: Road.init,
     control: Control.init,
     timer: Timer.init,
@@ -45,36 +45,27 @@ let control = state => {
   {...state, car, road: newRoadState, timer};
 };
 
-let drawGound = env => {
-  Draw.fill(Utils.color(~r=20, ~g=150, ~b=20, ~a=255), env);
-  Draw.quad(
-    ~p1=(0, height),
-    ~p2=(width, height),
-    ~p3=(width, height / 2),
-    ~p4=(0, height / 2),
-    env,
-  );
-};
 let drawSky = env => {
   Draw.fill(Utils.color(~r=5, ~g=5, ~b=200, ~a=255), env);
   Draw.quad(
     ~p1=(0, 0),
     ~p2=(width, 0),
-    ~p3=(width, height / 2),
-    ~p4=(0, height / 2),
+    ~p3=(width, height), // might as well fill. This used to be called *after* drawing the road
+    ~p4=(0, height),
     env,
   );
 };
 
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env);
-  drawGound(env);
+
+  drawSky(env);
+
   let objects: list(Objects.state) = Road.draw(state.car.offset, state.road, env);
 
   let (objsA, objsB) = List.partition(
     (o: Objects.state) => o.y >= height - o.height - 10, objects);
 
-  drawSky(env);
   Objects.draw(objsB, state.objects, env);
   Car.draw(state.car, env);
   Objects.draw(objsA, state.objects, env);
