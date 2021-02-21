@@ -52,11 +52,11 @@ let drawGame = (state, env) => {
 
   let objects: list<Objects.state> = Road.draw(state.car.offset, state.road, env)
 
-  let (objsA, objsB) = List.partition((o: Objects.state) => o.y >= height - o.height - 10, objects)
+  let (infrontObjects, behindObjects) = List.partition((o: Objects.state) => o.y >= height - o.height - 10, objects)
 
-  Objects.draw(objsB, state.objects, env)
+  Objects.draw(behindObjects, state.objects, env)
   Car.draw(state.car, env)
-  Objects.draw(objsA, state.objects, env)
+  Objects.draw(infrontObjects, state.objects, env)
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env)
 
   let text = Car.speedInMph(state.car)
