@@ -49,11 +49,7 @@ let demoTrack = {
   let makeCheckpoint = (duration: int) => [{direction: Checkpoint(duration), obsticles: [], incline: 0.}];
   let make = (~times=1, ~obsticles=[], ~incline=0., road) =>
      Array.make(times, {direction: road, obsticles, incline}) |> Array.to_list;
-
-  let makeCheckpoint = (duration: int) => [{direction: Checkpoint(duration), obsticles: []}];
-  let make = (~times=1, ~obsticles=[], road) =>
-     Array.make(times, {direction: road, obsticles}) |> Array.to_list;
-
+     
   make(~times=8, Straight)
   |+| make(~times=2, ~obsticles=[Obsticle.makeStone(~where=Obsticle.LEFT, -30.)], Straight)
   |+| make(~times=4, ~obsticles=[Obsticle.makeSignRight], Right(ec2))
