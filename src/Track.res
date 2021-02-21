@@ -8,6 +8,8 @@ module Obsticle = {
   type objectType =
     | SIGN_RIGHT
     | SIGN_LEFT
+    | TREE
+    | STONE
 
   type location =
     | LEFT
@@ -23,6 +25,24 @@ module Obsticle = {
 
   let makeSignRight = {objectType: SIGN_RIGHT, location: LEFT, offset: (-80., 0.), size: (96, 96)}
   let makeSignLeft = {objectType: SIGN_LEFT, location: RIGHT, offset: (30., 0.), size: (96, 96)}
+  let makeTree = (~where, x) => {
+    objectType: TREE,
+    location: where,
+    offset: (x, 0.),
+    size: (208, 128),
+  }
+  let smallTree = (~where, x) => {
+    objectType: TREE,
+    location: where,
+    offset: (x, 0.),
+    size: (156, 80),
+  }
+  let makeStone = (~where=CENTRE, x) => {
+    objectType: STONE,
+    location: where,
+    offset: (x, 0.),
+    size: (64, 64),
+  }
 }
 
 type plane = {
@@ -92,6 +112,7 @@ let demoTrack = {
                                                                               ),
                                                                               make(
                                                                                 ~times=2,
+                                                                                ~obsticles=list{Obsticle.smallTree(~where=Obsticle.LEFT, -35.), Obsticle.makeTree(~where=Obsticle.LEFT, -90.), Obsticle.smallTree(~where=Obsticle.RIGHT, 35.), Obsticle.makeTree(~where=Obsticle.RIGHT, 90.)},
                                                                                 Left(ec1),
                                                                               ),
                                                                             ),
@@ -157,7 +178,7 @@ let demoTrack = {
                                                     ),
                                                     make(~times=12, Right(mc2)),
                                                   ),
-                                                  make(~times=2, Right(hc1)),
+                                                  make(~times=2, ~obsticles=list{Obsticle.makeStone(~where=Obsticle.RIGHT, 55.)}, Right(hc1)),
                                                 ),
                                                 make(~times=18, Straight),
                                               ),
@@ -195,7 +216,7 @@ let demoTrack = {
                           ),
                           makeCheckpoint(12),
                         ),
-                        make(~times=6, Straight),
+                        make(~times=6, ~obsticles=list{Obsticle.smallTree(~where=Obsticle.LEFT, -35.), Obsticle.makeTree(~where=Obsticle.LEFT, -90.), Obsticle.smallTree(~where=Obsticle.RIGHT, 35.), Obsticle.makeTree(~where=Obsticle.RIGHT, 90.)}, Straight),
                       ),
                       make(~times=36, ~obsticles=list{Obsticle.makeSignRight}, Right(mc2)),
                     ),
