@@ -44,8 +44,8 @@ let findPosition = (quad: RoadCalc.roadQuad, obj: Track.Obsticle.state) => {
     roadHeight /. baseLength
   }
   let widthAdjustFactor = heightAdjustFactor
-  let objectHeight = sizeX *. heightAdjustFactor
-  let objectWidth = sizeY *. widthAdjustFactor
+  let objectHeight = sizeY *. heightAdjustFactor
+  let objectWidth = sizeX *. widthAdjustFactor
 
   let objectOffsetX = offsetX *. widthAdjustFactor
 
