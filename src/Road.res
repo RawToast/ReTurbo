@@ -186,15 +186,24 @@ module Display = {
     let convert = (~remainder, ~isDark=isLight, track) => {
       let isDark = ref(isDark)
       let previous = ref(None)
-      track |> List.mapi((i, _plane) => {
+      let ddx = ref(0.)
+      track |> List.mapi((i, plane) => {
+        let curve = switch plane.Track.direction {
+        | Track.Left(curve) => i == 0 ? (remainder /. baseLength) *. curve *. -2. : curve *. -2.
+        | Right(curve) => i == 0 ? (remainder /. baseLength) *. curve *. 2. : curve *. 2.
+        | _ => 0.
+        }
+        let curve = curve +. ddx.contents
+        ddx := curve
         let i = float_of_int(i)
         let prev = switch previous.contents {
           | Some(xyz) => xyz
           | None => (0., 0., 0.)
         }
+        let (px, py, _pz) = prev
 
-        let x = 0.
-        let y = 0.
+        let x = px +. (curve)
+        let y = py
         let z = i *. baseLength +. remainder
         previous := Some((x, y, z))
         let result = {

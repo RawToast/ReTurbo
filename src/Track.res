@@ -75,8 +75,8 @@ let demoTrack = {
     Array.make(times, {direction: road, obsticles: obsticles, incline: incline}) |> Array.to_list
 
   make(~times=24, Straight)
-  ->List.append(make(~times=2, ~obsticles=bunchOfSmallTrees(RIGHT), Left(ec1)))
-  ->List.append(make(~times=2, ~obsticles=bunchOfSmallTrees(LEFT), Left(ec1)))
+  ->List.append(make(~times=2, ~obsticles=bunchOfSmallTrees(RIGHT), Straight))
+  ->List.append(make(~times=2, ~obsticles=bunchOfSmallTrees(LEFT), Straight))
   ->List.append(
     make(
       ~times=2,

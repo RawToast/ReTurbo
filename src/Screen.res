@@ -16,11 +16,11 @@ type quad = {
 }
 let projectRoad = (~offset, road: Road.Display.t): quad => {
   let {x, y, z, previous, colour, terrainColour} = road
-
+  // Js.log(z)
   let calc = (x, y, z) => {
-    let offset = offset *. -0.1 // player zooms around without this
-
-    let cameraX = x -. offset
+    // let offset = offset *. 1. // player zooms around without this
+    let iOffset = (offset *. 0.06)
+    let cameraX = x +. iOffset
     let cameraY = y -. cameraHeight
     let cameraZ = z -. 0. // - cameraZ
     let cameraZ = cameraZ == 0. ? 1. : cameraZ
@@ -30,7 +30,7 @@ let projectRoad = (~offset, road: Road.Display.t): quad => {
     let screenX = Common.widthF /. 2. +. (scale *. cameraX *. Common.widthF /. 2.)
     let screenY = Common.heightF /. 2. -. scale *. cameraY *. (Common.heightF /. 2.)
     let roadWidth = scale *. Common.roadWidth *. (Common.widthF /. 100.)
-    Js.log(roadWidth)
+    // Js.log(roadWidth)
     (screenX, screenY, roadWidth)
   }
 
