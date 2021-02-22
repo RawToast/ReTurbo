@@ -13,7 +13,7 @@ let reduce = state =>
   0. >= state.remainingTime ? {remainingTime: 0.} : {remainingTime: state.remainingTime -. 1.}
 let gameOver = state => 0. >= state.remainingTime
 
-let init = {remainingTime: 30. *. Common.frameRate}
+let init = {remainingTime: 24. *. Common.frameRate}
 
 let draw = (state, env) => {
   let time = remainingTimeString(state)

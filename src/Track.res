@@ -74,10 +74,10 @@ let demoTrack = {
   let make = (~times=1, ~obsticles=list{}, ~incline=0., road) =>
     Array.make(times, {direction: road, obsticles: obsticles, incline: incline}) |> Array.to_list
 
-  make(~times=8, ~incline=-10., Straight)
-  ->List.append(make(~times=8, ~incline=-8., Straight))
-  ->List.append(make(~times=4, ~incline=-6., ~obsticles=bunchOfSmallTrees(RIGHT), Straight))
-  ->List.append(make(~times=2, ~incline=-4., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
+  make(~times=8, ~incline=-6., Straight)
+  ->List.append(make(~times=8, ~incline=-5., Straight))
+  ->List.append(make(~times=4, ~incline=-4., ~obsticles=bunchOfSmallTrees(RIGHT), Straight))
+  ->List.append(make(~times=2, ~incline=-3., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
   ->List.append(make(~times=2, ~incline=-2., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
   ->List.append(make(~times=2, ~incline=-1., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
   ->List.append(
@@ -107,12 +107,13 @@ let demoTrack = {
       },
       Right(ec2),
     ))
-  ->List.append(make(~times=3, ~incline=2., Straight))
-  ->List.append(make(~times=12, ~incline=5., Straight))
-  ->List.append(make(~times=10, ~incline=3., Straight))
+  ->List.append(make(~times=1, ~incline=1., Straight))
+  ->List.append(make(~times=2, ~incline=2., Straight))
+  ->List.append(make(~times=9, ~incline=3., Straight))
+  ->List.append(make(~times=6, ~incline=2., Straight))
   ->List.append(make(~times=3, ~incline=0.5, Straight))
   ->List.append(make(~times=16, Left(ec1)))
-  ->List.append(makeCheckpoint(12))
+  ->List.append(makeCheckpoint(8))
   ->List.append(make(~times=16, Left(ec1)))
   ->List.append(make(~times=6, ~incline=0.8, ~obsticles=list{makeSignLeft}, Left(ec2)))
   ->List.append(make(~times=8, ~incline=1.5, ~obsticles=list{makeSignLeft}, Left(mc1)))

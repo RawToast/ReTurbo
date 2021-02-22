@@ -114,20 +114,29 @@ let roadEffect = (direction, incline, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
   let offTrack = state => {
     let halfRoad = Common.roadWidth /. 2.
-    let carCentre = float_of_int(carWidth) /. 2.
+    let carCentre = float_of_int(carWidth) /. 2.1
     let offset = state.offset
 
     let offRoadAdjustment = state => {
-      let isOffRight = offset > 0. && offset > halfRoad
-      let isOffLeft = offset < 0. && offset < halfRoad *. -1. +. carCentre
+      let cameraDepth = 1. /. tan(80. /. 2. *. 3.1459)
+      let scale = cameraDepth /. 8.
+      let isOffLeft = (offset > 0. && offset > (halfRoad *. scale))
+        || (offset < 0. && offset < (halfRoad *. scale) *. -1.)
+      let isOffRight = (offset < 0. && offset < (halfRoad *. scale) *. -1. +. carCentre)
+      || (offset > 0. && offset > (halfRoad *. scale) +. carCentre)
+        
+      let offRoadFactor = switch (isOffLeft, isOffRight) {
+        | (true, true) => 1.
+        | (false, false) => 0.3
+        | _ => 0.
+      }
       let isOff = isOffRight || isOffLeft
       let update = state =>
         state.speed > grassMaxSpeed
-          ? {...state, speed: state.speed -. 0.45}
-          : {...state, speed: state.speed -. 0.1}
+          ? {...state, speed: state.speed -. (offRoadFactor *. 0.8)}
+          : {...state, speed: state.speed -. (offRoadFactor *. 0.1)}
 
       isOff ? update(state) : state
-      // let hillFactor = state => {}
     }
     state |> offRoadAdjustment
   }
