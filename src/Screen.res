@@ -24,8 +24,8 @@ let projectToScreen = (~offset, x, y, z) => {
 
     let scale = cameraDepth /. cameraZ
 
-    let screenX = Common.widthF /. 2. +. scale *. cameraX *. Common.widthF /. 2.
-    let screenY = Common.heightF /. 2. -. (scale *. cameraY *. (Common.heightF /. 2.))
+    let screenX = Common.centrePoint +. scale *. cameraX *. Common.centrePoint
+    let screenY = Common.centreHeight -. (scale *. cameraY *. (Common.centreHeight))
     let roadWidth = scale *. Common.roadWidth *. (Common.widthF /. 100.)
 
     (screenX, screenY, roadWidth)

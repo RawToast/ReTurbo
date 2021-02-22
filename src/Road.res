@@ -1,12 +1,8 @@
 open Reprocessing
 
-/* Screen constants */
-let screenHeightF = Common.heightF
-let screenWidthF = Common.widthF
 /* Road constants */
-let baseWidth = Common.roadWidth
 let baseLength = 36.
-let maxHeight = 2. *. (screenHeightF /. 3.)
+let maxHeight = 2. *. (Common.heightF /. 3.)
 
 let fillDarkGrey = Draw.fill(Utils.color(~r=60, ~g=60, ~b=60, ~a=255))
 let fillLightGrey = Draw.fill(Utils.color(~r=68, ~g=68, ~b=68, ~a=255))
@@ -87,8 +83,8 @@ let rec drawRoad = (
   let (_, topY) = roadQuad.leftTop
   Draw.quadf(
     ~p1=(0., bottomY),
-    ~p2=(screenWidthF, bottomY),
-    ~p3=(screenWidthF, topY),
+    ~p2=(Common.widthF, bottomY),
+    ~p3=(Common.widthF, topY),
     ~p4=(0., topY),
     env,
   )
@@ -108,7 +104,7 @@ let rec drawRoad = (
   let isOutOfBounds =
     maxHeight >= nextHeight ||
       (x1 < 0. +. Common.minOffset ||
-      x0 > screenWidthF +. Common.maxOffset)
+      x0 > Common.widthF +. Common.maxOffset)
 
   isOutOfBounds
     ? objects
@@ -130,8 +126,8 @@ let findInitialCoordinates = (offset, state) => {
     let adj = mod_float(state.position, baseLength *. 2.)
     adj >= baseLength ? (true, adj -. baseLength) : (false, adj)
   }
-  let x0 = screenWidthF /. 2. -. baseWidth /. 2. +. offset
-  let x1 = screenWidthF /. 2. +. baseWidth /. 2. +. offset
+  let x0 = Common.centrePoint -. Common.roadWidth /. 2. +. offset
+  let x1 = Common.centrePoint +. Common.roadWidth /. 2. +. offset
   (x0, x1, remainder, isLight)
 }
 
@@ -143,8 +139,8 @@ let draw = (offset, state, env) => {
   let goal = (264 + iOffset, 304 + iOffset)
 
   drawRoad(
-    ~leftBottom=(x0, screenHeightF),
-    ~rightBottom=(x1, screenHeightF),
+    ~leftBottom=(x0, Common.heightF),
+    ~rightBottom=(x1, Common.heightF),
     ~firstHeight=remainder,
     ~track=state.track.track,
     ~goals=goal,
