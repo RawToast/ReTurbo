@@ -14,11 +14,8 @@ type quad = {
   colour: Road.Display.colour,
   terrainColour: Road.Display.colour,
 }
-let projectRoad = (~offset, road: Road.Display.t): quad => {
-  let {x, y, z, previous, colour, terrainColour} = road
-  // Js.log(z)
-  let calc = (x, y, z) => {
-    // let offset = offset *. 1. // player zooms around without this
+
+let projectToScreen = (~offset, x, y, z) => {
     let iOffset = offset *. 0.06
     let cameraX = x +. iOffset
     let cameraY = y -. cameraHeight
@@ -30,13 +27,15 @@ let projectRoad = (~offset, road: Road.Display.t): quad => {
     let screenX = Common.widthF /. 2. +. scale *. cameraX *. Common.widthF /. 2.
     let screenY = Common.heightF /. 2. -. (scale *. cameraY *. (Common.heightF /. 2.))
     let roadWidth = scale *. Common.roadWidth *. (Common.widthF /. 100.)
-    // Js.log(roadWidth)
+
     (screenX, screenY, roadWidth)
   }
+let projectRoad = (~offset, road: Road.Display.t): quad => {
+  let {x, y, z, previous, colour, terrainColour} = road
 
-  let (x, y, w) = calc(x, y, z)
+  let (x, y, w) = projectToScreen(~offset, x, y, z)
   let (px, py, pz) = previous
-  let previous = calc(px, py, pz)
+  let previous = projectToScreen(~offset, px, py, pz)
 
   {x: x, y: y, w: w, previous: previous, colour: colour, terrainColour: terrainColour}
 }
@@ -46,7 +45,7 @@ let draw = (~offset, ~screen, env) => {
 
   let projectedRoad =
     road
-    ->Belt.List.take(100)
+    ->Belt.List.take(Common.planes)
     ->Belt.Option.getExn |> List.map(projectRoad(~offset))
 
   let minY = ref(1000.)

@@ -8,3 +8,5 @@ let minOffset = -700.
 let maxOffset = 700.
 let roadWidth = 880.
 let frameRate = 60.
+
+let planes = 100

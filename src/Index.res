@@ -51,11 +51,10 @@ let drawGame = (state, env) => {
   drawSky(env)
 
   let road = Road.Display.make(~offset=state.car.offset, state.road)
-
+  // let objects = Objects.Display.make(~offset=state.car.offset, state.road) // Objects should be held in road display
 
   let screen: Screen.t = {road: road}
   Screen.draw(~offset=state.car.offset, ~screen, env)
-  // Js.log(List.length(road))
 
   // let objects: list<Objects.state> = Road.draw(state.car.offset, state.road, env)
   // let (infrontObjects, behindObjects) = List.partition((o: Objects.state) => o.y >= height - o.height - 10, objects)
