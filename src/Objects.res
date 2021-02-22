@@ -12,8 +12,7 @@ type assets = {
 }
 
 type state = {
-  x: int,
-  y: int,
+  offset: float,
   height: int,
   width: int,
   objectType: Track.Obsticle.objectType,
@@ -28,79 +27,41 @@ let loadAssets = env => {
 
 let init = env => loadAssets(env)
 
-let findPosition = (quad: RoadCalc.roadQuad, obj: Track.Obsticle.state) => {
-  let {
-    objectType: _,
-    Track.Obsticle.location: location,
-    offset: (offsetX, _),
-    size: (sizeX, sizeY),
-  } = obj
-  let ((xl, by), (xr, _), (_, ty)) = (quad.leftBottom, quad.rightBottom, quad.rightTop)
-  let (sizeX, sizeY) = (float_of_int(sizeX), float_of_int(sizeY))
-  let roadHeight = by -. ty
-  let heightAdjustFactor = if by >= screenHeightF {
-    1.
-  } else {
-    roadHeight /. baseLength
+module Display = {
+  type t = {
+    offset: float,
+    height: float,
+    width: float,
+    z: float,
+    objectType: Track.Obsticle.objectType,
   }
-  let widthAdjustFactor = heightAdjustFactor
-  let objectHeight = sizeY *. heightAdjustFactor
-  let objectWidth = sizeX *. widthAdjustFactor
 
-  let objectOffsetX = offsetX *. widthAdjustFactor
+  let make = (~z=0., ~offset, ~height, ~width, objectType) => {
+    // let asset = switch objectType {
+    // | Track.Obsticle.SIGN_RIGHT => "assets/roadsign_left.png"
+    // | SIGN_LEFT => "assets/roadsign_left.png"
+    // | TREE => "assets/roadsign_left.png"
+    // | STONE => "assets/roadsign_left.png"
+    // }
 
-  let remainingRoad = baseLength -. roadHeight
-  let objY =
-    by >= 319.
-      ? int_of_float(by -. objectHeight +. remainingRoad)
-      : int_of_float(by -. objectHeight)
-
-  let objExtraX = if by >= 319. {
-    let remaningRoad = baseLength -. roadHeight
-    switch location {
-    | Track.Obsticle.LEFT => remaningRoad /. tan(quad.leftAngle)
-    | Track.Obsticle.RIGHT => remaningRoad /. tan(quad.rightAngle)
-    | Track.Obsticle.CENTRE =>
-      switch offsetX {
-      | 0. => 0.
-      | _ if offsetX > 0. => remaningRoad /. tan(quad.rightAngle) /. 3.
-      | _ if offsetX < 0. => remaningRoad /. tan(quad.leftAngle) /. 3.
-      | _ => 0.
-      }
+    {
+      z: z,
+      height: height,
+      width: width,
+      offset: offset,
+      objectType: objectType,
     }
-  } else {
-    0.
   }
 
-  switch location {
-  | Track.Obsticle.LEFT =>
-    let objX = int_of_float(xl -. objExtraX -. objectWidth +. objectOffsetX)
-    (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
-  | Track.Obsticle.RIGHT =>
-    let objX = int_of_float(xr +. objExtraX +. objectOffsetX)
-    (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
-  | Track.Obsticle.CENTRE =>
-    let objX = int_of_float((xr +. xl) /. 2. +. objectOffsetX)
-    (objX, objY, int_of_float(objectHeight), int_of_float(objectWidth))
+
+  let make = (obj: Track.Obsticle.state) => {
+    let (height, width) = obj.size
+
+    make(
+      ~offset=1.,
+      ~height=float_of_int(height),
+      ~width=float_of_int(width),
+      obj.objectType
+    )
   }
 }
-
-let calculatePositions = (trackPiece: Track.plane, quad) => {
-  let obsticles: list<Track.Obsticle.state> = trackPiece.obsticles
-
-  obsticles |> List.map((obs: Track.Obsticle.state) => {
-    let (x, y, height, width) = findPosition(quad, obs);
-     { x, y, height, width, objectType: obs.objectType }
-  })
-}
-
-let draw = (objects, assets, env) =>
-  objects |> List.iter(o => {
-    let {x, y, objectType, width, height} = o
-    switch objectType {
-    | SIGN_RIGHT => Draw.image(assets.roadSignRight, ~pos=(x, y), ~width, ~height, env)
-    | SIGN_LEFT => Draw.image(assets.roadSignLeft, ~pos=(x, y), ~width, ~height, env)
-    | TREE => Draw.image(assets.tree, ~pos=(x, y), ~width, ~height, env)
-    | STONE => Draw.image(assets.stone, ~pos=(x, y), ~width, ~height, env)
-    }
-  })

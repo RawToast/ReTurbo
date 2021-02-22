@@ -18,37 +18,34 @@ module Obsticle = {
 
   type state = {
     objectType: objectType,
-    location: location,
-    offset: (float, float),
+    offset: float,
+    z: float,
     size: (int, int),
   }
 
-  let makeSignRight = {objectType: SIGN_RIGHT, location: LEFT, offset: (-80., 0.), size: (96, 96)}
-  let makeSignLeft = {objectType: SIGN_LEFT, location: RIGHT, offset: (30., 0.), size: (96, 96)}
-  let makeTree = (~where, x) => {
+  let makeSignRight = {objectType: SIGN_RIGHT, offset: 1.25, z: 0., size: (96, 96)}
+  let makeSignLeft = {objectType: SIGN_LEFT, offset: 1.25, z: 0., size: (96, 96)}
+  let makeTree = (x) => {
     objectType: TREE,
-    location: where,
-    offset: (x, 0.),
+    offset: x,
+    z: 0.,
     size: (128, 208),
   }
-  let smallTree = (~where, x) => {
+  let smallTree = (x) => {
     objectType: TREE,
-    location: where,
-    offset: (x, 0.),
+    offset: x,
+    z: 0.,
     size: (64, 104),
   }
-  let makeStone = (~where=CENTRE, x) => {
+  let makeStone = (x) => {
     objectType: STONE,
-    location: where,
-    offset: (x, 0.),
+    offset: x,
+    z: 0.,
     size: (64, 64),
   }
 
-  let bunchOfSmallTrees = (~offset=0., where) => switch where { 
-    | RIGHT => list{smallTree(~where, 40. +. offset), smallTree(~where, 100.+. offset), smallTree(~where, 160.+. offset)}
-    | LEFT => list{smallTree(~where, -40. +. offset), smallTree(~where, -100.+. offset), smallTree(~where, -160.+. offset)}
-    | CENTRE => list{smallTree(~where, -60. +. offset), smallTree(~where, 0.+. offset), smallTree(~where, 60.+. offset)}
-  }
+  let bunchOfSmallTrees = (offset1, offset2, offset3) =>
+    list{smallTree(offset1), smallTree(offset2), smallTree(offset3)}
 }
 
 type plane = {
@@ -82,24 +79,24 @@ let demoTrack = {
   ->List.append(make(~times=1, ~incline=-5., Straight))
   ->List.append(make(~times=8, ~incline=-6., Straight))
   ->List.append(make(~times=8, ~incline=-5., Straight))
-  ->List.append(make(~times=4, ~incline=-4., ~obsticles=bunchOfSmallTrees(RIGHT), Straight))
-  ->List.append(make(~times=2, ~incline=-3., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
-  ->List.append(make(~times=2, ~incline=-2., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
-  ->List.append(make(~times=2, ~incline=-1., ~obsticles=bunchOfSmallTrees(LEFT), Straight))
+  ->List.append(make(~times=4, ~incline=-4., ~obsticles=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
+  ->List.append(make(~times=2, ~incline=-3., ~obsticles=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
+  ->List.append(make(~times=2, ~incline=-2., ~obsticles=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
+  ->List.append(make(~times=2, ~incline=-1., ~obsticles=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
   ->List.append(
     make(
       ~times=2,
       ~obsticles=list{
         makeSignRight,
-        smallTree(~where=RIGHT, 35.),
-        makeTree(~where=RIGHT, 90.),
+        smallTree(1.35),
+        makeTree(1.95),
       },
       Right(ec2),
     ),
   )->List.append(
     make(
       ~times=2,
-      ~obsticles=bunchOfSmallTrees(RIGHT),
+      ~obsticles=bunchOfSmallTrees(-1.3, 1.5, -1.7),
       Right(ec2),
     ),
   )
@@ -108,8 +105,8 @@ let demoTrack = {
       ~times=2,
       ~obsticles=list{
         makeSignRight,
-        smallTree(~where=RIGHT, 107.),
-        makeTree(~where=RIGHT, 55.),
+        smallTree(1.17),
+        makeTree(1.55),
       },
       Right(ec2),
     ))
@@ -140,7 +137,7 @@ let demoTrack = {
   ->List.append(make(~times=12, Right(mc1)))
   ->List.append(make(~times=12, Right(mc2)))
   ->List.append(
-    make(~times=2, ~obsticles=list{makeStone(~where=RIGHT, 55.)}, Right(hc1)),
+    make(~times=2, ~obsticles=list{makeStone(1.55)}, Right(hc1)),
   )
   ->List.append(make(~times=6, ~incline=-0.5, Straight))
   ->List.append(make(~times=6, ~incline=-1.5, Straight))
@@ -154,20 +151,20 @@ let demoTrack = {
   ->List.append(make(~times=3, ~incline=0.3, ~obsticles=list{makeSignLeft}, Left(hc1)))
   ->List.append(make(~times=6, ~incline=-0.2, ~obsticles=list{makeSignLeft}, Left(hc2)))
   ->List.append(make(~times=6, Straight))
-  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(~offset=90., RIGHT), Straight))
-  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(~offset=-90., LEFT), Straight))
-  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(~offset=60., RIGHT), Straight))
-  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(~offset=-60., LEFT), Straight))
-  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(~offset=30., RIGHT), Straight))
-  ->List.append(make(~times=1, ~incline=0.4, ~obsticles=bunchOfSmallTrees(~offset=-30., LEFT), Straight))
+  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
+  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(-1.25, -1.5, -1.75), Straight))
+  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(1.2, 1.4, 1.6), Straight))
+  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(-1.2, -1.4, -1.6), Straight))
+  ->List.append(make(~times=1, ~obsticles=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
+  ->List.append(make(~times=1, ~incline=0.4, ~obsticles=bunchOfSmallTrees(-1.2, -1.5, -1.7), Straight))
   ->List.append(make(~times=1, ~incline=0.9, Right(1.)))
   ->List.append(make(~times=1, ~incline=1.3, Right(1.)))
   ->List.append(make(~times=4, ~incline=2.8, Right(1.)))
   ->List.append(make(~times=1, ~incline=1.7, Right(1.)))
   ->List.append(make(~times=1, ~incline=0.5, Right(1.)))
   ->List.append(make(~times=4, ~incline=0.2, Straight))
-  ->List.append(make(~times=1, ~obsticles=list{makeStone(~where=RIGHT, 40.), makeStone(~where=RIGHT, 170.)}, Straight))
-  ->List.append(make(~times=1, ~obsticles=list{makeStone(~where=RIGHT, 85.)}, Straight))
+  ->List.append(make(~times=1, ~obsticles=list{makeStone(1.4), makeStone(1.75)}, Straight))
+  ->List.append(make(~times=1, ~obsticles=list{makeStone(1.65)}, Straight))
   ->List.append(make(~times=12, Left(hc2)))
   ->List.append(make(~times=6, Straight))
   ->List.append(makeCheckpoint(12))
@@ -175,10 +172,10 @@ let demoTrack = {
     make(
       ~times=6,
       ~obsticles=list{
-        Obsticle.smallTree(~where=LEFT, -35.),
-        Obsticle.makeTree(~where=LEFT, -90.),
-        Obsticle.smallTree(~where=RIGHT, 35.),
-        Obsticle.makeTree(~where=RIGHT, 90.),
+        Obsticle.smallTree(-1.35),
+        Obsticle.makeTree(-1.9),
+        Obsticle.smallTree(1.35),
+        Obsticle.makeTree(1.9),
       },
       Straight,
     ),
