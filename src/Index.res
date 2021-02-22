@@ -50,13 +50,22 @@ let drawGame = (state, env) => {
 
   drawSky(env)
 
-  let objects: list<Objects.state> = Road.draw(state.car.offset, state.road, env)
+  let road = Road.Display.make(~offset=state.car.offset, state.road)
 
-  let (infrontObjects, behindObjects) = List.partition((o: Objects.state) => o.y >= height - o.height - 10, objects)
 
-  Objects.draw(behindObjects, state.objects, env)
+  let screen: Screen.t = {road: road}
+  Screen.draw(~offset=state.car.offset, ~screen, env)
+  // Js.log(List.length(road))
+
+  // let objects: list<Objects.state> = Road.draw(state.car.offset, state.road, env)
+  // let (infrontObjects, behindObjects) = List.partition((o: Objects.state) => o.y >= height - o.height - 10, objects)
+  // Objects.draw(behindObjects, state.objects, env)
+
   Car.draw(state.car, env)
-  Objects.draw(infrontObjects, state.objects, env)
+
+  // Objects.draw(infrontObjects, state.objects, env)
+  
+  
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env)
 
   let text = Car.speedInMph(state.car)

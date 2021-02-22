@@ -155,3 +155,62 @@ let draw = (offset, state, env) => {
     env,
   )
 }
+
+module Display = {
+  type colour = {
+    r: int,
+    g: int,
+    b: int,
+    a: int,
+  }
+  type t = {
+    x: float,
+    y: float,
+    z: float,
+    previous: (float, float, float),
+    colour: colour,
+    terrainColour: colour,
+  }
+
+  %%private(let darkGrey = {r: 60, g: 60, b: 60, a:255})
+  %%private(let lightGrey = {r: 68, g: 68, b: 68, a:255})
+  %%private(let _red = {r: 150, g: 80, b: 80, a:255})
+  %%private(let darkGreen = {r: 30, g: 120, b: 30, a:255})
+  %%private(let lightGreen = {r: 45, g: 140, b: 30, a:255})
+
+
+  let make = (~offset, state) => {
+    let (_, _, remainder, isLight) = findInitialCoordinates(offset, state)
+    // let iOffset = int_of_float(offset *. 0.4) /* interesting */
+    let remainder = baseLength -. remainder
+    let convert = (~remainder, ~isDark=isLight, track) => {
+      let isDark = ref(isDark)
+      let previous = ref(None)
+      track |> List.mapi((i, _plane) => {
+        let i = float_of_int(i)
+        let prev = switch previous.contents {
+          | Some(xyz) => xyz
+          | None => (0., 0., 0.)
+        }
+
+        let x = 0.
+        let y = 0.
+        let z = i *. baseLength +. remainder
+        previous := Some((x, y, z))
+        let result = {
+          x: x,
+          y: y,
+          z: z,
+          previous: prev,
+          colour: isDark.contents ? lightGrey : darkGrey,
+          terrainColour: isDark.contents ? darkGreen : lightGreen,
+        }
+
+        isDark := !isDark.contents
+        result
+      })
+    }
+
+    convert(~remainder, ~isDark=isLight, state.track.track)
+  }
+}

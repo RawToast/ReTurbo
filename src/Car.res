@@ -16,8 +16,39 @@ type state = {
   offset: float,
   assets: assets,
 }
+
 let carWidth = 105
 let carHeight = 53
+
+module Display = {
+  type t = {
+    position: (int, int),
+    asset: Reprocessing_Common.imageT,
+    width: int,
+    height: int,
+    z: float,
+  }
+
+  let make = car => {
+    let image = switch car.velocity {
+    | _ if car.velocity == 0 => car.assets.straight
+    | _ if car.velocity > 6 => car.assets.heavyRightTurn
+    | _ if car.velocity > 0 => car.assets.rightTurn
+    | _ if car.velocity < -6 => car.assets.heavyLeftTurn
+    | _ if car.velocity < 0 => car.assets.leftTurn
+    | _ => car.assets.straight
+    }
+
+    {
+      position: car.position,
+      asset: image,
+      width: carWidth,
+      height: carHeight,
+      z: 1.,
+    }
+  }
+}
+
 let vLowSpeed = 90.
 let lowSpeed = 110.
 let midSpeed = 160.
