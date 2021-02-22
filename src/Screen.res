@@ -19,7 +19,7 @@ let projectRoad = (~offset, road: Road.Display.t): quad => {
   // Js.log(z)
   let calc = (x, y, z) => {
     // let offset = offset *. 1. // player zooms around without this
-    let iOffset = (offset *. 0.06)
+    let iOffset = offset *. 0.06
     let cameraX = x +. iOffset
     let cameraY = y -. cameraHeight
     let cameraZ = z -. 0. // - cameraZ
@@ -27,7 +27,7 @@ let projectRoad = (~offset, road: Road.Display.t): quad => {
 
     let scale = cameraDepth /. cameraZ
 
-    let screenX = Common.widthF /. 2. +. (scale *. cameraX *. Common.widthF /. 2.)
+    let screenX = Common.widthF /. 2. +. scale *. cameraX *. Common.widthF /. 2.
     let screenY = Common.heightF /. 2. -. scale *. cameraY *. (Common.heightF /. 2.)
     let roadWidth = scale *. Common.roadWidth *. (Common.widthF /. 100.)
     // Js.log(roadWidth)
@@ -49,20 +49,22 @@ let draw = (~offset, ~screen, env) => {
   let projectedRoad =
     road
     // -> Belt.List.reverse
-    ->Belt.List.take(30)
+    ->Belt.List.take(42)
     ->Belt.Option.getExn |> List.map(projectRoad(~offset))
 
   let _ = projectedRoad |> List.map(quad => {
     let {x, y, w, previous, colour, terrainColour} = quad
     let (px, py, pw) = previous
-
+    if (py >= y) {
     Draw.fill(
       Utils.color(~r=terrainColour.r, ~g=terrainColour.g, ~b=terrainColour.b, ~a=terrainColour.a),
       env,
     )
     Draw.quadf(~p1=(0., py), ~p2=(Common.widthF, py), ~p3=(Common.widthF, y), ~p4=(0., y), env)
 
-    Draw.fill(Utils.color(~r=colour.r, ~g=colour.g, ~b=colour.b, ~a=colour.a), env)
-    Draw.quadf(~p1=(px -. pw, py), ~p2=(px +. pw, py), ~p3=(x +. w, y), ~p4=(x -. w, y), env)
+    
+      Draw.fill(Utils.color(~r=colour.r, ~g=colour.g, ~b=colour.b, ~a=colour.a), env)
+      Draw.quadf(~p1=(px -. pw, py), ~p2=(px +. pw, py), ~p3=(x +. w, y), ~p4=(x -. w, y), env)
+    }
   })
 }

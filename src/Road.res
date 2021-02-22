@@ -203,7 +203,8 @@ module Display = {
         let (px, py, _pz) = prev
 
         let x = px +. (curve)
-        let y = py
+        let yFactor = (0.36 *. plane.incline)
+        let y = i == 0. ? py +. yFactor *. remainder /. baseLength : py +. yFactor
         let z = i *. baseLength +. remainder
         previous := Some((x, y, z))
         let result = {
