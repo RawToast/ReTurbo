@@ -24,11 +24,11 @@ let setup = env => {
 
 let control = state => {
   let currentPlane = Road.currentPlane(state.road)
-  let currentRoadDirection = currentPlane.direction
+  let (currentRoadDirection, currentIncline) = (currentPlane.direction, currentPlane.incline)
   let isBrake = Control.isBrake(state.control) || Timer.gameOver(state.timer) ? true : false
   let turn = Control.getTurn(state.control)
   let car =
-    Car.turn(turn, state.car) |> Car.roadEffect(currentRoadDirection) |> Car.accelerate(isBrake)
+    Car.turn(turn, state.car) |> Car.roadEffect(currentRoadDirection, currentIncline) |> Car.accelerate(isBrake)
 
   let position = state.road.position +. Car.progression(state.car)
   let newRoadState = Road.moveForward(position, state.road)

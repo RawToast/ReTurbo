@@ -140,7 +140,6 @@ let init = {position: 0., track: Track.init, lastPiece: 1}
 let draw = (offset, state, env) => {
   let (x0, x1, remainder, isLight) = findInitialCoordinates(offset, state)
   let iOffset = int_of_float(offset *. 0.4) /* interesting */
-  // middle = 284
   let goal = (264 + iOffset, 304 + iOffset)
 
   drawRoad(
@@ -172,12 +171,11 @@ module Display = {
     terrainColour: colour,
   }
 
-  %%private(let darkGrey = {r: 60, g: 60, b: 60, a:255})
-  %%private(let lightGrey = {r: 68, g: 68, b: 68, a:255})
-  %%private(let _red = {r: 150, g: 80, b: 80, a:255})
-  %%private(let darkGreen = {r: 30, g: 120, b: 30, a:255})
-  %%private(let lightGreen = {r: 45, g: 140, b: 30, a:255})
-
+  %%private(let darkGrey = {r: 60, g: 60, b: 60, a: 255})
+  %%private(let lightGrey = {r: 68, g: 68, b: 68, a: 255})
+  %%private(let red = {r: 150, g: 80, b: 80, a: 255})
+  %%private(let darkGreen = {r: 30, g: 120, b: 30, a: 255})
+  %%private(let lightGreen = {r: 45, g: 140, b: 30, a: 255})
 
   let make = (~offset, state) => {
     let (_, _, remainder, isLight) = findInitialCoordinates(offset, state)
@@ -188,31 +186,35 @@ module Display = {
       let previous = ref(None)
       let ddx = ref(0.)
       track |> List.mapi((i, plane) => {
+        let i = float_of_int(i)
+
+        // Calc position
         let curve = switch plane.Track.direction {
-        | Track.Left(curve) => i == 0 ? (remainder /. baseLength) *. curve *. -2. : curve *. -2.
-        | Right(curve) => i == 0 ? (remainder /. baseLength) *. curve *. 2. : curve *. 2.
+        | Track.Left(curve) => i == 0. ? remainder /. baseLength *. curve *. -2. : curve *. -2.
+        | Right(curve) => i == 0. ? remainder /. baseLength *. curve *. 2. : curve *. 2.
         | _ => 0.
         }
         let curve = curve +. ddx.contents
         ddx := curve
-        let i = float_of_int(i)
         let prev = switch previous.contents {
-          | Some(xyz) => xyz
-          | None => (0., 0., 0.)
+        | Some(xyz) => xyz
+        | None => (0., 50., 0.)
         }
         let (px, py, _pz) = prev
 
-        let x = px +. (curve)
-        let yFactor = (0.36 *. plane.incline)
+        let x = px +. curve
+        let yFactor = 0.36 *. plane.incline
         let y = i == 0. ? py +. yFactor *. remainder /. baseLength : py +. yFactor
         let z = i *. baseLength +. remainder
         previous := Some((x, y, z))
+
+        let isCheckpoint = Track.isCheckpoint(plane)
         let result = {
           x: x,
           y: y,
           z: z,
           previous: prev,
-          colour: isDark.contents ? lightGrey : darkGrey,
+          colour: isCheckpoint ? red : isDark.contents ? lightGrey : darkGrey,
           terrainColour: isDark.contents ? darkGreen : lightGreen,
         }
 

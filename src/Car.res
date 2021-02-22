@@ -110,48 +110,63 @@ let turn = (key: Control.turn, state: state) => {
 let progression = state =>
   0. >= state.speed ? 0. : state.speed *. (1. +. state.positionBonus /. 100.) /. 25.
 
-let roadEffect = (direction, state) => {
+let roadEffect = (direction, incline, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
-  let update = updateOffset(state)
   let offTrack = state => {
     let halfRoad = Common.roadWidth /. 2.
     let carCentre = float_of_int(carWidth) /. 2.
     let offset = state.offset
 
-    let isOffRight = offset > 0. && offset > halfRoad
-    let isOffLeft = offset < 0. && offset < halfRoad *. -1. +. carCentre
-    let isOff = isOffRight || isOffLeft
+    let offRoadAdjustment = state => {
+      let isOffRight = offset > 0. && offset > halfRoad
+      let isOffLeft = offset < 0. && offset < halfRoad *. -1. +. carCentre
+      let isOff = isOffRight || isOffLeft
+      let update = state =>
+        state.speed > grassMaxSpeed
+          ? {...state, speed: state.speed -. 0.45}
+          : {...state, speed: state.speed -. 0.1}
 
-    let reduce = state =>
-      state.speed > grassMaxSpeed
-        ? {...state, speed: state.speed -. 0.45}
-        : {...state, speed: state.speed -. 0.1}
-
-    let grantBonus = state => {
-      let initBonus = switch direction {
-      | Track.Right(t) => (0. -. t) *. offset /. 22.
-      | Track.Left(t) => t *. offset /. 22.
-      | _ => 0.
-      }
-
-      let positionBonus = switch initBonus {
-      | _ if initBonus > 5. => 5.
-      | _ if initBonus < -5. => -5.
-      | 0. => 0.
-      | _ => initBonus
-      }
-
-      {...state, positionBonus: positionBonus}
+      isOff ? update(state) : state
+      // let hillFactor = state => {}
     }
-
-    (isOff ? reduce(state) : state) |> grantBonus
+    state |> offRoadAdjustment
   }
 
-  switch direction {
-  | Track.Left(force) => force *. 0.1 *. state.speed |> update
-  | Track.Right(force) => force *. -0.1 *. state.speed |> update
-  | _ => state
-  } |> offTrack
+  let apexBonus = state => {
+    let offset = state.offset
+    let initBonus = switch direction {
+    | Track.Right(t) => (0. -. t) *. offset /. 22.
+    | Track.Left(t) => t *. offset /. 22.
+    | _ => 0.
+    }
+
+    let positionBonus = switch initBonus {
+    | _ if initBonus > 5. => 5.
+    | _ if initBonus < -5. => -5.
+    | 0. => 0.
+    | _ => initBonus
+    }
+
+    {...state, positionBonus: positionBonus}
+  }
+
+  let cornerEffect = state =>
+    switch direction {
+    | Track.Left(force) => force *. 0.1 *. state.speed |> updateOffset(state)
+    | Track.Right(force) => force *. -0.1 *. state.speed |> updateOffset(state)
+    | _ => state
+    }
+
+  let hillEffect = state => {
+    let effect = (incline *. 0.01)
+
+    effect != 0. ?
+    {...state, speed: state.speed -. effect} :
+    state
+  }
+  
+  
+  state |> cornerEffect |> offTrack |> apexBonus |> hillEffect
 }
 
 let accelerate = (isBrake, state) => {
