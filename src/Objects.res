@@ -37,13 +37,6 @@ module Display = {
   }
 
   let make = (~z=0., ~offset, ~height, ~width, objectType) => {
-    // let asset = switch objectType {
-    // | Track.Obsticle.SIGN_RIGHT => "assets/roadsign_left.png"
-    // | SIGN_LEFT => "assets/roadsign_left.png"
-    // | TREE => "assets/roadsign_left.png"
-    // | STONE => "assets/roadsign_left.png"
-    // }
-
     {
       z: z,
       height: height,
@@ -58,7 +51,7 @@ module Display = {
     let (height, width) = obj.size
 
     make(
-      ~offset=1.,
+      ~offset=obj.offset,
       ~height=float_of_int(height),
       ~width=float_of_int(width),
       obj.objectType
