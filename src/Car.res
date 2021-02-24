@@ -16,8 +16,39 @@ type state = {
   offset: float,
   assets: assets,
 }
+
 let carWidth = 105
 let carHeight = 53
+
+module Display = {
+  type t = {
+    position: (int, int),
+    asset: Reprocessing_Common.imageT,
+    width: int,
+    height: int,
+    z: float,
+  }
+
+  let make = car => {
+    let image = switch car.velocity {
+    | _ if car.velocity == 0 => car.assets.straight
+    | _ if car.velocity > 6 => car.assets.heavyRightTurn
+    | _ if car.velocity > 0 => car.assets.rightTurn
+    | _ if car.velocity < -6 => car.assets.heavyLeftTurn
+    | _ if car.velocity < 0 => car.assets.leftTurn
+    | _ => car.assets.straight
+    }
+
+    {
+      position: car.position,
+      asset: image,
+      width: carWidth,
+      height: carHeight,
+      z: 1.,
+    }
+  }
+}
+
 let vLowSpeed = 90.
 let lowSpeed = 110.
 let midSpeed = 160.
@@ -79,48 +110,72 @@ let turn = (key: Control.turn, state: state) => {
 let progression = state =>
   0. >= state.speed ? 0. : state.speed *. (1. +. state.positionBonus /. 100.) /. 25.
 
-let roadEffect = (direction, state) => {
+let roadEffect = (direction, incline, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
-  let update = updateOffset(state)
   let offTrack = state => {
     let halfRoad = Common.roadWidth /. 2.
-    let carCentre = float_of_int(carWidth) /. 2.
+    let carCentre = float_of_int(carWidth) /. 2.1
     let offset = state.offset
 
-    let isOffRight = offset > 0. && offset > halfRoad
-    let isOffLeft = offset < 0. && offset < halfRoad *. -1. +. carCentre
-    let isOff = isOffRight || isOffLeft
-
-    let reduce = state =>
-      state.speed > grassMaxSpeed
-        ? {...state, speed: state.speed -. 0.45}
-        : {...state, speed: state.speed -. 0.1}
-
-    let grantBonus = state => {
-      let initBonus = switch direction {
-      | Track.Right(t) => (0. -. t) *. offset /. 22.
-      | Track.Left(t) => t *. offset /. 22.
-      | _ => 0.
+    let offRoadAdjustment = state => {
+      let cameraDepth = 1. /. tan(80. /. 2. *. 3.1459)
+      let scale = cameraDepth /. 8.
+      let isOffLeft = (offset > 0. && offset > (halfRoad *. scale))
+        || (offset < 0. && offset < (halfRoad *. scale) *. -1.)
+      let isOffRight = (offset < 0. && offset < (halfRoad *. scale) *. -1. +. carCentre)
+      || (offset > 0. && offset > (halfRoad *. scale) +. carCentre)
+        
+      let offRoadFactor = switch (isOffLeft, isOffRight) {
+        | (true, true) => 1.
+        | (false, false) => 0.3
+        | _ => 0.
       }
+      let isOff = isOffRight || isOffLeft
+      let update = state =>
+        state.speed > grassMaxSpeed
+          ? {...state, speed: state.speed -. (offRoadFactor *. 0.8)}
+          : {...state, speed: state.speed -. (offRoadFactor *. 0.1)}
 
-      let positionBonus = switch initBonus {
-      | _ if initBonus > 5. => 5.
-      | _ if initBonus < -5. => -5.
-      | 0. => 0.
-      | _ => initBonus
-      }
-
-      {...state, positionBonus: positionBonus}
+      isOff ? update(state) : state
     }
-
-    (isOff ? reduce(state) : state) |> grantBonus
+    state |> offRoadAdjustment
   }
 
-  switch direction {
-  | Track.Left(force) => force *. 0.1 *. state.speed |> update
-  | Track.Right(force) => force *. -0.1 *. state.speed |> update
-  | _ => state
-  } |> offTrack
+  let apexBonus = state => {
+    let offset = state.offset
+    let initBonus = switch direction {
+    | Track.Right(t) => (0. -. t) *. offset /. 22.
+    | Track.Left(t) => t *. offset /. 22.
+    | _ => 0.
+    }
+
+    let positionBonus = switch initBonus {
+    | _ if initBonus > 5. => 5.
+    | _ if initBonus < -5. => -5.
+    | 0. => 0.
+    | _ => initBonus
+    }
+
+    {...state, positionBonus: positionBonus}
+  }
+
+  let cornerEffect = state =>
+    switch direction {
+    | Track.Left(force) => force *. 0.1 *. state.speed |> updateOffset(state)
+    | Track.Right(force) => force *. -0.1 *. state.speed |> updateOffset(state)
+    | _ => state
+    }
+
+  let hillEffect = state => {
+    let effect = (incline *. 0.01)
+
+    effect != 0. ?
+    {...state, speed: state.speed -. effect} :
+    state
+  }
+  
+  
+  state |> cornerEffect |> offTrack |> apexBonus |> hillEffect
 }
 
 let accelerate = (isBrake, state) => {

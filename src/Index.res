@@ -8,6 +8,7 @@ type state = {
   timer: Timer.state,
   score: Score.state,
   objects: Objects.assets,
+  assets: Screen.Sprite.assets,
 }
 
 let setup = env => {
@@ -19,16 +20,17 @@ let setup = env => {
     timer: Timer.init,
     score: Score.init,
     objects: Objects.loadAssets(env),
+    assets: Screen.Sprite.init(env)
   }
 }
 
 let control = state => {
   let currentPlane = Road.currentPlane(state.road)
-  let currentRoadDirection = currentPlane.direction
+  let (currentRoadDirection, currentIncline) = (currentPlane.direction, currentPlane.incline)
   let isBrake = Control.isBrake(state.control) || Timer.gameOver(state.timer) ? true : false
   let turn = Control.getTurn(state.control)
   let car =
-    Car.turn(turn, state.car) |> Car.roadEffect(currentRoadDirection) |> Car.accelerate(isBrake)
+    Car.turn(turn, state.car) |> Car.roadEffect(currentRoadDirection, currentIncline) |> Car.accelerate(isBrake)
 
   let position = state.road.position +. Car.progression(state.car)
   let newRoadState = Road.moveForward(position, state.road)
@@ -50,13 +52,11 @@ let drawGame = (state, env) => {
 
   drawSky(env)
 
-  let objects: list<Objects.state> = Road.draw(state.car.offset, state.road, env)
+  let road = Road.Display.make(~offset=state.car.offset, state.road)
+  let screen: Screen.t = {road: road}
+  Screen.draw(~offset=state.car.offset, ~screen, state.assets, env)
 
-  let (infrontObjects, behindObjects) = List.partition((o: Objects.state) => o.y >= height - o.height - 10, objects)
-
-  Objects.draw(behindObjects, state.objects, env)
   Car.draw(state.car, env)
-  Objects.draw(infrontObjects, state.objects, env)
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env)
 
   let text = Car.speedInMph(state.car)
