@@ -57,7 +57,7 @@ module Display = {
     previous: (float, float, float),
     colour: colour,
     terrainColour: colour,
-    objects: list<Objects.Display.t>,
+    objects: list<Object.Display.t>,
   }
 
   %%private(let darkGrey = {r: 60, g: 60, b: 60, a: 255})
@@ -78,7 +78,7 @@ module Display = {
         let i = float_of_int(i)
         let {direction, obsticles, incline} = plane
 
-        let objects = obsticles |> List.map(Objects.Display.make)
+        let objects = obsticles |> List.map(Object.Display.make)
 
         // Calc position
         let findXyz = (~previous, ~remainder, ~direction, ~incline, ~ddx) => {

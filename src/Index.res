@@ -7,7 +7,6 @@ type state = {
   control: Control.state,
   timer: Timer.state,
   score: Score.state,
-  objects: Objects.assets,
   assets: Screen.Sprite.assets,
 }
 
@@ -19,7 +18,6 @@ let setup = env => {
     control: Control.init,
     timer: Timer.init,
     score: Score.init,
-    objects: Objects.loadAssets(env),
     assets: Screen.Sprite.init(env)
   }
 }

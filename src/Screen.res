@@ -48,7 +48,7 @@ module Sprite = {
 
   let fromObject = o =>
     switch o {
-    | Track.Obsticle.SIGN_RIGHT => SIGN_RIGHT
+    | Object.SIGN_RIGHT => SIGN_RIGHT
     | SIGN_LEFT => SIGN_LEFT
     | TREE => TREE
     | STONE => STONE
@@ -92,7 +92,7 @@ module Quad = {
     let (px, py, pz) = previous
     let (px, py, pw, _) = projectToScreen(~offset, px, py, pz)
     let previous = (px, py, pw)
-    let objects = objects |> List.map((o: Objects.Display.t) => {
+    let objects = objects |> List.map((o: Object.Display.t) => {
       {
         Sprite.x: x +. (w *. o.offset),
         y: y -. (o.height *. scale),
