@@ -20,19 +20,19 @@ let makeSignLeft = {objectType: SIGN_LEFT, offset: 1.25, z: 0., size: (96, 96)}
 
 let makeTree = offset => {
   objectType: TREE,
-  offset,
+  offset: offset,
   z: 0.,
   size: (128, 216),
 }
 let smallTree = offset => {
   objectType: TREE,
-  offset,
+  offset: offset,
   z: 0.,
   size: (64, 108),
 }
 let makeStone = offset => {
   objectType: STONE,
-  offset,
+  offset: offset,
   z: 0.,
   size: (64, 64),
 }
@@ -47,13 +47,11 @@ module Display = {
   }
 
   let make = (~z=0., ~offset, ~height, ~width, objectType) => {
-    {
-      z: z,
-      height: height,
-      width: width,
-      offset: offset,
-      objectType: objectType,
-    }
+    z: z,
+    height: height,
+    width: width,
+    offset: offset,
+    objectType: objectType,
   }
 
   let make = (obj: state) => {

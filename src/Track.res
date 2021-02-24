@@ -19,7 +19,7 @@ type plane = {
 type state = {track: list<plane>}
 
 let demoTrack = {
-  open Object;
+  open Object
 
   let ec1 = 0.08
   let ec2 = 0.16
@@ -34,7 +34,8 @@ let demoTrack = {
   let make = (~times=1, ~obsticles=list{}, ~incline=0., road) =>
     Array.make(times, {direction: road, obsticles: obsticles, incline: incline}) |> Array.to_list
 
-  make(~times=5, Straight)
+  make(~times=3, Straight)
+  ->List.append(make(~times=2, ~incline=0.5, Straight))
   ->List.append(make(~times=1, ~incline=-1., Straight))
   ->List.append(make(~times=1, ~incline=-2., Straight))
   ->List.append(
@@ -130,12 +131,7 @@ let demoTrack = {
   ->List.append(
     make(
       ~times=6,
-      ~obsticles=list{
-        smallTree(-1.35),
-        makeTree(-1.9),
-        smallTree(1.35),
-        makeTree(1.9),
-      },
+      ~obsticles=list{smallTree(-1.35), makeTree(-1.9), smallTree(1.35), makeTree(1.9)},
       Straight,
     ),
   )

@@ -13,7 +13,7 @@ type state = {
 let setup = env => {
   Env.size(~width, ~height, env)
   {
-    car: Car.init(width / 2 - 30, height - Car.carHeight + 1, env),
+    car: Car.init(width / 2 - 30, height - Car.carHeight + 1),
     road: Road.init,
     control: Control.init,
     timer: Timer.init,
@@ -47,14 +47,13 @@ let drawSky = env => {
 
 let drawGame = (state, env) => {
   Draw.background(Utils.color(~r=255, ~g=255, ~b=255, ~a=255), env)
-
   drawSky(env)
 
   let road = Road.Display.make(~offset=state.car.offset, state.road)
-  let screen: Screen.t = {road: road}
+  let car = Car.Display.make(state.car)
+  let screen: Screen.t = {road: road, car: car}
   Screen.draw(~offset=state.car.offset, ~screen, state.assets, env)
 
-  Car.draw(state.car, env)
   Draw.fill(Utils.color(~r=25, ~g=25, ~b=25, ~a=255), env)
 
   let text = Car.speedInMph(state.car)

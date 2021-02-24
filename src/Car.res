@@ -1,49 +1,46 @@
-module Draw = Reprocessing.Draw
-
-type assets = {
-  straight: Reprocessing_Common.imageT,
-  leftTurn: Reprocessing_Common.imageT,
-  heavyLeftTurn: Reprocessing_Common.imageT,
-  rightTurn: Reprocessing_Common.imageT,
-  heavyRightTurn: Reprocessing_Common.imageT,
-}
-
 type state = {
   position: (int, int),
   speed: float,
   positionBonus: float,
   velocity: int,
   offset: float,
-  assets: assets,
 }
 
 let carWidth = 105
 let carHeight = 53
 
 module Display = {
+  type asset =
+    | Straight
+    | LeftTurn
+    | HeavyLeftTurn
+    | RightTurn
+    | HeavyRightTurn
+
   type t = {
-    position: (int, int),
-    asset: Reprocessing_Common.imageT,
-    width: int,
-    height: int,
+    offset: float,
+    width: float,
+    height: float,
+    asset: asset,
     z: float,
   }
 
   let make = car => {
-    let image = switch car.velocity {
-    | _ if car.velocity == 0 => car.assets.straight
-    | _ if car.velocity > 6 => car.assets.heavyRightTurn
-    | _ if car.velocity > 0 => car.assets.rightTurn
-    | _ if car.velocity < -6 => car.assets.heavyLeftTurn
-    | _ if car.velocity < 0 => car.assets.leftTurn
-    | _ => car.assets.straight
+    let asset = switch car.velocity {
+    | _ if car.velocity == 0 => Straight
+    | _ if car.velocity > 6 => HeavyRightTurn
+    | _ if car.velocity > 0 => RightTurn
+    | _ if car.velocity < -6 => HeavyLeftTurn
+    | _ if car.velocity < 0 => LeftTurn
+    | _ => Straight
     }
+    let (x, _) = car.position
 
     {
-      position: car.position,
-      asset: image,
-      width: carWidth,
-      height: carHeight,
+      offset: float_of_int(x),
+      asset: asset,
+      width: float_of_int(carWidth),
+      height: float_of_int(carHeight),
       z: 1.,
     }
   }
@@ -62,17 +59,6 @@ let maxSpeed = 250.
 let brakeFactor = 60. *. 1.6 /. (Common.frameRate *. 3.)
 
 let speedInMph = state => state.speed /. 1.6 |> int_of_float |> string_of_int
-let draw = (state, env) => {
-  let image = switch state.velocity {
-  | _ if state.velocity == 0 => state.assets.straight
-  | _ if state.velocity > 6 => state.assets.heavyRightTurn
-  | _ if state.velocity > 0 => state.assets.rightTurn
-  | _ if state.velocity < -6 => state.assets.heavyLeftTurn
-  | _ if state.velocity < 0 => state.assets.leftTurn
-  | _ => state.assets.straight
-  }
-  Draw.image(image, ~pos=state.position, ~width=carWidth, ~height=carHeight, env)
-}
 
 let updateOffset = (state, force) => {
   let offset = state.offset -. force
@@ -120,21 +106,23 @@ let roadEffect = (direction, incline, state) => {
     let offRoadAdjustment = state => {
       let cameraDepth = 1. /. tan(80. /. 2. *. 3.1459)
       let scale = cameraDepth /. 8.
-      let isOffLeft = (offset > 0. && offset > (halfRoad *. scale))
-        || (offset < 0. && offset < (halfRoad *. scale) *. -1.)
-      let isOffRight = (offset < 0. && offset < (halfRoad *. scale) *. -1. +. carCentre)
-      || (offset > 0. && offset > (halfRoad *. scale) +. carCentre)
-        
+      let isOffLeft =
+        (offset > 0. && offset > halfRoad *. scale) ||
+          (offset < 0. && offset < halfRoad *. scale *. -1.)
+      let isOffRight =
+        (offset < 0. && offset < halfRoad *. scale *. -1. +. carCentre) ||
+          (offset > 0. && offset > halfRoad *. scale +. carCentre)
+
       let offRoadFactor = switch (isOffLeft, isOffRight) {
-        | (true, true) => 1.
-        | (false, false) => 0.3
-        | _ => 0.
+      | (true, true) => 1.
+      | (false, false) => 0.3
+      | _ => 0.
       }
       let isOff = isOffRight || isOffLeft
       let update = state =>
         state.speed > grassMaxSpeed
-          ? {...state, speed: state.speed -. (offRoadFactor *. 0.8)}
-          : {...state, speed: state.speed -. (offRoadFactor *. 0.1)}
+          ? {...state, speed: state.speed -. offRoadFactor *. 0.8}
+          : {...state, speed: state.speed -. offRoadFactor *. 0.1}
 
       isOff ? update(state) : state
     }
@@ -167,14 +155,11 @@ let roadEffect = (direction, incline, state) => {
     }
 
   let hillEffect = state => {
-    let effect = (incline *. 0.01)
+    let effect = incline *. 0.02
 
-    effect != 0. ?
-    {...state, speed: state.speed -. effect} :
-    state
+    effect != 0. ? {...state, speed: state.speed -. effect} : state
   }
-  
-  
+
   state |> cornerEffect |> offTrack |> apexBonus |> hillEffect
 }
 
@@ -196,20 +181,11 @@ let accelerate = (isBrake, state) => {
   {...state, speed: speed}
 }
 
-let init = (x, y, env) => {
-  let loadImage = file => Draw.loadImage(~filename=file, ~isPixel=true, env)
+let init = (x, y) =>
   {
     position: (x, y),
     velocity: 0,
     offset: 0.,
     speed: 0.,
     positionBonus: 0.,
-    assets: {
-      straight: loadImage("assets/car_1.png"),
-      leftTurn: loadImage("assets/car_2.png"),
-      heavyLeftTurn: loadImage("assets/car_3.png"),
-      rightTurn: loadImage("assets/car_4.png"),
-      heavyRightTurn: loadImage("assets/car_5.png"),
-    },
   }
-}
