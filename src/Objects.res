@@ -48,7 +48,7 @@ module Display = {
 
 
   let make = (obj: Track.Obsticle.state) => {
-    let (height, width) = obj.size
+    let (width, height) = obj.size
 
     make(
       ~offset=obj.offset,

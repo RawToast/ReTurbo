@@ -25,17 +25,18 @@ module Obsticle = {
 
   let makeSignRight = {objectType: SIGN_RIGHT, offset: -1.25, z: 0., size: (96, 96)}
   let makeSignLeft = {objectType: SIGN_LEFT, offset: 1.25, z: 0., size: (96, 96)}
+
   let makeTree = (x) => {
     objectType: TREE,
     offset: x,
     z: 0.,
-    size: (128, 208),
+    size: (128, 216),
   }
   let smallTree = (x) => {
     objectType: TREE,
     offset: x,
     z: 0.,
-    size: (64, 104),
+    size: (64, 108),
   }
   let makeStone = (x) => {
     objectType: STONE,
