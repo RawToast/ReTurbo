@@ -1,6 +1,6 @@
 # ReTurbo
 
-![ReTurbo](public/assets/returbo2.gif)
+![ReTurbo](public/assets/returbo3.gif)
 
 Some fun with [Reprocessing](https://github.com/schmavery/reprocessing) and [BsbNative](https://github.com/bsansouci/bsb-native)
 
@@ -18,9 +18,14 @@ After building you could run a static server, like `python -m SimpleHTTPServer` 
 
 Alternatively using webpack: `yarn serve` will host the game at `localhost:8000` 
 
-## Fun Stuff I used
+### Controls
 
-* [Reason](https://reasonml.github.io)
-* [bsb-native](https://github.com/bsansouci/bucklescript)
+Use the arrow keys to turn and brake, whilst space restarts the game. Alternatively, click/touch 
+the edges to turn and the timer to restart. 
+
+## Fun Stuff I used or forked
+
+* [ReScript](https://rescript-lang.org)
 * [Reprocessing](https://github.com/schmavery/reprocessing)
+* [ReasonGl](https://github.com/bsansouci/reasongl-web)
 * [Webpack](https://github.com/webpack/webpack)
