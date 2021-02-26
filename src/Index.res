@@ -35,6 +35,20 @@ let control = state => {
   {...state, car: car}
 }
 
+let handleCollisions = state => {
+  let currentPlane = Road.currentPlane2(state.road)
+  let car = state.car
+  let objects = currentPlane.objects
+
+  let objects = objects |> List.filter(Object.calcHit(car.offset, state.road.position, Common.roadWidth))
+  let penalty = objects |> List.fold_left((a, b) => Object.speedPenalty(b) +. a, 0.)
+
+ 
+  let car = {...car, speed: car.speed -. penalty}
+
+  {...state, car: car}
+}
+
 let updatePosition = state => {
   let position = state.road.position +. Car.progression(state.car)
   let newRoadState = Road.moveForward(position, state.road)
@@ -46,8 +60,7 @@ let updatePosition = state => {
   {...state, road: newRoadState, timer: timer}
 }
 
-let updateScoreAndTimer = state => {
-  let lastPosition = state.road.position
+let updateScoreAndTimer = (lastPosition, state) => {
   let score = Score.increment(state.road.position -. lastPosition, state.score)
   let timer = Timer.reduce(state.timer)
 
@@ -85,9 +98,12 @@ let draw = (state, env) =>
   if Control.isReset(state.control) {
     setup(env)
   } else {
+      let lastPosition = state.road.position
+
     let state = control(state)
+    let state = handleCollisions(state)
     let state = updatePosition(state)
-    let state = updateScoreAndTimer(state)
+    let state = updateScoreAndTimer(lastPosition, state)
 
     drawGame(state, env)
   }

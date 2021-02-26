@@ -38,6 +38,7 @@ module Sprite = {
     roadSignLeft: Reprocessing_Common.imageT,
     tree: Reprocessing_Common.imageT,
     stone: Reprocessing_Common.imageT,
+    post: Reprocessing_Common.imageT,
     car: carAssets,
   }
   type carState =
@@ -52,6 +53,7 @@ module Sprite = {
     | SIGN_LEFT
     | TREE
     | STONE
+    | POST
     | CAR(carState)
 
   type t = {
@@ -68,6 +70,7 @@ module Sprite = {
     | SIGN_LEFT => SIGN_LEFT
     | TREE => TREE
     | STONE => STONE
+    | POST => POST
     }
 
   let fromCar = c =>
@@ -87,6 +90,7 @@ module Sprite = {
       roadSignRight: loadImage("assets/roadsign.png"),
       tree: loadImage("assets/tree.png"),
       stone: loadImage("assets/stone.png"),
+      post: loadImage("assets/post.png"),
       car: {
         straight: loadImage("assets/car_1.png"),
         leftTurn: loadImage("assets/car_2.png"),
@@ -108,6 +112,7 @@ module Sprite = {
     | SIGN_LEFT => Draw.imagef(assets.roadSignLeft, ~pos, ~width, ~height, env)
     | TREE => Draw.imagef(assets.tree, ~pos, ~width, ~height, env)
     | STONE => Draw.imagef(assets.stone, ~pos, ~width, ~height, env)
+    | POST => Draw.imagef(assets.post, ~pos, ~width, ~height, env)
     | CAR(state) =>
       switch state {
       | Straight => draw(assets.car.straight)

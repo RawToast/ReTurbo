@@ -8,6 +8,7 @@ type state = {
 }
 
 let currentPlane = state => Track.head(state.track)
+let currentPlane2 = state => state.track |> Track.tail |> List.hd
 
 let moveForward = (newPosition, state) =>
   float_of_int(state.lastPiece) *. baseLength -. newPosition <= 0.
