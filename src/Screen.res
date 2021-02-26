@@ -3,19 +3,20 @@ type t = {
   road: list<Road.Display.t>,
 }
 
-let cameraHeight = 60.
-let cameraDepth = 1. /. tan(80. /. 2. *. 3.1459)
+let cameraHeight = ref(55.)
+ 
+let cameraDepth = Common.cameraDepth
 
 let projectToScreen = (~offset, x, y, z) => {
-  let iOffset = offset *. 0.06
+  let iOffset = (Common.roadWidth /. 2.) *.  offset *. 0.04
   let cameraX = x +. iOffset
-  let cameraY = y -. cameraHeight
+  let cameraY = y -. cameraHeight.contents
   let cameraZ = z -. 0. // - cameraZ
-  let cameraZ = cameraZ == 0. ? 1. : cameraZ
+  let cameraZ = cameraZ  == 0. ? 1. : cameraZ
 
   let scale = cameraDepth /. cameraZ
 
-  let screenX = Common.centrePoint +. scale *. cameraX *. Common.centrePoint
+  let screenX = Common.centrePoint +. (scale *. cameraX *. Common.centrePoint)
   let screenY = Common.centreHeight -. scale *. cameraY *. Common.centreHeight
 
   let roadWidth = scale *. Common.roadWidth *. (Common.widthF /. 100.)
@@ -104,15 +105,15 @@ module Sprite = {
   let init = env => loadAssets(env)
   let draw = (~sprite, assets, env) => {
     let {x, y, height, width, objectType} = sprite
-    let pos = (x, y)
+    let pos = (x -. (width /. 2.), y)
     let draw = Draw.imagef(_, ~pos, ~width, ~height, env)
 
     switch objectType {
     | SIGN_RIGHT => draw(assets.roadSignRight)
-    | SIGN_LEFT => Draw.imagef(assets.roadSignLeft, ~pos, ~width, ~height, env)
-    | TREE => Draw.imagef(assets.tree, ~pos, ~width, ~height, env)
-    | STONE => Draw.imagef(assets.stone, ~pos, ~width, ~height, env)
-    | POST => Draw.imagef(assets.post, ~pos, ~width, ~height, env)
+    | SIGN_LEFT => draw(assets.roadSignLeft)
+    | TREE => draw(assets.tree)
+    | STONE => draw(assets.stone)
+    | POST => draw(assets.post)
     | CAR(state) =>
       switch state {
       | Straight => draw(assets.car.straight)
@@ -142,9 +143,12 @@ module Quad = {
     let (px, py, pz) = previous
     let (px, py, pw, _) = projectToScreen(~offset, px, py, pz)
     let previous = (px, py, pw)
+    let (ox, oy, ow) = (x -. ((x -. px) /. 2.), y -. ((y -. py) /. 2.), w -. ((w -. pw) /. 2.))
+    // let (ow) = 
+    // let (oy) = 
     let objects = objects |> List.map((o: Object.Display.t) => {
-      Sprite.x: x +. w *. o.offset,
-      y: y -. o.height *. scale,
+      Sprite.x: ox +. ow *. o.offset,
+      y: oy -. o.height *. scale,
       height: o.height *. scale,
       width: o.width *. scale,
       objectType: o.objectType |> Sprite.fromObject,
@@ -175,7 +179,7 @@ module Quad = {
 
       Draw.fill(Utils.color(~r=colour.r, ~g=colour.g, ~b=colour.b, ~a=colour.a), env)
       Draw.quadf(~p1=(px -. pw, py), ~p2=(px +. pw, py), ~p3=(x +. w, y), ~p4=(x -. w, y), env)
-      let (infront, behind) = quad.objects |> List.partition(_a => y < 319.)
+      let (infront, behind) = quad.objects |> List.partition((a: Sprite.t) => a.y < 276.)
       let _infront = infront |> List.map(sprite => Sprite.draw(~sprite, assets, env))
       behind
     } else {
@@ -185,18 +189,21 @@ module Quad = {
 }
 
 let makeCar = (car: Car.Display.t): Sprite.t => {
-  Sprite.x: car.offset,
-  y: Common.heightF -. car.height +. 1.,
-  height: car.height,
-  width: car.width,
-  objectType: car.asset |> Sprite.fromCar,
+  {
+    Sprite.x: Common.centrePoint,
+    y: Common.heightF -. car.height +. 1.,
+    height: car.height,
+    width: car.width,
+    objectType: car.asset |> Sprite.fromCar,
+  }
 }
 
 let draw = (~offset, ~screen, assets, env) => {
   let {road, car} = screen
-
+  let currentTrack = road->Belt.List.headExn
   let projectedRoad =
     road->Belt.List.take(Common.planes)->Belt.Option.getExn |> List.map(Quad.make(~offset))
+  // let firstPiece =
   let projectedCar = car->makeCar
   let behind =
     projectedRoad
