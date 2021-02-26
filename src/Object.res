@@ -1,7 +1,3 @@
-let screenHeightF = Common.heightF
-let baseWidth = Common.roadWidth
-let baseLength = 40.
-
 type objectType =
   | SIGN_RIGHT
   | SIGN_LEFT

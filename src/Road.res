@@ -1,5 +1,5 @@
 /* Road constants */
-let baseLength = 36.
+let baseLength = 40.
 
 type state = {
   position: float,
@@ -76,9 +76,9 @@ module Display = {
       let ddx = ref(0.)
       track |> List.mapi((i, plane: Track.plane) => {
         let i = float_of_int(i)
-        let {direction, obsticles, incline} = plane
+        let {direction, objects, incline} = plane
 
-        let objects = obsticles |> List.map(Object.Display.make)
+        let objects = objects |> List.map(Object.Display.make)
 
         // Calc position
         let findXyz = (~previous, ~remainder, ~direction, ~incline, ~ddx) => {
