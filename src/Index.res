@@ -43,8 +43,8 @@ let handleCollisions = state => {
   let objects = objects |> List.filter(Object.calcHit(car.offset, state.road.position, Common.roadWidth))
   let penalty = objects |> List.fold_left((a, b) => Object.speedPenalty(b) +. a, 0.)
 
- 
-  let car = {...car, speed: car.speed -. penalty}
+  let speed = max(0.,  car.speed -. penalty)
+  let car = {...car, speed: speed}
 
   {...state, car: car}
 }

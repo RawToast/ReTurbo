@@ -84,35 +84,35 @@ module Prefabs = {
     offset: -1.25,
     z: 16.,
     size: (96, 96),
-    hitbox: (96., 4.),
+    hitbox: (48., 4.),
   }
   let makeSignLeft = {
     objectType: SIGN_LEFT,
     offset: 1.25,
     z: 16.,
-    size: (96, 96),
-    hitbox: (96., 5.),
+    size: (92, 92), // 46, 38
+    hitbox: (48., 4.),
   }
   let makeTree = offset => {
     objectType: TREE,
     offset: offset,
     z: 16.,
     size: (128, 216),
-    hitbox: (128., 12.),
+    hitbox: (64., 4.),
   }
   let smallTree = offset => {
     objectType: TREE,
     offset: offset,
     z: 16.,
     size: (64, 108),
-    hitbox: (64., 8.),
+    hitbox: (32., 3.),
   }
   let makeStone = offset => {
     objectType: STONE,
     offset: offset,
     z: 16.,
     size: (64, 64),
-    hitbox: (64., 12.),
+    hitbox: (48., 4.),
   }
   let makePost = offset => {
     objectType: POST,

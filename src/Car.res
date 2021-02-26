@@ -59,7 +59,7 @@ let brakeFactor = 60. *. 1.6 /. (Common.frameRate *. 3.)
 let speedInMph = state => state.speed /. 1.6 |> int_of_float |> string_of_int
 
 let updateOffset = (state, force) => {
-  let offset = state.offset -. (force )
+  let offset = state.offset -. force
   let offset = max(offset, Common.minOffset)
   let offset = min(offset, Common.maxOffset)
 
@@ -103,13 +103,10 @@ let roadEffect = (direction, incline, state) => {
 
     let offRoadAdjustment = state => {
       let cameraDepth = Common.cameraDepth
-      let scale = cameraDepth; // /. 8.
-      let isOffLeft =
-        (offset > 0. && offset > 1.) ||
-          (offset < 0. && offset < -1.)
+      let scale = cameraDepth // /. 8.
+      let isOffLeft = (offset > 0. && offset > 1.) || (offset < 0. && offset < -1.)
       let isOffRight =
-        (offset < 0. && offset < -1. +. carCentre) ||
-          (offset > 0. && offset > 1. +. carCentre)
+        (offset < 0. && offset < -1. +. carCentre) || (offset > 0. && offset > 1. +. carCentre)
 
       let offRoadFactor = switch (isOffLeft, isOffRight) {
       | (true, true) => 1.
@@ -147,8 +144,8 @@ let roadEffect = (direction, incline, state) => {
 
   let cornerEffect = state =>
     switch direction {
-    | Track.Left(force) => (force *. 0.1 *.  state.speed) /. 350. |> updateOffset(state)
-    | Track.Right(force) => (force *. -0.1 *. state.speed) /. 350. |> updateOffset(state)
+    | Track.Left(force) => force *. 0.1 *. state.speed /. 350. |> updateOffset(state)
+    | Track.Right(force) => force *. -0.1 *. state.speed /. 350. |> updateOffset(state)
     | _ => state
     }
 
@@ -179,10 +176,9 @@ let accelerate = (isBrake, state) => {
   {...state, speed: speed}
 }
 
-let init =
-  {
-    velocity: 0,
-    offset: 0.,
-    speed: 0.,
-    positionBonus: 0.,
-  }
+let init = {
+  velocity: 0,
+  offset: 0.,
+  speed: 0.,
+  positionBonus: 0.,
+}
