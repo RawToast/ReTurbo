@@ -4,7 +4,7 @@ type state = {
   velocity: int,
   offset: float,
 }
-// 68, 34
+
 let carWidth = 110
 let carHeight = 55
 
@@ -97,13 +97,10 @@ let progression = state =>
 let roadEffect = (direction, incline, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
   let offTrack = state => {
-    let halfRoad = Common.roadWidth /. 2.
     let carCentre = float_of_int(carWidth) /. 2.1
     let offset = state.offset
 
     let offRoadAdjustment = state => {
-      let cameraDepth = Common.cameraDepth
-      let scale = cameraDepth // /. 8.
       let isOffLeft = (offset > 0. && offset > 1.) || (offset < 0. && offset < -1.)
       let isOffRight =
         (offset < 0. && offset < -1. +. carCentre) || (offset > 0. && offset > 1. +. carCentre)

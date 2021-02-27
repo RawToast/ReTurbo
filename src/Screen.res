@@ -12,7 +12,7 @@ let projectToScreen = (~offset, x, y, z) => {
   let cameraX = x +. iOffset
   let cameraY = y -. cameraHeight.contents
   let cameraZ = z -. 0. // - cameraZ
-  let cameraZ = cameraZ  == 0. ? 1. : cameraZ
+  let cameraZ = cameraZ == 0. ? 1. : cameraZ
 
   let scale = cameraDepth /. cameraZ
 
@@ -143,9 +143,9 @@ module Quad = {
     let (px, py, pz) = previous
     let (px, py, pw, _) = projectToScreen(~offset, px, py, pz)
     let previous = (px, py, pw)
+    // This places objects in the middle. Using x,y,z puts them at the back and px... at the front
     let (ox, oy, ow) = (x -. ((x -. px) /. 2.), y -. ((y -. py) /. 2.), w -. ((w -. pw) /. 2.))
-    // let (ow) = 
-    // let (oy) = 
+
     let objects = objects |> List.map((o: Object.Display.t) => {
       Sprite.x: ox +. ow *. o.offset,
       y: oy -. o.height *. scale,
@@ -200,10 +200,10 @@ let makeCar = (car: Car.Display.t): Sprite.t => {
 
 let draw = (~offset, ~screen, assets, env) => {
   let {road, car} = screen
-  let currentTrack = road->Belt.List.headExn
+
   let projectedRoad =
     road->Belt.List.take(Common.planes)->Belt.Option.getExn |> List.map(Quad.make(~offset))
-  // let firstPiece =
+
   let projectedCar = car->makeCar
   let behind =
     projectedRoad
