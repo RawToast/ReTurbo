@@ -62,20 +62,25 @@ module Display = {
     objects: list<Object.Display.t>,
   }
 
-  %%private(let lightGrey = {r: 68, g: 68, b: 68, a: 255})
-  %%private(let roadBrown = {r: 84, g: 66, b: 33, a: 255})
-  
-  %%private(let darkGrey = {r: 60, g: 60, b: 60, a: 255})
-  %%private(let roadDarkBrown = {r: 70, g: 55, b: 30, a: 255})
-
-
   %%private(let red = {r: 150, g: 80, b: 80, a: 255})
-  %%private(let darkGreen = {r: 30, g: 120, b: 30, a: 255})
+
+  %%private(let lightGrey = {r: 78, g: 78, b: 78, a: 255})
+  %%private(let darkGrey = {r: 70, g: 70, b: 70, a: 255})
+  
+  %%private(let roadLightGrey = {r: 62, g: 62, b: 62, a: 255})
+  %%private(let roadDarkGrey = {r: 56, g: 56, b: 56, a: 255})
+
+  %%private(let roadBrown = {r: 84, g: 66, b: 33, a: 255})
+  %%private(let roadDarkBrown = {r: 70, g: 55, b: 30, a: 255})
+  
   %%private(let lightGreen = {r: 45, g: 140, b: 30, a: 255})
-  %%private(let lightBrown = {r: 84, g: 60, b: 33, a: 255})
+  %%private(let darkGreen = {r: 30, g: 120, b: 30, a: 255})
+  
+  %%private(let lightBrown = {r: 82, g: 59, b: 32, a: 255})
   %%private(let darkBrown = {r: 70, g: 50, b: 30, a: 255})
-  %%private(let darkBlue = {r: 36, g: 32, b: 130, a: 255}) 
+  
   %%private(let lightBlue = {r: 45, g: 40, b: 140, a: 255})
+  %%private(let darkBlue = {r: 36, g: 32, b: 130, a: 255}) 
   
   let make = (~offset, state) => {
     let (_, _, remainder, isLight) = findInitialCoordinates(offset, state)
@@ -133,12 +138,13 @@ module Display = {
         | Grass => dark ? darkGreen : lightGreen
         | Soil => dark ? darkBrown : lightBrown
         | Water => dark ? darkBlue : lightBlue
+        | Gravel => dark ? darkGrey : lightGrey
         }
 
         let colour = switch roadSurface {
           | _ when isCheckpoint => red
-          | Tarmac when dark => lightGrey 
-          | Tarmac => darkGrey
+          | Tarmac when dark => roadLightGrey 
+          | Tarmac => roadDarkGrey
           | Dirt when dark => roadBrown 
           | Dirt => roadDarkBrown 
         }
