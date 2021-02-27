@@ -10,11 +10,22 @@ let bunchOfSmallTrees = (offset1, offset2, offset3) => list{
   Object.Prefabs.smallTree(offset3),
 }
 
+type roadSurface =
+  | Tarmac
+  | Dirt
+
+type groundSurface =
+  | Grass
+  | Soil
+  | Water
+
 type plane = {
   direction: direction,
   objects: list<Object.state>,
   incline: float,
-}
+  roadSurface,
+  groundSurface
+} 
 
 type state = {track: list<plane>}
 
@@ -28,11 +39,11 @@ let demoTrack = {
   let hc1 = 0.4
   let hc2 = 0.6
 
-  let makeCheckpoint = (~incline=0., duration: int) => list{
-    {direction: Checkpoint(duration), objects: list{}, incline: incline},
+  let makeCheckpoint = (~incline=0., ~roadSurface=Tarmac, ~groundSurface=Grass, duration: int) => list{
+    {direction: Checkpoint(duration), objects: list{}, incline, roadSurface, groundSurface},
   }
-  let make = (~times=1, ~objects=list{}, ~incline=0., road) =>
-    Array.make(times, {direction: road, objects: objects, incline: incline}) |> Array.to_list
+  let make = (~times=1, ~objects=list{}, ~incline=0., ~roadSurface=Tarmac, ~groundSurface=Grass, direction) =>
+    Array.make(times, {direction, objects, incline, roadSurface, groundSurface}) |> Array.to_list
 
   make(~times=3, Straight)
   ->List.append(make(~times=2, ~incline=0.5, Straight))
@@ -41,9 +52,9 @@ let demoTrack = {
   ->List.append(
     make(~times=1, ~objects=list{smallTree(1.17), makeTree(1.55)}, ~incline=-3., Straight),
   )
-  ->List.append(make(~times=1, ~incline=-4., ~objects=list{}, Straight))
-  ->List.append(make(~times=1, ~incline=-5., ~objects=list{}, Straight))
-  ->List.append(make(~times=8, ~incline=-6., Straight))
+  ->List.append(make(~times=1, ~incline=-4., ~roadSurface=Dirt, ~groundSurface=Soil, Straight))
+  ->List.append(make(~times=1, ~incline=-5., ~roadSurface=Dirt, ~groundSurface=Soil, Straight))
+  ->List.append(make(~times=8, ~incline=-6., ~roadSurface=Dirt, ~groundSurface=Soil, Straight))
   ->List.append(make(~times=8, ~incline=-5., Straight))
   ->List.append(make(~times=4, ~incline=-4., ~objects=bunchOfSmallTrees(1.3, 1.5, 1.7), Straight))
   ->List.append(make(~times=2, ~incline=-3., Straight))
