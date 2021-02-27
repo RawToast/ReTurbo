@@ -90,7 +90,7 @@ module Prefabs = {
     objectType: SIGN_LEFT,
     offset: 1.25,
     z: 16.,
-    size: (92, 92), // 46, 38
+    size: (92, 92),
     hitbox: (48., 4.),
   }
   let makeTree = offset => {
