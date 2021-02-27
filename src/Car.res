@@ -1,13 +1,12 @@
 type state = {
-  position: (int, int),
   speed: float,
   positionBonus: float,
   velocity: int,
   offset: float,
 }
 
-let carWidth = 105
-let carHeight = 53
+let carWidth = 110
+let carHeight = 55
 
 module Display = {
   type asset =
@@ -34,10 +33,9 @@ module Display = {
     | _ if car.velocity < 0 => LeftTurn
     | _ => Straight
     }
-    let (x, _) = car.position
 
     {
-      offset: float_of_int(x),
+      offset: car.offset,
       asset: asset,
       width: float_of_int(carWidth),
       height: float_of_int(carHeight),
@@ -69,7 +67,7 @@ let updateOffset = (state, force) => {
 }
 
 let turn = (key: Control.turn, state: state) => {
-  let updateOffsetUsingForce = s => updateOffset(s, float_of_int(s.velocity) /. 2.)
+  let updateOffsetUsingForce = s => updateOffset(s, float_of_int(s.velocity) /. 700.)
   let highSpeed = state.speed > 176. && state.speed < 200.
   let vHighSpeed = state.speed > 200.
   let updateVelocity = amount => {
@@ -99,19 +97,13 @@ let progression = state =>
 let roadEffect = (direction, incline, state) => {
   /* Current max velocity is 6, curves are from 0.08 to 0.6 */
   let offTrack = state => {
-    let halfRoad = Common.roadWidth /. 2.
     let carCentre = float_of_int(carWidth) /. 2.1
     let offset = state.offset
 
     let offRoadAdjustment = state => {
-      let cameraDepth = 1. /. tan(80. /. 2. *. 3.1459)
-      let scale = cameraDepth /. 8.
-      let isOffLeft =
-        (offset > 0. && offset > halfRoad *. scale) ||
-          (offset < 0. && offset < halfRoad *. scale *. -1.)
+      let isOffLeft = (offset > 0. && offset > 1.) || (offset < 0. && offset < -1.)
       let isOffRight =
-        (offset < 0. && offset < halfRoad *. scale *. -1. +. carCentre) ||
-          (offset > 0. && offset > halfRoad *. scale +. carCentre)
+        (offset < 0. && offset < -1. +. carCentre) || (offset > 0. && offset > 1. +. carCentre)
 
       let offRoadFactor = switch (isOffLeft, isOffRight) {
       | (true, true) => 1.
@@ -149,8 +141,8 @@ let roadEffect = (direction, incline, state) => {
 
   let cornerEffect = state =>
     switch direction {
-    | Track.Left(force) => force *. 0.1 *. state.speed |> updateOffset(state)
-    | Track.Right(force) => force *. -0.1 *. state.speed |> updateOffset(state)
+    | Track.Left(force) => force *. 0.1 *. state.speed /. 350. |> updateOffset(state)
+    | Track.Right(force) => force *. -0.1 *. state.speed /. 350. |> updateOffset(state)
     | _ => state
     }
 
@@ -181,11 +173,9 @@ let accelerate = (isBrake, state) => {
   {...state, speed: speed}
 }
 
-let init = (x, y) =>
-  {
-    position: (x, y),
-    velocity: 0,
-    offset: 0.,
-    speed: 0.,
-    positionBonus: 0.,
-  }
+let init = {
+  velocity: 0,
+  offset: 0.,
+  speed: 0.,
+  positionBonus: 0.,
+}

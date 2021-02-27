@@ -13,12 +13,12 @@ type state = {
 let setup = env => {
   Env.size(~width, ~height, env)
   {
-    car: Car.init(width / 2 - 30, height - Car.carHeight + 1),
+    car: Car.init,
     road: Road.init,
     control: Control.init,
     timer: Timer.init,
     score: Score.init,
-    assets: Screen.Sprite.init(env)
+    assets: Screen.Sprite.init(env),
   }
 }
 
@@ -28,8 +28,28 @@ let control = state => {
   let isBrake = Control.isBrake(state.control) || Timer.gameOver(state.timer) ? true : false
   let turn = Control.getTurn(state.control)
   let car =
-    Car.turn(turn, state.car) |> Car.roadEffect(currentRoadDirection, currentIncline) |> Car.accelerate(isBrake)
+    Car.turn(turn, state.car)
+    |> Car.roadEffect(currentRoadDirection, currentIncline)
+    |> Car.accelerate(isBrake)
 
+  {...state, car: car}
+}
+
+let handleCollisions = state => {
+  let currentPlane = Road.currentPlane2(state.road)
+  let car = state.car
+  let objects = currentPlane.objects
+
+  let objects = objects |> List.filter(Object.calcHit(car.offset, state.road.position, Common.roadWidth))
+  let penalty = objects |> List.fold_left((a, b) => Object.speedPenalty(b) +. a, 0.)
+
+  let speed = max(0.,  car.speed -. penalty)
+  let car = {...car, speed: speed}
+
+  {...state, car: car}
+}
+
+let updatePosition = state => {
   let position = state.road.position +. Car.progression(state.car)
   let newRoadState = Road.moveForward(position, state.road)
 
@@ -37,7 +57,14 @@ let control = state => {
     state.road.lastPiece != newRoadState.lastPiece ? Road.checkpointBonus(newRoadState) : 0
   let timer = Timer.addTimeInSeconds(checkpointBonus, state.timer)
 
-  {...state, car: car, road: newRoadState, timer: timer}
+  {...state, road: newRoadState, timer: timer}
+}
+
+let updateScoreAndTimer = (lastPosition, state) => {
+  let score = Score.increment(state.road.position -. lastPosition, state.score)
+  let timer = Timer.reduce(state.timer)
+
+  {...state, score: score, timer: timer}
 }
 
 let drawSky = env => {
@@ -71,11 +98,13 @@ let draw = (state, env) =>
   if Control.isReset(state.control) {
     setup(env)
   } else {
-    let lastPosition = state.road.position
+      let lastPosition = state.road.position
+
     let state = control(state)
-    let score = Score.increment(state.road.position -. lastPosition, state.score)
-    let timer = Timer.reduce(state.timer)
-    let state = {...state, timer: timer, score: score}
+    let state = handleCollisions(state)
+    let state = updatePosition(state)
+    let state = updateScoreAndTimer(lastPosition, state)
+
     drawGame(state, env)
   }
 
