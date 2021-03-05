@@ -31,6 +31,16 @@ let checkpointBonus = state =>
       | _ => 0
       }
   )
+let startTime = state =>
+  state.track
+  |> Track.head
+  |> (
+    p =>
+      switch p.direction {
+      | Track.Start(t) => t
+      | _ => 0
+      }
+  )
 let init = {position: 0., track: Track.init, lastPiece: 1}
 
 %%private(let findInitialCoordinates = (offset, state) => {

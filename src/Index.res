@@ -16,7 +16,7 @@ let setup = env => {
     car: Car.init,
     road: Road.init,
     control: Control.init,
-    timer: Timer.init,
+    timer: Timer.init(),
     score: Score.init,
     assets: Screen.Sprite.init(env),
   }
@@ -56,6 +56,15 @@ let updatePosition = state => {
   let checkpointBonus =
     state.road.lastPiece != newRoadState.lastPiece ? Road.checkpointBonus(newRoadState) : 0
   let timer = Timer.addTimeInSeconds(checkpointBonus, state.timer)
+  let startTime =
+    state.road.lastPiece != newRoadState.lastPiece ? Road.startTime(newRoadState) : 00
+  
+  let timer = if (startTime != 0) {
+     Timer.init(~time=float_of_int(startTime), ())
+  } else {
+    timer
+  }
+  // let timer = Timer.addTimeInSeconds(checkpointBonus, state.timer)
 
   {...state, road: newRoadState, timer: timer}
 }
