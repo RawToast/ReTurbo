@@ -599,12 +599,17 @@ let track = demoTrack |> List.mapi((i, road) => {
   roll.contents >= t
     ? {
         reroll()
-        {
+        if (road.groundSurface!=Water) {
+          {
           ...road,
           objects: road.objects |> List.append(list{
             Object.Prefabs.makeTree(positions[roll.contents - 1]),
           }),
         }
+        } else {
+road
+        }
+        
       }
     : road
 })
