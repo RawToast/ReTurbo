@@ -7,7 +7,8 @@
     "webpack": "webpack --mode production",
     "serve": "webpack-dev-server --hot --open",
     "start": "run-p build serve",
-    "to-test-env": "run-s build webpack"
+    "to-test-env": "run-s build webpack",
+    "clean-start": "run-s clean build serve"
   },
   "dependencies": {
     "reprocessing": "github:RawToast/reprocessing#ml"
