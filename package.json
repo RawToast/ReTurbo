@@ -1,9 +1,9 @@
 {
   "name": "re-turbo",
   "scripts": {
-    "build": "bsb -make-world",
-    "clean": "bsb -clean-world && rimraf dist/",
-    "refmt": "bsrefmt src/* --in-place",
+    "build": "rescript build -with-deps",
+    "clean": "rescript clean && rimraf dist/",
+    "refmt": "rescript format src/*",
     "webpack": "webpack --mode production",
     "serve": "webpack-dev-server --hot --open",
     "start": "run-p build serve",
@@ -14,9 +14,9 @@
     "reprocessing": "github:RawToast/reprocessing#ml"
   },
   "devDependencies": {
-    "bs-platform": "^9.0.1",
     "copy-webpack-plugin": "^5.0.4",
     "npm-run-all": "^4.1.5",
+    "rescript": "9.1.4",
     "rimraf": "^3.0.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
