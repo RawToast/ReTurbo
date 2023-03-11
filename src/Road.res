@@ -164,8 +164,8 @@ module Display = {
           y: y,
           z: z,
           previous: prev,
-          colour: isCheckpoint ? red : isDark.contents ? lightGrey : darkGrey,
-          terrainColour: isDark.contents ? darkGreen : lightGreen,
+          colour: colour,
+          terrainColour: terrainColour,
           objects: objects,
         }
 
