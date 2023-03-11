@@ -1,7 +1,8 @@
 type state = {
   speed: float,
   positionBonus: float,
-  velocity: int,
+  velocity: float,
+  // slide: option(float),
   offset: float,
 }
 
@@ -26,11 +27,11 @@ module Display = {
 
   let make = car => {
     let asset = switch car.velocity {
-    | _ if car.velocity == 0 => Straight
-    | _ if car.velocity > 6 => HeavyRightTurn
-    | _ if car.velocity > 0 => RightTurn
-    | _ if car.velocity < -6 => HeavyLeftTurn
-    | _ if car.velocity < 0 => LeftTurn
+    | _ if car.velocity == 0. => Straight
+    | _ if car.velocity > 12. => HeavyRightTurn
+    | _ if car.velocity > 0.2 => RightTurn
+    | _ if car.velocity < -12. => HeavyLeftTurn
+    | _ if car.velocity < 0.2 => LeftTurn
     | _ => Straight
     }
 
@@ -67,26 +68,28 @@ let updateOffset = (state, force) => {
 }
 
 let turn = (key: Control.turn, state: state) => {
-  let updateOffsetUsingForce = s => updateOffset(s, float_of_int(s.velocity) /. 700.)
+  let updateOffsetUsingForce = s => updateOffset(s, s.velocity /. 700.)
   let highSpeed = state.speed > 176. && state.speed < 200.
   let vHighSpeed = state.speed > 200.
   let updateVelocity = amount => {
+    let velocity = state.velocity +. amount
+    {
     ...state,
-    velocity: state.velocity + amount,
-  }
+    velocity: velocity >= -0.5 && velocity <= 0.5 ? 0. : velocity,
+  }}
   switch key {
-  | LEFT if state.velocity > -12 && vHighSpeed => updateVelocity(-1)
-  | LEFT if state.velocity > -13 && highSpeed => updateVelocity(-1)
-  | LEFT if state.velocity > -14 => updateVelocity(-1)
-  | P_LEFT if state.velocity > -16 && vHighSpeed => updateVelocity(-2)
-  | P_LEFT if state.velocity > -14 => updateVelocity(-2)
-  | RIGHT if state.velocity < 12 && vHighSpeed => updateVelocity(1)
-  | RIGHT if state.velocity < 13 && highSpeed => updateVelocity(1)
-  | RIGHT if state.velocity < 14 => updateVelocity(1)
-  | P_RIGHT if state.velocity < 16 && vHighSpeed => updateVelocity(2)
-  | P_RIGHT if state.velocity < 14 => updateVelocity(2)
-  | _ if state.velocity > 0 => updateVelocity(-1)
-  | _ if state.velocity < 0 => updateVelocity(1)
+  | LEFT if state.velocity > -12. && vHighSpeed => updateVelocity(-0.8)
+  | LEFT if state.velocity > -13. && highSpeed => updateVelocity(-0.9)
+  | LEFT if state.velocity > -14. => updateVelocity(-1.)
+  | P_LEFT if state.velocity > -18. && vHighSpeed => updateVelocity(-2.)
+  | P_LEFT if state.velocity > -16. => updateVelocity(-3.5)
+  | RIGHT if state.velocity < 12. && vHighSpeed => updateVelocity(0.8)
+  | RIGHT if state.velocity < 13. && highSpeed => updateVelocity(0.9)
+  | RIGHT if state.velocity < 14. => updateVelocity(1.)
+  | P_RIGHT if state.velocity < 18. && vHighSpeed => updateVelocity(2.)
+  | P_RIGHT if state.velocity < 16. => updateVelocity(3.5)
+  | _ if state.velocity > 0. => updateVelocity(-1.)
+  | _ if state.velocity < 0. => updateVelocity(1.)
   | _ => state
   } |> updateOffsetUsingForce
 }
@@ -147,6 +150,7 @@ let roadEffect = (direction, incline, state) => {
     }
 
   let hillEffect = state => {
+    let incline = incline > 0. ? incline *. 0.5 : incline
     let effect = incline *. 0.02
 
     effect != 0. ? {...state, speed: state.speed -. effect} : state
@@ -158,7 +162,7 @@ let roadEffect = (direction, incline, state) => {
 let accelerate = (isBrake, state) => {
   let accel = switch state.speed {
   | _ if maxSpeed == state.speed => maxSpeed
-  | _ if vLowSpeed > state.speed => log((highSpeed -. state.speed) /. 6.) /. 8.
+  | _ if vLowSpeed > state.speed => log((highSpeed -. state.speed) /. 4.) /. 8.
   | _ if lowSpeed > state.speed => log((highSpeed -. state.speed) /. 8.) /. 12.
   | _ if midSpeed > state.speed => log((vHighSpeed -. state.speed) /. 10.) /. 20.
   | _ if highSpeed > state.speed => log((maxSpeed -. state.speed) /. 12.) /. 22.
@@ -174,7 +178,7 @@ let accelerate = (isBrake, state) => {
 }
 
 let init = {
-  velocity: 0,
+  velocity: 0.,
   offset: 0.,
   speed: 0.,
   positionBonus: 0.,

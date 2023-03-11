@@ -8,7 +8,9 @@
     "serve": "webpack-dev-server --hot --open",
     "start": "run-p build serve",
     "to-test-env": "run-s build webpack",
-    "clean-start": "run-s clean build serve"
+    "clean-start": "run-s clean build serve",
+    "watch": "rescript build -w -with-deps",
+    "dev": "run-p watch serve"
   },
   "dependencies": {
     "reprocessing": "github:RawToast/reprocessing#ml"

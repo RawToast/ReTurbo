@@ -31,6 +31,16 @@ let checkpointBonus = state =>
       | _ => 0
       }
   )
+let startTime = state =>
+  state.track
+  |> Track.head
+  |> (
+    p =>
+      switch p.direction {
+      | Track.Start(t) => t
+      | _ => 0
+      }
+  )
 let init = {position: 0., track: Track.init, lastPiece: 1}
 
 %%private(
@@ -62,12 +72,26 @@ module Display = {
     objects: list<Object.Display.t>,
   }
 
-  %%private(let darkGrey = {r: 60, g: 60, b: 60, a: 255})
-  %%private(let lightGrey = {r: 68, g: 68, b: 68, a: 255})
   %%private(let red = {r: 150, g: 80, b: 80, a: 255})
-  %%private(let darkGreen = {r: 30, g: 120, b: 30, a: 255})
-  %%private(let lightGreen = {r: 45, g: 140, b: 30, a: 255})
 
+  %%private(let lightGrey = {r: 78, g: 78, b: 78, a: 255})
+  %%private(let darkGrey = {r: 70, g: 70, b: 70, a: 255})
+  
+  %%private(let roadLightGrey = {r: 62, g: 62, b: 62, a: 255})
+  %%private(let roadDarkGrey = {r: 56, g: 56, b: 56, a: 255})
+
+  %%private(let roadBrown = {r: 84, g: 66, b: 33, a: 255})
+  %%private(let roadDarkBrown = {r: 70, g: 55, b: 30, a: 255})
+  
+  %%private(let lightGreen = {r: 45, g: 140, b: 30, a: 255})
+  %%private(let darkGreen = {r: 30, g: 120, b: 30, a: 255})
+  
+  %%private(let lightBrown = {r: 82, g: 59, b: 32, a: 255})
+  %%private(let darkBrown = {r: 70, g: 50, b: 30, a: 255})
+  
+  %%private(let lightBlue = {r: 45, g: 40, b: 140, a: 255})
+  %%private(let darkBlue = {r: 36, g: 32, b: 130, a: 255}) 
+  
   let make = (~offset, state) => {
     let (_, _, remainder, isLight) = findInitialCoordinates(offset, state)
     // let iOffset = int_of_float(offset *. 0.4) /* interesting */
@@ -78,7 +102,7 @@ module Display = {
       let ddx = ref(0.)
       track |> List.mapi((i, plane: Track.plane) => {
         let i = float_of_int(i)
-        let {direction, objects, incline} = plane
+        let {direction, objects, incline, roadSurface, groundSurface} = plane
 
         let objects = objects |> List.map(Object.Display.make)
 
@@ -117,13 +141,31 @@ module Display = {
         ddx := newddx
 
         let isCheckpoint = Track.isCheckpoint(plane)
+
+        let dark = isDark.contents
+
+        let terrainColour = switch groundSurface {
+        | Grass => dark ? darkGreen : lightGreen
+        | Soil => dark ? darkBrown : lightBrown
+        | Water => dark ? darkBlue : lightBlue
+        | Gravel => dark ? darkGrey : lightGrey
+        }
+
+        let colour = switch roadSurface {
+          | _ when isCheckpoint => red
+          | Tarmac when dark => roadLightGrey 
+          | Tarmac => roadDarkGrey
+          | Dirt when dark => roadBrown 
+          | Dirt => roadDarkBrown 
+        }
+
         let result = {
           x: x,
           y: y,
           z: z,
           previous: prev,
-          colour: isCheckpoint ? red : isDark.contents ? lightGrey : darkGrey,
-          terrainColour: isDark.contents ? darkGreen : lightGreen,
+          colour: colour,
+          terrainColour: terrainColour,
           objects: objects,
         }
 
