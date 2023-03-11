@@ -75,7 +75,7 @@ let turn = (key: Control.turn, state: state) => {
     let velocity = state.velocity +. amount
     {
     ...state,
-    velocity: velocity >= -0.5 &&| velocity <= 0.5 ? 0. : velocity,
+    velocity: velocity >= -0.5 && velocity <= 0.5 ? 0. : velocity,
   }}
   switch key {
   | LEFT if state.velocity > -12. && vHighSpeed => updateVelocity(-0.8)
