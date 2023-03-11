@@ -4,11 +4,11 @@ type t = {
 }
 
 let cameraHeight = ref(55.)
- 
+
 let cameraDepth = Common.cameraDepth
 
 let projectToScreen = (~offset, x, y, z) => {
-  let iOffset = (Common.roadWidth /. 2.) *.  offset *. 0.04
+  let iOffset = Common.roadWidth /. 2. *. offset *. 0.04
   let cameraX = x +. iOffset
   let cameraY = y -. cameraHeight.contents
   let cameraZ = z -. 0. // - cameraZ
@@ -16,7 +16,7 @@ let projectToScreen = (~offset, x, y, z) => {
 
   let scale = cameraDepth /. cameraZ
 
-  let screenX = Common.centrePoint +. (scale *. cameraX *. Common.centrePoint)
+  let screenX = Common.centrePoint +. scale *. cameraX *. Common.centrePoint
   let screenY = Common.centreHeight -. scale *. cameraY *. Common.centreHeight
 
   let roadWidth = scale *. Common.roadWidth *. (Common.widthF /. 100.)
@@ -105,7 +105,7 @@ module Sprite = {
   let init = env => loadAssets(env)
   let draw = (~sprite, assets, env) => {
     let {x, y, height, width, objectType} = sprite
-    let pos = (x -. (width /. 2.), y)
+    let pos = (x -. width /. 2., y)
     let draw = Draw.imagef(_, ~pos, ~width, ~height, env)
 
     switch objectType {
@@ -144,7 +144,7 @@ module Quad = {
     let (px, py, pw, _) = projectToScreen(~offset, px, py, pz)
     let previous = (px, py, pw)
     // This places objects in the middle. Using x,y,z puts them at the back and px... at the front
-    let (ox, oy, ow) = (x -. ((x -. px) /. 2.), y -. ((y -. py) /. 2.), w -. ((w -. pw) /. 2.))
+    let (ox, oy, ow) = (x -. (x -. px) /. 2., y -. (y -. py) /. 2., w -. (w -. pw) /. 2.)
 
     let objects = objects |> List.map((o: Object.Display.t) => {
       Sprite.x: ox +. ow *. o.offset,
@@ -215,5 +215,5 @@ let draw = (~offset, ~screen, assets, env) => {
 
   Sprite.draw(~sprite=projectedCar, assets, env)
 
-  behind -> Belt.List.forEach(sprite => Sprite.draw(~sprite, assets, env))
+  behind->Belt.List.forEach(sprite => Sprite.draw(~sprite, assets, env))
 }

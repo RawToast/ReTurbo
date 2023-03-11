@@ -33,16 +33,17 @@ let checkpointBonus = state =>
   )
 let init = {position: 0., track: Track.init, lastPiece: 1}
 
-%%private(let findInitialCoordinates = (offset, state) => {
-  let (isLight, remainder) = {
-    let adj = mod_float(state.position, baseLength *. 2.)
-    adj >= baseLength ? (true, adj -. baseLength) : (false, adj)
+%%private(
+  let findInitialCoordinates = (offset, state) => {
+    let (isLight, remainder) = {
+      let adj = mod_float(state.position, baseLength *. 2.)
+      adj >= baseLength ? (true, adj -. baseLength) : (false, adj)
+    }
+    let x0 = Common.centrePoint -. Common.roadWidth /. 2. +. offset
+    let x1 = Common.centrePoint +. Common.roadWidth /. 2. +. offset
+    (x0, x1, remainder, isLight)
   }
-  let x0 = Common.centrePoint -. Common.roadWidth /. 2. +. offset
-  let x1 = Common.centrePoint +. Common.roadWidth /. 2. +. offset
-  (x0, x1, remainder, isLight)
-})
-
+)
 
 module Display = {
   type colour = {
@@ -103,8 +104,14 @@ module Display = {
 
           ((x, y, z), ddx, prev)
         }
-        
-        let ((x, y, z), newddx, prev) = findXyz(~previous=previous.contents, ~remainder, ~direction, ~incline, ~ddx=ddx.contents)
+
+        let ((x, y, z), newddx, prev) = findXyz(
+          ~previous=previous.contents,
+          ~remainder,
+          ~direction,
+          ~incline,
+          ~ddx=ddx.contents,
+        )
 
         previous := Some((x, y, z))
         ddx := newddx
@@ -117,7 +124,7 @@ module Display = {
           previous: prev,
           colour: isCheckpoint ? red : isDark.contents ? lightGrey : darkGrey,
           terrainColour: isDark.contents ? darkGreen : lightGreen,
-          objects
+          objects: objects,
         }
 
         isDark := !isDark.contents

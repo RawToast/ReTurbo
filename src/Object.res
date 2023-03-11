@@ -14,8 +14,7 @@ type state = {
 }
 
 let calcHit = (playerPosition, distance, roadWidth, obj) => {
-
-  let carSizeFactor = 55./. roadWidth
+  let carSizeFactor = 55. /. roadWidth
   let playerOffset = playerPosition *. -1.
 
   let (playerOff1, playerOff2) = (playerOffset -. carSizeFactor, playerOffset +. carSizeFactor)
@@ -23,18 +22,18 @@ let calcHit = (playerPosition, distance, roadWidth, obj) => {
   let playerTravel = adj >= 40. ? adj -. 40. : adj
 
   let {objectType: _, offset, z, size: _, hitbox: (hbX, hbY)} = obj
-  let factor = hbX /. roadWidth 
+  let factor = hbX /. roadWidth
 
-  let x1 = offset -. (factor /. 2.)
-  let x2 = offset +. (factor /. 2.)
+  let x1 = offset -. factor /. 2.
+  let x2 = offset +. factor /. 2.
   let hbY = hbY *. 0.5
 
-  let y1 = (z -.hbY) *. 0.5
+  let y1 = (z -. hbY) *. 0.5
   let y2 = z
   let inHbX = playerOff2 >= x1 && playerOff1 <= x2
-  let inHbY = (playerTravel >= y1 && playerTravel <= y2)
+  let inHbY = playerTravel >= y1 && playerTravel <= y2
 
-  inHbX  && inHbY
+  inHbX && inHbY
 }
 
 let speedPenalty = obj =>

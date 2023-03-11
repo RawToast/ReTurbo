@@ -541,11 +541,6 @@ browserify-zlib@^0.2.0:
   dependencies:
     pako "~1.0.5"
 
-bs-platform@^9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-9.0.1.tgz#069dae007aadb400963cec25c8349ea1f3f6cae0"
-  integrity sha512-RxUrwxVBCx9AiiyFIthZwfPn+tAn9noRHCb9xJK4Uw2deGxIytqyoWDepMbH35v7EpxX0OhfXL5RrjHTaXersA==
-
 buffer-from@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5"
@@ -3118,6 +3113,11 @@ requires-port@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
+
+rescript@9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/rescript/-/rescript-9.1.0.tgz#efc1995212a624035a81548e40f042e2d3cadf2b"
+  integrity sha512-KHBM5SRk4aauUzeDCT3EB5kjly36Olkv+8jmurVJxJAa6L7Sz6AJXzmgZA0cU65/nvdi3InhpNSuxTsDlPj/3A==
 
 resolve-cwd@^2.0.0:
   version "2.0.0"
