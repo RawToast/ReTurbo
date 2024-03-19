@@ -7,7 +7,7 @@
     "main-module": "Index"
   }],
   "package-specs": {
-    "module": "commonjs"
+    "module": "es6"
   },
   "refmt": 3
 }
