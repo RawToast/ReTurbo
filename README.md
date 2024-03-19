@@ -12,15 +12,15 @@ Some fun with [Reprocessing](https://github.com/schmavery/reprocessing) and [Bsb
 
 ### Build
 
-`yarn build`
+`yarn build` and `yarn vite:build`
 
 ### Start
 
-There are two ways to try this out:
+There are a few ways to try this out:
 
 After building you could run a static server, like `python -m SimpleHTTPServer` and go to `localhost:8000`. Or you're using safari you can simply open the `index.html` and tick `Develop > Disable Cross-Origin Restrictions`.
 
-Alternatively using webpack: `yarn serve` will host the game at `localhost:8000`
+Alternatively using Vite: `yarn preview` will host the game at `localhost:4173`
 
 ### Controls
 
