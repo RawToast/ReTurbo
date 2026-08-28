@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   publicDir: "public",
+  optimizeDeps: {
+    entries: ["index.html", "src/**/*.ts"],
+  },
   build: {
     outDir: "dist",
     sourcemap: true,
