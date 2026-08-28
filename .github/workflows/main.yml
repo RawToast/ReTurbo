@@ -11,20 +11,25 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set Node.js 20.x
-        uses: actions/setup-node@v3
+      - name: Set Node.js 22.x
+        uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22
+          cache: npm
 
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format
+        run: npm run fmt:check
+
       - name: Build
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: build # will run `yarn build`
+        run: npm run build

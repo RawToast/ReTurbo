@@ -1,22 +1,23 @@
 {
   "name": "re-turbo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "build": "rescript build -with-deps",
-    "clean": "rescript clean && rimraf dist/",
-    "refmt": "rescript format src/*",
     "dev": "vite",
-    "vite:build": "vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.ts\""
-  },
-  "dependencies": {
-    "reprocessing": "github:RawToast/reprocessing#ml"
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint --fix src",
+    "fmt": "oxfmt src index.html package.json tsconfig.json vite.config.ts",
+    "fmt:check": "oxfmt --check src index.html package.json tsconfig.json vite.config.ts",
+    "check": "tsc --noEmit && oxlint src && oxfmt --check src"
   },
   "devDependencies": {
-    "rescript": "^10.1.3",
-    "rimraf": "^3.0.0",
-    "vite": "^5.1.6"
-  },
-  "packageManager": "yarn@4.1.1",
-  "version": "0.0.0"
+    "oxfmt": "^0.16.0",
+    "oxlint": "^1.28.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
 }

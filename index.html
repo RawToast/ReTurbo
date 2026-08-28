@@ -1,9 +1,51 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>ReTurbo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overflow: hidden;
+        display: flex;
+        flex-wrap: wrap;
+        background-color: #222;
+      }
+      #gameContainer canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+      div#webgl-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 80%;
+        min-height: 320px;
+        max-height: 480px;
+        min-width: 568px;
+        max-width: 852px;
+      }
+      #gameContainer {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
-    <script src="lib/es6/src/Index.js" type="module" data-project-root="./"></script>
+    <div id="webgl-content">
+      <div id="gameContainer">
+        <canvas id="game"></canvas>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
