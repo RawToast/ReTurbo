@@ -1,0 +1,22 @@
+{
+  "name": "ReTurbo",
+  "install": "yarn install --frozen-lockfile && yarn build",
+  "terminals": [
+    {
+      "name": "rescript",
+      "command": "yarn rescript build -w -with-deps",
+      "description": "Watches src/*.res and recompiles to lib/es6 on change."
+    },
+    {
+      "name": "vite",
+      "command": "yarn dev --host 0.0.0.0",
+      "description": "Vite dev server for the ReTurbo game (http://localhost:5173)."
+    }
+  ],
+  "ports": [
+    {
+      "name": "vite",
+      "port": 5173
+    }
+  ]
+}
