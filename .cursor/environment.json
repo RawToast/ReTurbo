@@ -1,6 +1,6 @@
 {
   "name": "ReTurbo",
-  "install": "yarn install --frozen-lockfile && yarn build",
+  "install": "yarn install --frozen-lockfile && yarn rescript clean -with-deps && yarn build",
   "terminals": [
     {
       "name": "rescript",
